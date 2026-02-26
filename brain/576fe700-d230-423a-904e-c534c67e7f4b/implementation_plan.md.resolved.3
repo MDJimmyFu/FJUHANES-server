@@ -1,0 +1,20 @@
+# Incremental Detail Loading Plan
+
+The goal is to prevent the UI from hanging by fetching and rendering data in smaller chunks.
+
+## Proposed Changes
+
+### [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- Modify `/api/details` to accept a `section` parameter ([vitals](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#180-290) or `extended`).
+- [vitals](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#180-290): Returns pre-anesthesia data (Height, Weight, Labs, CXR).
+- `extended`: Returns charging data, history, meds, consults.
+
+### [index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html)
+- Refactor [showDetail](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#2516-3014) to call `/api/details` twice.
+- First call: [vitals](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#180-290). Render Physiological and Lab sections immediately.
+- Second call: `extended`. Render History, Meds, Memos.
+- Ensure the "loading" state is per-section or non-blocking.
+
+## Verification Plan
+1. Check Debug Console for sequential success logs: `[Vitals Loaded]`, `[Extended Loaded]`.
+2. Confirm that basic physiological data appears even if history takes longer to load.

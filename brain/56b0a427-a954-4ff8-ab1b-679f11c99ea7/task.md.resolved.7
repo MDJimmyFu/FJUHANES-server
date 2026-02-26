@@ -1,0 +1,10 @@
+# Task: Document Anesthesia Evaluation Form Structure and PDF Mapping
+
+- [x] Research form structure and mapping logic <!-- id: 0 -->
+- [x] Create initial markdown table for assessment items <!-- id: 1 -->
+- [x] Extract detailed item list with input fields and PDF mapping <!-- id: 3 -->
+- [x] Add modification guide and item meanings (Glossary) <!-- id: 5 -->
+- [x] Establish Markdown modification protocol ([ADD]/[DELETE]/[MODIFY]) <!-- id: 6 -->
+- [x] Expand table to include every single checkbox/input as a separate row <!-- id: 7 -->
+- [x] Update anesthesia_form_structure.md with the most granular list <!-- id: 4 -->
+- [x] Finalize the report and notify the user <!-- id: 2 -->

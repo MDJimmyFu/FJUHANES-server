@@ -1,0 +1,77 @@
+# Walkthrough - Unique IDs & HBV Bug Fix
+
+I have implemented unique IDs for all form fields in [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) and resolved the bug where "HBV" was incorrectly printed in the PDF.
+
+## Changes Made
+
+### 1. Unique ID Implementation
+Every input field (checkboxes, radio buttons, text inputs) in the [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) form has been assigned a unique ID following a consistent naming convention:
+- `chk_section_subitem` for checkboxes and radio buttons.
+- `txt_section_subitem` for text inputs.
+- `sel_section_subitem` for select dropdowns.
+
+This improves the reliability of element selection in JavaScript and facilitates future automated testing.
+
+### 2. Improved [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3847-3871) Function
+The [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3847-3871) function was updated to be more robust:
+- **ID Support**: It now primarily looks for elements by ID, which is the most reliable method.
+- **Improved Specificity**: When searching by keyword, it now selects the most specific element (shortest text match). This prevents parent elements from being incorrectly identified as the target when they contain sub-items with matching text.
+
+```javascript
+function isChecked(idOrKeyword) {
+    // 1. Try by ID first
+    const elById = document.getElementById(idOrKeyword);
+    if (elById && (elById.type === 'checkbox' || elById.type === 'radio')) {
+        return elById.checked;
+    }
+
+    // 2. Fallback to keyword search (refined for specificity)
+    const elements = Array.from(document.querySelectorAll('li, label, span.bold-item'));
+    const candidates = elements.filter(el => el.textContent.includes(idOrKeyword));
+    
+    if (candidates.length > 0) {
+        candidates.sort((a, b) => a.textContent.length - b.textContent.length);
+        const target = candidates[0].closest('li, label');
+        if (target) {
+            const cb = target.querySelector('input[type="checkbox"], input[type="radio"]');
+            if (cb && cb.checked) return true;
+        }
+    }
+    return false;
+}
+```
+
+### 3. HBV Printing Bug Fix
+The PDF generation logic for the Hepatitis section was rewritten to:
+- Use the new unique IDs (`chk_dig_carrier_hbv`, `chk_dig_carrier_hcv`, `chk_dig_cirrh`).
+- Use properly scoped local variables (`let hNote`, `let hExtras`) to prevent global scope pollution.
+- Correctly check only the intended checkboxes.
+
+```javascript
+// "Hepatitis"
+let hNote = "";
+let hExtras = [];
+if (isChecked("chk_dig_carrier_hbv")) hExtras.push("HBV");
+if (isChecked("chk_dig_carrier_hcv")) hExtras.push("HCV");
+if (isChecked("chk_dig_cirrh")) hExtras.push("Cirrhosis");
+if (hExtras.length > 0) hNote = hExtras.join(", ");
+if (hNote) draw(hNote, 250.19, 545.0 + 2);
+checkPhItem("Hepatitis", hNote.length > 0);
+```
+
+### 4. Nested Sub-item Extraction Fix
+A bug where unselected sibling items (like "Right" when "Left" was checked for Hemiparesis) appeared in the summary has been fixed by:
+- **Standardizing HTML Structure**: Affected sections (Hemiparesis, Atrial fibrillation, AV Block, Bronchoscope options) were converted from in-line labels to hierarchical `<ul>` structures.
+- **Refining [getCleanText](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4016-4023)**: Updated the text extraction helper to explicitly ignore nested `<label>` tags, preventing parent labels from capturing child text nodes.
+
+### 7. Patient Header Enhancement
+The patient detail view header has been redesigned to provide a more comprehensive overview at a glance:
+- **Comprehensive Info**: Added Age, Sex, Surgery Name, Estimated Anesthesia Method/Time, and Surgery Notes to the top of the patient page.
+- **Premium Layout**: Implemented a grid-based layout with a distinct "Surgery Info" box for better hierarchy and readability.
+- **Dynamic Population**: Updated [showDetail](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#2799-3178) function to gracefully handle and display these new data points.
+
+## Verification Results
+
+- [x] **Patient Header**: All requested fields (Name, Chart No, ID No, Age/Sex, Surgery Name, Anesthesia Info, Surgery Notes) are clearly displayed.
+- [x] **Responsive Design**: The new header layout adapts well to different screen sizes.
+- [x] **Data Accuracy**: Fields correctly pull data from the patient object.

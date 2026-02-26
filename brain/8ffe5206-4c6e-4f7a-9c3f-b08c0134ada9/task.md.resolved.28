@@ -1,0 +1,57 @@
+# Surgery Board Implementation Tasks
+
+- [x] 1. Backend Setup ([app.py](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/AutoPrescribe/app.py))
+    - [x] Create `/board` route serving [board.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/board.html)
+    - [x] Ensure existing `/api/surgery_schedule` or new API can provide full C250 data efficiently
+
+- [x] 2. Frontend Foundation ([board.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/board.html))
+    - [x] Create base HTML structure with CSS variables for Light/Dark themes
+    - [x] Build the layout for 18 horizontal lanes (`OROPROOM` 1-18)
+    - [x] Implement horizontal scrolling within each lane
+    - [x] Design the individual Surgery Card component (Status, Name, Surgeon, Duration, Anesthesia)
+
+- [x] 3. Data Processing & Logic (JavaScript)
+    - [x] Fetch data periodically via AJAX/Fetch
+    - [x] Filter out "完成" (Completed) surgeries
+    - [x] Group surgeries by `OROPROOM`
+    - [x] Implement Sorting Algorithm:
+        - [x] 1. "手術中" (In Surgery)
+        - [x] 2. "等候區" (Waiting Area/Room)
+        - [x] 3. "叫刀" (Called/Sent for)
+        - [x] 4. Console Order (`OROPROOMSEQ_OPSTA_NUM` / `OROPROOMSEQ_DR_NUM`)
+
+- [x] 4. Settings Menu & Functionality
+    - [x] Build bottom-right Settings Modal
+    - [x] Theme Toggle: Light / Dark / Auto (System Match)
+    - [x] Room Display Toggle: Option to hide empty rooms (Default: Hidden)
+    - [x] Auto-Refresh Timer: Option to configure (Default: 5min)
+    - [x] Save settings to `localStorage` to persist across reloads
+
+- [x] 5. Final Styling & Verification
+    - [x] Polish UI (animations, card hover states, clear typography)
+    - [x] Add prominent real-time clock to header
+    - [x] Verify sorting logic matches real-time HIS data correctly
+    - [x] Create final Walkthrough documentation
+    - [x] Create final Walkthrough documentation
+
+- [x] 6. Assessment Completion Indicators
+    - [x] Identify assessment field (`PREANEASSESFIN`) from `c250` response
+    - [x] Board View ([board.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/board.html)): Turn Anesthesia badge background green when complete
+    - [x] Standard View ([index.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/index.html) & [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)): Add a green checkmark `✓` next to surgery status when complete
+
+- [x] 7. Emergency Indicators
+    - [x] Extract `EMG` field logic in [board.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/board.html)
+    - [x] Add styled EMG badge (A/B/C) to the bottom right corner of the surgery board cards
+
+- [x] 8. Board View Refinements
+    - [x] Update EMG badge to show only the letter (A/B/C) in a larger font
+    - [x] Add "隱藏 Local 刀" (Hide LA/NI) toggle to Settings modal
+    - [x] Set "Hide Local" to default enabled on load and apply filter in render logic
+
+- [x] 9. Anesthesia Evaluation Form Refinements
+    - [x] Split "一般RAE" under ET Tube Oral into "一般" and "RAE"
+    - [x] Split "一般RAE" under ET Tube Nasal into "一般" and "RAE"
+
+- [ ] 10. Bug Fix: Post-Login Redirect
+    - [ ] Locate `/login` route handler
+    - [ ] Ensure `next` parameter is correctly parsed and used for redirection upon successful login

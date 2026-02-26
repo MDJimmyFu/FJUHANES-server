@@ -1,0 +1,75 @@
+# Task: Analyze Network Traffic
+
+- [x] Obtain pcap file from user <!-- id: 0 -->
+- [x] Analyze pcap file for HTTP/TCP traffic to `auth.fjcuh.org.tw` or internal HIS IPs <!-- id: 1 -->
+- [x] Extract API endpoints, headers, and payloads <!-- id: 2 -->
+- [x] Update `his_api_client.py` with findings <!-- id: 3 -->
+- [x] Verify connectivity/logic <!-- id: 4 -->
+- [x] Verify and fix Traditional Chinese character encoding <!-- id: 5 -->
+- [x] Investigate why `ORMC430` returns empty structured data for some patients.
+  - [x] Check if `PAT_ADM_DRMEMO` (memos) are returning correctly (YES).
+  - [x] Check if `PAT_ADM_CASE` (Admission) data is sufficient fallback.
+  - [x] **Research Alternative APIs per user request**: Found `HISExmFacade`.
+  - [x] Implement direct DB query via `HISExmFacade` to retrieve VITALSIGN.
+- [x] **Fix Missing Data**: Integrate `HISExmFacade` fallback into [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py). <!-- id: 8 -->
+- [x] Extract Anesthesia Duration, Anesthesiologist, Procedures, and Material Fees from Q050 <!-- id: 9 -->
+- [x] Create comprehensive data schema/dictionary for all endpoints <!-- id: 10 -->
+- [x] Debug and Extract Full Data for Case 75176750 <!-- id: 11 -->
+
+# Task: Web Interface Implementation
+- [x] Update [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py) to return full dataset <!-- id: 12 -->
+- [x] Create Flask [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py) <!-- id: 13 -->
+- [x] Adapt [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) to [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html) <!-- id: 14 -->
+- [x] Verify local web interface <!-- id: 15 -->
+
+# Surgery Schedule Rebuild Task
+
+## Phase 1: Planning & Design
+- [x] Analyze 1. Analyze existing [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) and [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py) [x]
+- [x] Create 2. Create Implementation Plan [x]
+- [x] Design 3. Design "WOW" UI System (Colors, Typography, Components) [x]
+
+## Phase 2: Backend Implementation
+- [x] Implement 1. Implement `/api/surgery_list` [x]
+- [x] Implement 2. Implement `/api/details` (Incremental Loading) [x]
+- [x] Implement 3. Implement Evaluation data persistence [x]
+
+## Phase 3: Frontend Restoration (Legacy UI)
+- [x] Create [templates/legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html) from original file
+- [x] Update [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py) proxy endpoints
+- [x] Adapt [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html) to use Server-Side Rendering (SSR) & Consolidated API
+- [x] Verify data mapping and display correctness (SSR + /patient_detail)
+- [x] Restore PDF generation functionality (using global state)
+  - [x] Fix Lab and Vital Data Mapping (Normalize keys to Legacy PDF expectations)
+
+## Phase 4: Verification
+- [x] Verify 1. Verify data accuracy across all sections [x]
+    - [x] Confirmed Blood Type available in Surgery List (`BLOODTYPE`)
+    - [x] Verified Vitals fetching from EXM (`VITALSIGN_HEIGHT`, `VITALSIGN_WEIGHT`, `SPO2`, etc.)
+    - [x] Verified Lab Data mapping ([Ca](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#2491-2495), [Cl](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#9-364), `Glu` added)
+- [ ] Verify 2. System robustness check [ ]
+- [ ] Verify 2. System robustness check [ ]
+        - [x] Add granular progress logging to [index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html) (requested by user)
+        - [ ] Verify fix with user feedback
+    - [x] Research Lab Tables (Found `PAT_RESULTH`)
+    - [x] Validate Schema & IDs (Validated `PRH_PAT_ID`)
+    - [x] Attempt Data Retrieval (Initial attempts failed)
+    - [x] **Investigate ID Aliases**: Found `HIDNO` (C221748019) and `ENCNTNO` (75176986).
+    - [x] Exhaustive DB Search (No results for 003617083J in PAT_RESULTH/D today)
+    - [x] **Analyze traffic0218.pcapng**: Extracted real lab results from `HISOrmC430Facade`.
+    - [x] **Solve Laboratory Data Trigger**: Identified that `C250` activation + `C430` date matching is required for live labs.
+    - [x] Implement Real Fetching Logic (No Mocks/Fallbacks needed)
+    - [x] Display Real Lab Data in Frontend
+    - [x] **User Request**: List out EVERY data parsed from HISOrmC430Facade.
+    - [x] **User Request**: Re-query C430 and find `INSPECTION` table (Wider search).
+      - [x] Verified: `INSPECTION` table is returned by live C430 AFTER activation and date patching.
+- [x] **Anesthesia History Enhancement**:
+  - [x] Fetch anesthesia history via SQL (HHISNUM → PAT_ADM_CASE → ORRANER).
+  - [x] Display ASA, method, doctor, and date in the history list.
+  - [x] Implement expandable detail view using Q050 data.
+  - [x] Categorize items starting with `551N` as "Self-Pay Items".
+  - [x] Filter items starting with `551` as "Materials".
+  - [x] Restore search functionality after fixing JS syntax errors.
+- [x] **Vitals Display Enhancement**:
+  - [x] Implement fallback for Height/Weight using `OPDUSR.VITALSIGNUPLOAD`.
+  - [x] Verified fix for patient `003189572E` (Retrieved 174cm/90kg).

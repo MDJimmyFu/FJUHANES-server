@@ -1,0 +1,21 @@
+# Network Traffic Analysis & Client Update
+
+- [x] Identify Remote Server <!-- id: 10 -->
+    - [x] Run `netstat` to find app connection <!-- id: 11 -->
+- [x] Guide User to Capture Traffic <!-- id: 0 -->
+    - [x] Explain Fiddler installation and setup <!-- id: 12 -->
+    - [/] Wait for user to provide HAR/Log <!-- id: 13 -->
+- [x] Analyse Login Request <!-- id: 1 -->
+    - [x] Identify URL, Headers, and Payload <!-- id: 2 -->
+    - [x] Identify Auth Token mechanism (Standard Credentials) <!-- id: 3 -->
+- [x] Analyse Patient Data Request <!-- id: 4 -->
+    - [x] Identify URL and Payload parameters (Binary .NET Remoting Protocol) <!-- id: 5 -->
+- [/] Update [his_api_client.py](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py) <!-- id: 6 -->
+    - [x] Implement actual Login logic <!-- id: 7 -->
+    - [ ] Implement actual Patient Search logic (Blocked by Binary Protocol Complexity) <!-- id: 8 -->
+- [x] Verify Client against real API (Python Installed) <!-- id: 9 -->
+- [/] Analyze `HISOrmC250Facade` Request <!-- id: 14 -->
+    - [/] Extract and decode request body (Corrupted) <!-- id: 15 -->
+    - [/] Analyze response headers (Content-Length: 36KB) <!-- id: 18 -->
+    - [ ] Attempt to identify date parameter (Pending valid capture) <!-- id: 16 -->
+    - [ ] Create specialized script to replay/modify this request <!-- id: 17 -->

@@ -1,0 +1,33 @@
+# Surgery Board Implementation Tasks
+
+- [x] 1. Backend Setup ([app.py](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/app.py))
+    - [x] Create `/board` route serving [board.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/board.html)
+    - [x] Ensure existing `/api/surgery_schedule` or new API can provide full C250 data efficiently
+
+- [x] 2. Frontend Foundation ([board.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/board.html))
+    - [x] Create base HTML structure with CSS variables for Light/Dark themes
+    - [x] Build the layout for 18 horizontal lanes (`OROPROOM` 1-18)
+    - [x] Implement horizontal scrolling within each lane
+    - [x] Design the individual Surgery Card component (Status, Name, Surgeon, Duration, Anesthesia)
+
+- [x] 3. Data Processing & Logic (JavaScript)
+    - [x] Fetch data periodically via AJAX/Fetch
+    - [x] Filter out "完成" (Completed) surgeries
+    - [x] Group surgeries by `OROPROOM`
+    - [x] Implement Sorting Algorithm:
+        - [x] 1. "手術中" (In Surgery)
+        - [x] 2. "等候區" (Waiting Area/Room)
+        - [x] 3. "叫刀" (Called/Sent for)
+        - [x] 4. Console Order (`OROPROOMSEQ_OPSTA_NUM` / `OROPROOMSEQ_DR_NUM`)
+
+- [x] 4. Settings Menu & Functionality
+    - [x] Build bottom-right Settings Modal
+    - [x] Theme Toggle: Light / Dark / Auto (System Match)
+    - [x] Room Display Toggle: Option to hide empty rooms (Default: Hidden)
+    - [x] Auto-Refresh Timer: Option to configure (Default: 5min)
+    - [x] Save settings to `localStorage` to persist across reloads
+
+- [x] 5. Final Styling & Verification
+    - [x] Polish UI (animations, card hover states, clear typography)
+    - [x] Verify sorting logic matches real-time HIS data correctly
+    - [x] Create final Walkthrough documentation

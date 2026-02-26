@@ -1,0 +1,30 @@
+# Implementation Plan - Restore Data Parsing Logic
+
+The recent refactoring of [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py#3-61) accidentally simplified or removed critical data parsing logic for laboratory results, vitals, and clinical notes. This plan outlines the restoration of these features while maintaining the newly implemented authentication and dynamic user context.
+
+## Proposed Changes
+
+### [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+
+#### [MODIFY]
+- **Restore [get_vitals_from_exm](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#180-302)**: Re-implement the full vitals mapping (BP, SpO2, Pulse, Temp, Weight, Height) from the backup.
+- **Restore [get_lab_data](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#194-208)**: Re-implement the comprehensive lab mapping (HB, WBC, PLT, PT, PTT, etc.) and ensure it correctly handles C430 `INSPECTION` data.
+- **Restore Clinical Notes**:
+    - Re-add [get_opd_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#638-659) and [get_emg_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#660-701).
+    - Update [get_visit_details](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#372-388) to include these notes in the response.
+- **Enforce `user_id` consistency**: Ensure all restored SQL-based methods correctly use the [_execute_sql](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#146-193) method with the provided `user_id`.
+
+## Verification Plan
+
+### Automated Tests
+- Run a compilation check to ensure no syntax/indentation errors.
+- (Manual verify) Use the UI to check if "檢驗資料" and "身體檢查數據" sections are populated for known patients.
+
+### Manual Verification
+1. Login to the application.
+2. Search for a patient (e.g., from today's schedule).
+3. Open the detail view.
+4. Verify that:
+    - Lab results (HB, PLT, etc.) are displayed.
+    - Physical exam data (Vitals) are displayed.
+    - Clinical notes (SOAP) are visible in the history section.

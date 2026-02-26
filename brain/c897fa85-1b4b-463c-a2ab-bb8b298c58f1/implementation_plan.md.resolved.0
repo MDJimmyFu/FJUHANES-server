@@ -1,0 +1,24 @@
+# MRN Auto-completion and Auto-search Implementation Plan
+
+This plan outlines the changes required to implement automatic MRN check digit completion and search triggering in the `AutoPrescribe` application's frontend.
+
+## Proposed Changes
+
+### [AutoPrescribe Frontend]
+
+#### [MODIFY] [index.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/AutoPrescribe/templates/index.html)
+- Add a listener to the `#chart-no` input field.
+- Implement the check digit algorithm to calculate the 10th character (check digit) when exactly 9 digits are entered.
+- Automatically update the input value with the calculated check digit.
+- Trigger the [searchChart()](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/AutoPrescribe/templates/index.html#387-395) function immediately after auto-completion.
+
+## Verification Plan
+
+### Manual Verification
+1. Open the AutoPrescribe application in a browser.
+2. Navigate to the Patient Selection panel (after login).
+3. Type 9 digits into the "Chart No Query" field (e.g., `003235483`).
+4. Verify that:
+   - The 10th character (e.g., `J`) is automatically appended.
+   - The search is automatically triggered without clicking the "Search" button.
+   - The status box displays "Querying chart [MRN]..." and results appear in the list.

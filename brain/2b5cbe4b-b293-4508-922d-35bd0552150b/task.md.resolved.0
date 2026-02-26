@@ -1,0 +1,8 @@
+# Task Checklist
+
+- [/] Research Anesthesia History implementation <!-- id: 0 -->
+    - [ ] Locate front-end code for the history list and detail modal <!-- id: 1 -->
+    - [ ] Locate back-end route for history detail query <!-- id: 2 -->
+- [ ] Identify root cause of identical content in details <!-- id: 3 -->
+- [ ] Implement fix for history detail query <!-- id: 4 -->
+- [ ] Verify the fix <!-- id: 5 -->

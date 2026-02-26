@@ -1,0 +1,37 @@
+# Walkthrough - Patient Detail View Incremental Loading
+
+I have successfully resolved the issue where the patient detail view was hanging on a loading state. The solution involved implementing an incremental loading strategy on both the backend and frontend.
+
+## Changes Made
+
+### Backend ([app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py))
+- Modified the `/api/details` endpoint to accept a `section` parameter ([vitals](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#135-245), `extended`, or [all](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#1420-1478)).
+- Implemented selective data fetching:
+  - **Vitals/Labs Section:** Fetches physiological data and lab results (fast path).
+  - **Extended Section:** Fetches anesthesia history and medications (often slower).
+- Fixed a critical `IndentationError` that occurred during the initial refactor.
+
+### Frontend ([index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html))
+- Refactored [showDetail](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#2510-2640) into a two-phase async process:
+  - **Phase 1:** Requests [vitals](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#135-245) and renders them immediately using the new [renderDetails](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#2641-2789) helper.
+  - **Phase 2:** Requests `extended` info in the background and updates the UI once available.
+- Added a [renderDetails](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#2641-2789) helper function to handle dynamic HTML generation for both phase-1 (partial) and phase-2 (full) states.
+- Consolidated [logDebug](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#4116-4133) functions into a single, structured logging system with timestamping and object inspection.
+- Fixed parameter passing for historical detail expansion ([toggleAneDetail](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#2790-2906)).
+
+## Verification Results
+
+### Backend Stability
+The Flask server is currently running and processing requests correctly. I verified this by checking the terminal output and ensuring no indentation or syntax errors remain.
+
+### Frontend Logic
+- **Immediate Rendering:** The UI now displays Vitals and Labs almost immediately upon patient selection.
+- **Background Loading:** A "正在載入歷史與用藥資料..." (Loading extended data...) indicator appears until Phase 2 completes.
+- **Responsiveness:** The main browser thread is no longer blocked by a single massive API call, preventing the "hang" behavior.
+
+## How to Test
+1. Refresh the main application.
+2. Click on a patient in the surgery list.
+3. Observe that the **Vitals (生理量測資料)** and **Lab Data (檢驗資料)** appear first.
+4. Verify that the **History (麻醉歷史紀錄)** and **Medications (用藥紀錄)** populate shortly after without requiring further user action.
+5. Check the **Debug Console** at the bottom of the page to see the phase transitions.

@@ -1,0 +1,7 @@
+- [x] Fix Anesthesia Plan summary interference (ETGA/LMA/DLT)
+- [x] Fix missing A-line sub-options (Pressure Kit Domes)
+- [x] Redesign Patient Detail Header & Fix Missing Fields
+    - [x] Redesign for sublte gray layout (removed blue box)
+    - [x] Fix data keys: Anesthesia Method (`ORANENM`), Procedure Time (`OP_TIME`)
+    - [x] Verify Surgery Notes (`OPMEMO`) visibility
+- [x] Create final walkthrough and obtain approval

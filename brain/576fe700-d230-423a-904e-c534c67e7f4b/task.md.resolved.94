@@ -1,0 +1,15 @@
+# Task: Debugging Missing Lab and Vitals Data & Integrating Reports
+
+- [x] Analyze discrepancy between current [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#9-520) and backup
+- [x] Restore missing data retrieval methods
+- [x] Fix data flow bugs
+- [x] Integrate Lab Reports with Status 68
+- [x] Categorize Lab Reports (Status 64 vs 68)
+- [x] Investigate Vital Signs Discrepancy for 003616525A
+- [x] Debug Missing Vital Signs (Full Fallback to C430)
+- [x] Package Application into Executable
+    - [x] Create [resource_utils.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/resource_utils.py) for path resolution
+    - [x] Update code to use [resource_path](file:///c:/Users/A03772/.gemini/antigravity/scratch/resource_utils.py#4-13)
+    - [x] Create [build.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/build.py) script
+    - [x] Verify standalone execution
+- [x] Update documentation (walkthrough)

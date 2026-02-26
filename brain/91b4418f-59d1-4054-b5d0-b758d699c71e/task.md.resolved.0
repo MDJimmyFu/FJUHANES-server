@@ -1,0 +1,8 @@
+# Hospital Login Automation Task List
+
+- [ ] Create Implementation Plan <!-- id: 0 -->
+- [ ] Create `requirements.txt` <!-- id: 1 -->
+- [ ] Implement `main.py` with GUI (Tkinter) <!-- id: 2 -->
+- [ ] Implement `web_login.py` (Playwright automation) <!-- id: 3 -->
+- [ ] Implement `his_login.py` (Desktop automation stub) <!-- id: 4 -->
+- [ ] Verify and Refine <!-- id: 5 -->

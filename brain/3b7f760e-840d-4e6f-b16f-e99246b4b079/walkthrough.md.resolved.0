@@ -1,0 +1,51 @@
+# 住院資訊系統 PCA 與無痛分娩處方開立方式分析報告
+
+本報告分析了 `PCA.pcapng` 與 `painless.pcapng` 封包檔案，以找出在住院資訊系統 (`http://10.10.246.80/Ipo/IpoQ010`) 中開立 PCA (病人自控式止痛) 與無痛分娩 (Painless Labour) 處方的方法。
+
+## 1. PCA (病人自控式止痛) 處方開立
+
+PCA 的開立主要透過 `/Ipo/IpoC11G` 模組進行，該模組處理管制藥品的開立。
+
+### 主要 API 資訊
+- **Endpoint**: `POST http://10.10.246.80/Ipo/IpoC11G/IpoC11GSave`
+- **關鍵參數 (Payload)**:
+    - `hCaseNo`: 就醫序號 (例如 `75176383`)
+    - `hHISNum`: 病歷號 (例如 `000000002C`)
+    - `ipoC11CViewsJson`: 包含處方明細的 JSON 字串。
+        - `UDDDrgCode`: `FEN02` (Fentanyl 管二 高 0.5 mg/10 mL/Amp)
+        - `UDOGivRoute`: `PCA` (給藥途徑)
+        - `UDOGivFreqn`: `ASORDER` (給藥頻率)
+        - `UDDCmmDose`: `1` (給藥劑量)
+    - `RxControlJson`: 管制藥品查核資訊。
+
+---
+
+## 2. 無痛分娩 (Painless Labour) 處方開立
+
+無痛分娩的開立由兩個部分組成：**藥物處方**與**處置醫囑 (Treatment)**。
+
+### A. 藥物處方 (PCA 模式)
+與 PCA 類似，但給藥途徑不同。
+- **Endpoint**: `POST http://10.10.246.80/Ipo/IpoC11G/IpoC11GSave`
+- **關鍵參數差異**:
+    - `UDOGivRoute`: `PAINL` (代表 Painless Labour / 減痛分娩)
+    - `UDDDrgCode`: `FEN02` (Fentanyl)
+
+### B. 處置醫囑 (Treatment Order)
+系統透過 `/Ipo/IpoC151` 模組儲存相關的監測醫囑。
+- **Endpoint**: `POST http://10.10.246.80/Ipo/IpoC151/Save`
+- **關鍵處置代碼 (TRTCode)**:
+    - `XTR00403`: `Check vital signs Q30min for 2 hours, then Q1H until delivery`
+    - `XTR00024`: `@Check vital signs` (備註中包含無痛分娩後的監測要求)
+- **模板選取**: 在儲存前，系統會呼叫 `POST /Ipo/IpoC151/ProcessBASOTGP` 來載入預設的無痛分娩套餐項目。
+
+---
+
+## 3. 分析總結
+
+要在該系統中完成開立，需模擬以下流程：
+1. **呼叫 `IpoC11GSave`**: 開立 Fentanyl 等止痛藥物，並將 `UDOGivRoute` 設為 `PCA` (止痛) 或 `PAINL` (無痛分娩)。
+2. **呼叫 `IpoC151/Save` (僅限無痛分娩)**: 附加必要的生命徵象監測醫囑 (`XTR00403` 等)。
+
+> [!NOTE]
+> 所有的請求都包含 `hCaseNo` 與 `hHISNum` 以識別特定病人。管制藥品的開立 (`IpoC11GSave`) 還需要處理複雜的 `RxControlJson` 以符合法規要求。

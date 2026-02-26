@@ -1,0 +1,11 @@
+- [x] Fix Anesthesia Plan summary interference (ETGA/LMA/DLT)
+- [x] Fix missing A-line sub-options (Pressure Kit Domes)
+- [x] Redesign Patient Detail Header & Fix Data Mapping
+    - [x] Refined gray layout and information hierarchy
+    - [x] Corrected surgery duration (手術耗時) display using `OP_TIME` and fallbacks
+    - [x] Corrected physician memo (醫師備註) using `ORDERMEMO` (Surgery Order Memo)
+- [x] Refine Surgery Duration Accuracy
+    - [x] Update header to show ONLY duration length (remove start time)
+    - [x] Investigate HIS fields for "Actual" surgery timing (e.g., in `PAT_ANAESTHE_HIST` or `OR_ORDER` variants)
+    - [x] Fix comparison logic and color coding with confirmed actual duration
+- [x] Create final walkthrough and obtain approval

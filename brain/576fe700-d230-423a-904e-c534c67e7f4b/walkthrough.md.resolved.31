@@ -1,0 +1,39 @@
+# Surgery Schedule Restoration Walkthrough
+
+The Surgery Schedule application has been restored to its original design ([surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html)) while integrating the modern backend to ensure robust data access without altering the familiar interface.
+
+## Restoration Highlights
+
+### 1. Legacy UI Preservation
+- **Original Template**: The frontend uses the exact HTML/CSS structure of [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) to maintain user familiarity.
+- **Server-Side Rendering (SSR)**: The schedule list is now rendered server-side for instant load times, eliminating client-side API calls.
+- **Consolidated API**: Patient details are fetched via a single optimized endpoint `/patient_detail/<ordseq>`, replacing multiple legacy proxy calls.
+- **Seamless Integration**: Date filters, room selection, and patient details work exactly as before, but powered by the new, optimized backend.
+
+### 2. Data Connectivity
+- **Optimized Performance**: The shift to SSR and consolidated API calls significantly reduces network overhead.
+- **Full Data Mapping**: 
+    - **Physiological**: Height, Weight, Blood Type, BP, Pulse, Resp, and Temp are fetched from EXM and C430 sources.
+    - **Labs**: Comprehensive panel (WBC, Hb, Hct, PLT, PT/PTT/INR, Bilirubin, AST/ALT, BUN/Cre, Electrolytes, Glucose) provided via `HISOrmC430Facade`.
+    - **PDF Generation**: Fixed data mapping to ensure all Lab and Vital data appear correctly on the generated PDF.
+    - **ID Resolution**: Confirmed Patient ID is sourced from Surgery List (`C250`) and mapped correctly.
+    - **Anesthesia History**: Enriched with Procedure Name from `OPDORDM` and filtered to show only billed items (`CHARGEFLAG='Y'`).
+    - **SQL Enhancement**: Optimized query structure to handle patients with extensive history, resolving missing data for cases like `003278373G`.
+    - **Imaging**: Integrated `CXR` table fallback to display imaging reports (including Echo and PFT) even when standard fields are missing. Added display of Exam No (`ORDAPNO`) and implemented dynamic URL generation for Echocardiogram reports.
+    - **Hospitalization & Comprehensive History**: Initially implemented admission records (`PAT_ADM_CASE`), then expanded to a full **Comprehensive Patient History** dashboard. This includes Outpatient (OPD), Emergency (ER), and Inpatient (ADM) visits, with expandable details for **Diagnoses**, **Medications**, and **Consultations**.
+    - **Consultation Links**: Integrated direct links to external ER consultation reports (`consult_form.php`) using the case number (`HCASENO`), allowing users to view full reports directly from the history view.
+    - **Emergency Clinical Notes**: Expanded EMG visit details to include a structured, collapsible view of **Medical Records** (Chief Complaint, Present Illness, etc.), **Physical Examination** (CONSCIOUSNESS, HEENT, etc.), and **Progress Notes** (SOAP format), accurately sourced from the `COMMON` schema.
+    - **Outpatient Clinical Notes**: Added support for displaying **SOAP Notes** (Subjective, Objective, Assessment, Plan) for OPD visits, retrieved from `OPDUSR.OPDSOAP`.
+- **Seamless Integration**: Date filters, room selection, and patient details work exactly as before, but powered by the new, optimized backend.
+
+## Project Structure
+- [/app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py): Flask backend with legacy proxy.
+- [/templates/legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html): The active frontend template (served at `/`).
+- [/his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py): Core HIS interaction logic.
+
+## How to Verify
+1.  Run `python app.py` and open `http://localhost:5000`.
+2.  Search for today's surgery list.
+3.  Click a surgery card to see the slide-over detail view.
+4.  Fill out some evaluation form sections (they will auto-save).
+5.  Click "產生評估單" to generate the professional PDF report.

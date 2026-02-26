@@ -1,0 +1,34 @@
+# Data Access Workflow Design
+
+## Goal Description
+Design a technical process to retrieve data programmatically or directly from the source, bypassing the standard HIS (Hospital Information System) user interface. This is typically done for analytics, interoperability, or custom application integration.
+
+## User Review Required
+> [!IMPORTANT]
+> **Security & Compliance**: Accessing medical data outside the standard HIS UI requires strict adherence to data privacy regulations (e.g., GDPR, HIPAA, local laws). Ensure you have authorized administrative or developer access to the underlying systems.
+
+- **Data Source**: What specific database (SQL Server, Oracle, MySQL) or interface (HL7, FHIR) is available?
+- **Authentication**: How will the external process authenticate?
+- **Read/Write**: Is this purely for reading data, or is write-back required?
+
+## Proposed Architectures
+
+### Option 1: Direct Database Access (Read-Replica)
+Connect directly to a read-only replica of the HIS database to run SQL queries.
+- **Pros**: Fast, flexible.
+- **Cons**: Requires schema knowledge, potential security risk if not firewalled.
+
+### Option 2: HL7/FHIR Integration
+Use standard healthcare interoperability interfaces.
+- **Pros**: Standardized, safer, often supported by HIS vendors.
+- **Cons**: May be limited by what the HIS exposes.
+
+### Option 3: RPA (Robotic Process Automation)
+Simulate user actions to scrape data from the HIS UI.
+- **Pros**: Works if no backend access is available.
+- **Cons**: Brittle, slow, hard to maintain.
+
+## Next Steps
+1. Identify the specific HIS vendor or database technology.
+2. Select the preferred architecture.
+3. Design the data extraction script/service.

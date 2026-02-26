@@ -1,0 +1,36 @@
+# Comprehensive Patient History Integration
+
+This plan outlines the integration of detailed Outpatient (OPD), Emergency (ER), and Inpatient (ADM) records into the patient history view.
+
+## Proposed Changes
+
+### Backend: `his_client_final.py`
+Add methods to fetch comprehensive history:
+- `get_opd_history(hhistnum)`: Fetches outpatient visits from `OPDUSR.OPDDIAG` and `OPDUSR.OPDORDM`.
+- `get_er_inpatient_history(hhistnum)`: Fetches ER and Inpatient visits from `SYSTEM.PAT_ADM_CASE`.
+- `get_visit_details(hcaseno)`: Fetches medications and consultations for a specific visit ID from `OPDUSR.OPDORDM` and `OPDUSR.OPDREFM`.
+
+### API: `app.py`
+Add endpoint `/api/patient_history_comprehensive`:
+- Parameter: `pHHISNum`
+- Returns a structured list of all visits (OPD, ER, ADM) with their associated diagnoses, medications, and consultations.
+
+### Frontend: `templates/legacy_schedule.html`
+- Transform the "Admission History" section into a "Comprehensive Patient History" section.
+- Implement tabs or a categorized list for Outpatient, Emergency, and Inpatient records.
+- Implement expandable details for each visit to show medications and consultations.
+
+## Data Mapping
+
+| Record Type | Diagnosis Source | Medication Source | Consultation Source |
+| :--- | :--- | :--- | :--- |
+| **Outpatient (OPD)** | `OPDUSR.OPDDIAG` | `OPDUSR.OPDORDM` | `OPDUSR.OPDREFM` |
+| **Emergency (ER)** | `SYSTEM.PAT_ADM_CASE` | `OPDUSR.OPDORDM` | `OPDUSR.OPDREFM` |
+| **Inpatient (ADM)** | `SYSTEM.PAT_ADM_CASE` | `OPDUSR.OPDORDM` | `OPDUSR.OPDREFM` |
+
+## Verification Plan
+
+### Manual Verification
+1.  Verify Outpatient visits display correct diagnosis and medication list for `003380272B`.
+2.  Verify Emergency visits show consultations for `003380272B`.
+3.  Verify Inpatient records show correct medications and diagnoses.

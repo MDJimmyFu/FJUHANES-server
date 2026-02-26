@@ -1,0 +1,49 @@
+# implementation_plan.md - Adding Settings Menu and Theme Support
+
+This plan details the addition of a floating settings menu to the surgery schedule page, enabling auto-refresh and theme customization.
+
+## Proposed Changes
+
+### [Component] UI/UX & Themes
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+
+- **CSS Updates**:
+    - Update `:root` to use variables that can be overridden by a `.theme-dark` class.
+    - Define dark mode color tokens (e.g., darker backgrounds, lighter text).
+    - Add styles for the floating settings button (FAB) and the settings menu popup.
+    - Implement smooth transitions for background-color and color.
+
+- **HTML Updates**:
+    - Add a floating button (`#settings-toggle`) and a hidden settings panel (`#settings-panel`) at the end of the body.
+    - Settings panel content:
+        - Checkbox for "Auto Update (5 mins)" (Default: true).
+        - Select/Radio for "Appearance" (Options: Day, Night, System).
+
+- **JavaScript Updates**:
+    - **Refresh Logic**:
+        - Function `setupAutoRefresh()` to manage a `setInterval`.
+        - Logic to perform a background search or page reload when the timer triggers.
+        - Persist setting in `localStorage`.
+    - **Theme Logic**:
+        - Function `applyTheme(themeName)` to switch between 'light', 'dark', and 'system'.
+        - Use `window.matchMedia('(prefers-color-scheme: dark)')` for the 'system' setting.
+        - Persist preference in `localStorage`.
+    - **UI Logic**:
+        - Toggle visibility of the settings panel when clicking the button.
+        - Close panel when clicking outside.
+
+## Verification Plan
+
+### Automated Tests
+- JavaScript snippets to verify `localStorage` persistence.
+- Verification that `setupAutoRefresh` initializes correctly with the saved/default state.
+
+### Manual Verification
+1.  **FAB Visibility**: Ensure the settings button is visible and fixed at the bottom right.
+2.  **Auto Update**: Set a shorter interval (e.g., 10 seconds) temporarily to verify the page refreshes or data updates automatically.
+3.  **Theme Switch**:
+    - Switch to "Night" and verify the UI becomes dark.
+    - Switch to "Day" and verify it returns to light.
+    - Switch to "System" and change OS theme settings to verify responsiveness.
+4.  **Persistence**: Reload the page and verify that the auto-update and theme settings are remembered.

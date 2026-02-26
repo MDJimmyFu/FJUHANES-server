@@ -1,0 +1,11 @@
+# Task: Design Data Access Workflow (Non-HIS UI)
+
+- [ ] **Requirement Analysis** <!-- id: 0 -->
+    - [ ] Clarify data types and sources (Database, API, HL7, etc.) <!-- id: 1 -->
+    - [ ] Confirm security and compliance requirements (Authorized access) <!-- id: 2 -->
+- [ ] **Architecture Design** <!-- id: 3 -->
+    - [ ] Evaluate integration patterns (Direct DB, Middleware, RPA) <!-- id: 4 -->
+    - [ ] Draft data flow diagram <!-- id: 5 -->
+- [ ] **Implementation Planning** <!-- id: 6 -->
+    - [ ] Define technology stack <!-- id: 7 -->
+    - [ ] Create proof of concept (if applicable) <!-- id: 8 -->

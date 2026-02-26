@@ -1,0 +1,4113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>輔醫麻醉手術排程查詢</title>
+    <style>
+        :root {
+            --primary: #0077b6;
+            --secondary: #48cae4;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #333;
+            --border: #dee2e6;
+            --success: #28a745;
+            --danger: #dc3545;
+            --gray: #6c757d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        .controls {
+            background: var(--card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        input[type="date"],
+        input[type="text"],
+        select {
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #023e8a;
+        }
+
+        button.secondary {
+            background-color: #6c757d;
+        }
+
+        /* Anesthesia Filter */
+        #ane-filter-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .ane-checkbox label {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Schedule List */
+        .schedule-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .surgery-card {
+            background: var(--card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 8px solid var(--gray);
+            /* Default gray for unfinished pre-ane */
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .surgery-card.pre-ane-finished {
+            border-left-color: var(--success);
+        }
+
+        .surgery-card.is-emg {
+            background-color: #fff0f0;
+            border: 2px solid var(--danger);
+            border-left-width: 8px;
+            /* Keep left border thicker */
+        }
+
+        .surgery-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--primary);
+            background: #e7f5ff;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .card-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 85px;
+            margin-right: 15px;
+            padding-right: 15px;
+            border-right: 1px solid #eee;
+        }
+
+        .room-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .time-box {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .info-box {
+            flex: 1;
+            padding: 0 1rem;
+        }
+
+        .patient-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .procedure {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .tags span {
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #495057;
+            margin-right: 5px;
+        }
+
+        /* Details Modal/Section */
+        #detail-view {
+            display: none;
+            background: var(--bg);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .detail-card {
+            background: var(--card);
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .detail-header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 10px;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .sub-list {
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 10px 0;
+        }
+
+        .sub-list li {
+            padding: 2px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 2rem;
+        }
+
+        .error {
+            color: #dc3545;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* --- Styles from Pre-Anesthesia Eval --- */
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --active-bg: #d4edda;
+            /* Light green for active sections */
+            --active-text: #155724;
+            --border-color: #dee2e6;
+            --header-bg: #f8f9fa;
+        }
+
+        /* H2 Main Containers */
+        .h2-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .h2-title {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        /* H3 Collapsible Sections */
+        .h3-section {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .h3-section:last-child {
+            border-bottom: none;
+        }
+
+        .h3-header {
+            padding: 15px 20px;
+            background-color: var(--header-bg);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+            user-select: none;
+            color: #333;
+        }
+
+        .h3-header:hover {
+            background-color: #e2e6ea;
+        }
+
+        .h3-header.active {
+            background-color: var(--active-bg);
+            color: var(--active-text);
+        }
+
+        .h3-header::after {
+            content: '▼';
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+        }
+
+        .h3-section.collapsed .h3-header::after {
+            transform: rotate(-90deg);
+        }
+
+        .h3-content {
+            padding: 20px;
+            background-color: white;
+            display: block;
+        }
+
+        .h3-section.collapsed .h3-content {
+            display: none;
+        }
+
+        /* Form Elements */
+        .h3-content ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .h3-content li {
+            margin-bottom: 8px;
+        }
+
+        .h3-content ul ul {
+            padding-left: 25px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border-left: 2px solid #eee;
+        }
+
+        /* Nested hidden class for conditional visibility */
+        .nested-hidden {
+            display: none !important;
+        }
+
+        .h3-content label {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            width: auto;
+            max-width: 100%;
+        }
+
+        .h3-content input[type="checkbox"],
+        .h3-content input[type="radio"] {
+            margin-top: 0;
+            margin-right: 10px;
+            transform: scale(1.2);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .h3-content input[type="text"] {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.95em;
+            width: auto;
+            min-width: 150px;
+            margin-left: 5px;
+            transition: border-color 0.2s;
+            display: inline-block;
+        }
+
+        .inline-text {
+            border-bottom: 1px solid #777;
+            padding: 0 5px;
+            display: inline-block;
+            min-width: 50px;
+        }
+
+        .bold-item {
+            font-weight: 600;
+        }
+
+        /* Modal for Eval Form */
+        #eval-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            overflow-y: auto;
+        }
+
+        #eval-modal-content {
+            background: white;
+            margin: 20px auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 900px;
+            border-radius: 8px;
+            position: relative;
+        }
+    </style>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container" id="schedule-view">
+        <header>
+            <h1>輔醫麻醉手術排程</h1>
+        </header>
+
+        <div class="controls">
+            <div class="control-row">
+                <div class="filter-group">
+                    <label>日期區間：</label>
+                    <input type="date" id="bgOpDate">
+                    <span>~</span>
+                    <input type="date" id="endOpDate">
+                </div>
+                <button onclick="fetchSchedule()">查詢</button>
+            </div>
+
+            <div class="control-row">
+                <div class="filter-group">
+                    <input type="text" id="searchId" placeholder="輸入病歷號搜尋..." oninput="applyFilters()">
+                </div>
+                <div class="filter-group">
+                    <label>房號：</label>
+                    <select id="filterRoom" onchange="applyFilters()">
+                        <option value="">全部</option>
+                        <!-- Dynamic Options -->
+                    </select>
+                </div>
+            </div>
+
+            <div id="ane-filter-container">
+                <!-- Dynamic Anesthesia Checkboxes -->
+            </div>
+        </div>
+
+        <div id="schedule-list" class="schedule-grid">
+            <!-- Results will appear here -->
+            <div style="text-align:center; color:#999;">請選擇日期並點擊查詢</div>
+        </div>
+    </div>
+
+    <!-- Detail View (Overlay) -->
+    <div id="detail-view">
+        <div class="detail-card">
+            <div class="detail-header">
+                <div>
+                    <h2 id="d-patient-name" style="margin:0;"></h2>
+                    <span id="d-meta" style="color:#666;"></span>
+                </div>
+                <button class="secondary" onclick="closeDetail()">關閉</button>
+            </div>
+            <div style="margin-bottom: 20px; text-align: right;">
+                <button id="btn-open-eval" style="background-color: var(--primary); margin-right: 10px;"
+                    onclick="openEvalModal()">填寫麻醉評估</button>
+                <button id="btn-gen-pdf" style="background-color: #28a745; display:none;"
+                    onclick="triggerPdfGen()">產生麻醉評估單 (PDF)</button>
+            </div>
+
+            <div id="d-content">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluation Form Modal -->
+    <div id="eval-modal">
+        <div id="eval-modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2>麻醉前評估與計畫表單</h2>
+                <div>
+                    <button style="background:var(--success); margin-right:10px;" onclick="saveEvalData()">暫存資料</button>
+                    <button class="secondary" onclick="closeEvalModal()">關閉</button>
+                </div>
+            </div>
+            <div id="eval-form-body">
+                <div class="h2-container">
+                    <h2 class="h2-title">麻醉前評估紀錄 (Pre-anesthetic Assessment)</h2>
+
+                    <!-- Cardiovascular System -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Cardiovascular System (心血管系統)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) Hypertension
+                                            (高血壓)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Regular control</label></li>
+                                        <li><label><input type="checkbox"> Poor control</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) CAD
+                                            (冠狀動脈疾病)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> POBA/POBAS</label></li>
+                                        <li><label><input type="checkbox"> CABG</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(3) Valvular disease
+                                            (瓣膜疾病)</span></label>: <input type="text" placeholder="補充說明"
+                                        oninput="checkSection(this)"></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(4) Arrhythmia & ECG
+                                            Abnormality (心律不整)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Pacemaker</label></li>
+                                        <li><label><input type="checkbox"> Atrial fibrillation: &nbsp;
+                                                <label style="width:auto;"><input type="checkbox"> Paroxysmal</label>
+                                                &nbsp;
+                                                <label style="width:auto;"><input type="checkbox"> Persistent</label>
+                                            </label></li>
+                                        <li><label><input type="checkbox"> AV Block: &nbsp;
+                                                <label style="width:auto;"><input type="checkbox"> First degree</label>
+                                                &nbsp;
+                                                <label style="width:auto;"><input type="checkbox"> Mobitz I</label>
+                                                &nbsp;
+                                                <label style="width:auto;"><input type="checkbox"> Mobitz II</label>
+                                                &nbsp;
+                                                <label style="width:auto;"><input type="checkbox"> Complete</label>
+                                            </label></li>
+                                        <li><label><input type="checkbox"> ST-T Abnormality</label></li>
+                                        <li><label><input type="checkbox"> s/p ablation</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(5) Heart failure
+                                            (心衰竭)</span></label>
+                                    <ul>
+                                        <li>
+                                            NYHA Class <select onchange="checkSection(this)" style="width:auto;">
+                                                <option value=""></option>
+                                                <option value="I">I</option>
+                                                <option value="II">II</option>
+                                                <option value="III">III</option>
+                                                <option value="IV">IV</option>
+                                            </select>
+                                        </li>
+                                        <li><label><input type="checkbox"> HFpEF</label></li>
+                                        <li><label><input type="checkbox"> HFrEF</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(6) Dyslipidemia
+                                            (血脂異常)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Medical control</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(7) PAOD
+                                            (周邊動脈阻塞疾病)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(8) Vascular disease
+                                            (血管疾病)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Aortic Aneurysm</label></li>
+                                        <li><label><input type="checkbox"> Aortic Dissection</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(9) Congenital Heart Disease
+                                            (先天性心臟病)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(10) Pulmonary Hypertension
+                                            (肺高壓)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(11) Others</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Neurologic & Psychiatric System -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Neurologic & Psychiatric System (神經精神系統)
+                        </div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) CVA (腦中風)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Ischemic (缺血性)</label></li>
+                                        <li><label><input type="checkbox"> Hemorrhagic (出血性)</label></li>
+                                        <li><label><input type="checkbox"> Hemiparesis (偏癱): &nbsp; <label
+                                                    style="width:auto;"><input type="checkbox"> Right</label> &nbsp;
+                                                <label style="width:auto;"><input type="checkbox"> Left</label></label>
+                                        </li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) Traumatic Brain Injury
+                                            (創傷性腦損傷)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(3) Parkinson disease
+                                            (帕金森氏症)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(4) Seizure
+                                            (癲癇)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Regular control</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(5) Aneurysm/AVM
+                                            (動脈瘤/動靜脈畸形)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Medical control</label></li>
+                                        <li><label><input type="checkbox"> Surgery/Intervention</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(6) Dementia
+                                            (失智症)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(7) Psychiatric Problem
+                                            (精神疾病)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Schizophrenia</label></li>
+                                        <li><label><input type="checkbox"> Bipolar Disease</label></li>
+                                        <li><label><input type="checkbox"> Depression</label></li>
+                                        <li><label><input type="checkbox"> Personality Disorder</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(8) GCS
+                                            (昏迷指數)</span></label>:
+                                    E <select onchange="checkSection(this)" style="width:auto;">
+                                        <option value=""></option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4" selected>4</option>
+                                    </select>
+                                    V <select onchange="checkSection(this)" style="width:auto;">
+                                        <option value=""></option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5" selected>5</option>
+                                        <option value="T">T</option>
+                                    </select>
+                                    M <select onchange="checkSection(this)" style="width:auto;">
+                                        <option value=""></option>
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6" selected>6</option>
+                                    </select>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(9) Cerebral Palsy
+                                            (腦性麻痺)</span></label>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(10) Others</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Endocrine System -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Endocrine System (內分泌系統)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) DM (糖尿病)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> OAD</label></li>
+                                        <li><label><input type="checkbox"> Insulin</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) Thyroid disease
+                                            (甲狀腺疾病)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Hyperthyroidism</label></li>
+                                        <li><label><input type="checkbox"> Hypothyroidism</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(3) Others</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Respiratory System -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Respiratory System (呼吸系統)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) Asthma
+                                            (氣喘)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Inhalational control</label></li>
+                                        <li><label><input type="checkbox"> Inhalational steroid</label></li>
+                                        <li><label><input type="checkbox"> Oral steroid</label></li>
+                                        <li><label><input type="checkbox"> Recent exacerbation</label></li>
+                                        <li>Classification: &nbsp;
+                                            <label style="width:auto;"><input type="checkbox"> Intermittent</label>
+                                            &nbsp;
+                                            <label style="width:auto;"><input type="checkbox"> Persistent mild</label>
+                                            &nbsp;
+                                            <label style="width:auto;"><input type="checkbox"> Persistent
+                                                moderate</label> &nbsp;
+                                            <label style="width:auto;"><input type="checkbox"> Persistent severe</label>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) COPD
+                                            (慢性阻塞性肺病)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(3) Smoking
+                                            (抽菸)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Quit: <input type="text" placeholder="多久"
+                                                    style="width:50px" oninput="checkSection(this)"></label></li>
+                                        <li><label><input type="checkbox"> Persistent: <input type="text"
+                                                    placeholder="PPD" style="width:50px"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(4) Airborne or droplet
+                                            infection</span></label>: <input type="text" oninput="checkSection(this)">
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(5) Others</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Airway -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Airway (呼吸道評估)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><span class="bold-item">(1) Mallampati score</span>:
+                                    <label style="width:auto; display:inline-flex; align-items:center;"><input
+                                            type="radio" name="mallampati" value="1" onchange="checkSection(this)">
+                                        1</label>
+                                    <label
+                                        style="width:auto; display:inline-flex; align-items:center; margin-left:5px;"><input
+                                            type="radio" name="mallampati" value="2" onchange="checkSection(this)">
+                                        2</label>
+                                    <label
+                                        style="width:auto; display:inline-flex; align-items:center; margin-left:5px;"><input
+                                            type="radio" name="mallampati" value="3" onchange="checkSection(this)">
+                                        3</label>
+                                    <label
+                                        style="width:auto; display:inline-flex; align-items:center; margin-left:5px;"><input
+                                            type="radio" name="mallampati" value="4" onchange="checkSection(this)">
+                                        4</label>
+                                </li>
+                                <li><span class="bold-item">(2) Neck ROM (頸部活動度)</span>: &nbsp;
+                                    <label style="width:auto;"><input type="checkbox"> Limited</label> &nbsp;
+                                    <label style="width:auto;"><input type="checkbox"> Free</label> &nbsp;
+                                    <label style="width:auto;"><input type="checkbox"> 不適用</label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Ankylosing spondylitis</label></li>
+                                        <li><label><input type="checkbox"> Surgical fixation</label></li>
+                                        <li><label><input type="checkbox"> Trauma</label></li>
+                                        <li><label><input type="checkbox"> With Symptoms</label></li>
+                                    </ul>
+                                </li>
+                                <li><span class="bold-item">(3) Mouth opening (張口度)</span>: &nbsp;
+                                    <label style="width:auto;"><input type="checkbox"> >=2 FB</label> &nbsp;
+                                    <label style="width:auto;"><input type="checkbox"> 1-2FB</label> &nbsp;
+                                    <label style="width:auto;"><input type="checkbox">
+                                        <1FB </label> &nbsp;
+                                            <label style="width:auto;"><input type="checkbox"> 不適用</label>
+                                </li>
+                                <li><span class="bold-item">(4) Intubated (已插管)</span>: <label
+                                        style="width:auto;"><input type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(5) Tracheostomy (氣切)</span>: <label
+                                        style="width:auto;"><input type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(6) Head/Neck Cancer (頭頸癌)</span>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Previous Surgery</label></li>
+                                        <li><label><input type="checkbox"> Previous RT</label></li>
+                                        <li><label><input type="checkbox"> Others</label></li>
+                                    </ul>
+                                </li>
+                                <li><span class="bold-item">(7) Obstructive sleep apnea (睡眠呼吸中止症)</span>: <label
+                                        style="width:auto;"><input type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(8) Dentition (牙齒狀況)</span>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Normal</label></li>
+                                        <li><label><input type="checkbox"> Loose Teeth</label></li>
+                                        <li><label><input type="checkbox"> 活動假牙</label></li>
+                                        <li><label><input type="checkbox"> 鬆動假牙</label></li>
+                                        <li><label><input type="checkbox"> Others</label></li>
+                                    </ul>
+                                </li>
+                                <li><span class="bold-item">(9) Expected difficult airway (預期困難呼吸道)</span>: <label
+                                        style="width:auto;"><input type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(10) Others</span>: <input type="text"
+                                        oninput="checkSection(this)">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Renal System -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Renal System (腎臟系統)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) ESRD
+                                            (末期腎病)</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> HD (血液透析)</label></li>
+                                        <li><label><input type="checkbox"> PD (腹膜透析)</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text" placeholder="備註"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) Acute Kidney Injury
+                                            (急性腎損傷)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(3) Chronic Renal
+                                            Insufficiency (慢性腎功能不全)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(4) Obstructive lesion
+                                            (阻塞性病變)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(5) Electrolyte Imbalance
+                                            (電解質不平衡)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(6) Others</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Hematologic System -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Hematologic System (血液系統)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) Anemia
+                                            (貧血)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) Leukocytosis
+                                            (白血球增多)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(3) Leukocyte D/C
+                                            Abnormality</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(4) 凝血功能評估</span></label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Decreased Platelet Count</label></li>
+                                        <li><label><input type="checkbox"> Abnormal PT/PTT</label></li>
+                                        <li><label><input type="checkbox"> Anticoagulants/Anti-Platelet Drugs</label>
+                                        </li>
+                                        <li><span class="bold-item">麻醉醫師評估</span>: <input type="text"
+                                                oninput="checkSection(this)">
+                                        </li>
+                                        <li><span class="bold-item">藥物史</span>: <input type="text"
+                                                value="(體系: 查無任何處方資料!; 雲端: 未簽署雲端病歷同意書)" style="width:300px;"
+                                                oninput="checkSection(this)"></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(5) Others</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Digestive System -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Digestive System (消化系統)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) Carrier
+                                            of</span></label>:
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> HBV</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> HCV</label>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) Cirrhosis
+                                            (肝硬化)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(3) Jaundice
+                                            (黃疸)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(4) HCC (肝癌)</span></label>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(5) Ileus
+                                            (腸阻塞)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(6) Peptic Ulcer
+                                            (消化性潰瘍)</span></label>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(7) GERD
+                                            (胃食道逆流)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(8) GI Bleeding
+                                            (腸胃道出血)</span></label>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(9) Others</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Drug/Food/Transfusion Reaction -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Drug/Food/Transfusion Reaction (過敏史)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) Allergy</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) Other Adverse
+                                            Effect</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- History of Surgery & Anesthesia -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">History of Surgery & Anesthesia (手術麻醉史)
+                        </div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) History</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) Events</span></label>:
+                                    <input type="text" oninput="checkSection(this)">
+                                    <ul>
+                                        <li><label><input type="checkbox"> PONV (術後噁心嘔吐)</label></li>
+                                        <li><label><input type="checkbox"> Airway Injury/Discomfort</label></li>
+                                        <li><label><input type="checkbox"> RA Injury/Discomfort</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- ASA & Miscellaneous -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">ASA & Miscellaneous (風險評估與其他)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><span class="bold-item">(1) Classification (ASA分級)</span>:
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> 1</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> 2</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> 3</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> 4(高風險)</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> 5(高風險)</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> 6(高風險)</label>
+                                </li>
+                                <li><span class="bold-item">(2) Emergency (緊急手術)</span>: <label
+                                        style="width:auto;"><input type="checkbox"> E</label></li>
+                                <li><span class="bold-item">(3) Obesity (肥胖)</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(4) Pregnancy (懷孕)</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(5) HIV carrier</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(6) C/S indication</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Previous C/S or uterus surgery</label></li>
+                                        <li><label><input type="checkbox"> Prolonged labor</label></li>
+                                        <li><label><input type="checkbox"> Multi-gestation</label></li>
+                                        <li><label><input type="checkbox"> Placental abnormality</label></li>
+                                        <li><label><input type="checkbox"> Fetal condition</label></li>
+                                        <li><label><input type="checkbox"> Other</label></li>
+                                    </ul>
+                                </li>
+                                <li><span class="bold-item">(7) Glaucoma (青光眼)</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(8) Hypnotics use</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(9) Gene Abnormality</span>: <label
+                                        style="width:auto;"><input type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(10) Malignant Hyperthermia risk</span>: <label
+                                        style="width:auto;"><input type="checkbox"> Yes</label></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Others -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Others (其他)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) Others
+                                            (麻醉計畫)</span></label>: <input type="text" oninput="checkSection(this)"></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- SECTION 2: Anesthesia Plan -->
+                <div class="h2-container">
+                    <h2 class="h2-title">麻醉計畫詳細內容 (Anesthesia Plan)</h2>
+
+                    <!-- General Anesthesia -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">General Anesthesia (全身麻醉)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) GA with Endotracheal Tube
+                                            (插管)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) GA with Supraglottic
+                                            Airway Device (LMA)</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(3) Face
+                                            Mask/IVGA</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(4) TCI</span></label>
+                                    <ul class="nested-hidden">
+                                        <li><label><input type="checkbox"> with Propofol</label></li>
+                                        <li><label><input type="checkbox"> with Remifentanil</label>
+                                            <ul class="nested-hidden">
+                                                <li><label><input type="checkbox"> 50 mcg/mL</label></li>
+                                                <li><label><input type="checkbox"> 25 mcg/mL</label></li>
+                                                <li><label><input type="checkbox"> 12.5 mcg/mL</label></li>
+                                                <li><label><input type="checkbox"> Others: <input type="text"
+                                                            oninput="checkSection(this)"></label></li>
+                                            </ul>
+                                        </li>
+                                        <li><label><input type="checkbox"> with Precedex</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(5) Specific
+                                            Medication</span></label>:
+                                    <ul>
+                                        <li><label><input type="checkbox"> Ondansetron (Zofran)</label></li>
+                                        <li><label><input type="checkbox"> Etomidate</label></li>
+                                        <li><label><input type="checkbox"> Ketamine</label></li>
+                                        <li><label><input type="checkbox"> Thiamylal (Citosol)</label></li>
+                                        <li><label><input type="checkbox"> Alfentanil (Rapifen)</label></li>
+                                        <li><label><input type="checkbox"> Midazolam (Dormicum)</label></li>
+                                        <li><label><input type="checkbox"> Remifentanil</label></li>
+                                        <li><label><input type="checkbox"> Betamethasone (Rinderon)</label></li>
+                                        <li><label><input type="checkbox"> Ketorolac</label></li>
+                                        <li><label><input type="checkbox"> Succinylcholine</label></li>
+                                        <li><label><input type="checkbox"> Sugammadex</label></li>
+                                        <li><label><input type="checkbox"> Others</label></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Regional Anesthesia -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Regional Anesthesia/ Analgesia (區域麻醉/止痛)
+                        </div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> <span class="bold-item">(1) SA (脊隨麻醉)</span></label>
+                                    <ul class="nested-hidden">
+                                        <li><label><input type="checkbox"> 27G</label></li>
+                                        <li><label><input type="checkbox"> 26G</label></li>
+                                        <li><label><input type="checkbox"> 23G</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(2) EA
+                                            (硬脊膜外麻醉)</span></label>
+                                    <ul class="nested-hidden">
+                                        <li><label><input type="checkbox"> Lumbar</label></li>
+                                        <li><label><input type="checkbox"> Thoracic</label></li>
+                                        <li><label><input type="checkbox"> Caudal</label></li>
+                                        <li><label><input type="checkbox"> Cervical</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(3) SA/EA
+                                            Medication</span></label>
+                                    <ul class="nested-hidden">
+                                        <li><label><input type="checkbox"> Bupivacaine (Plain/Heavy)</label></li>
+                                        <li><label><input type="checkbox"> Levobupivacaine</label></li>
+                                        <li><label><input type="checkbox"> Lidocaine</label></li>
+                                        <li><label><input type="checkbox"> Fentanyl</label></li>
+                                        <li><label><input type="checkbox"> Others</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(4) Peripheral Nerve Block
+                                            (周邊神經阻斷)</span></label>
+                                    <ul class="nested-hidden" style="display: flex; flex-wrap: wrap;">
+                                        <li style="width:50%"><label><input type="checkbox"> Scalp Nerve</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Superficial Cervical
+                                                Plexus</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Transtracheal</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Interscalene</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Supraclavicular</label>
+                                        </li>
+                                        <li style="width:50%"><label><input type="checkbox"> Infraclavicular</label>
+                                        </li>
+                                        <li style="width:50%"><label><input type="checkbox"> Axillary</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Forearm</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Intravenous
+                                                Regional</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Sciatic Nerve</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Popliteal Fossa</label>
+                                        </li>
+                                        <li style="width:50%"><label><input type="checkbox"> Femoral Nerve</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Fasia Iliaca</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Parasacral</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Obturator Nerve</label>
+                                        </li>
+                                        <li style="width:50%"><label><input type="checkbox"> Saphenous Nerve</label>
+                                        </li>
+                                        <li style="width:50%"><label><input type="checkbox"> Lateral Femoral Cutaneous
+                                                Nerve</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Lumbar Plexus</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Ankle</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Paravertebral</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Transversus Abdominus
+                                                Plane</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Ilioinguinal &
+                                                Iliohypogastric</label></li>
+                                        <li style="width:50%"><label><input type="checkbox"> Others</label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(5) PNB
+                                            Medication</span></label>
+                                    <ul class="nested-hidden">
+                                        <li><label><input type="checkbox"> Ropivacaine</label></li>
+                                        <li><label><input type="checkbox"> Bupivacaine</label></li>
+                                        <li><label><input type="checkbox"> Levobupivacaine</label></li>
+                                        <li><label><input type="checkbox"> Lidocaine</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(6) Nerve
+                                            Stimulator</span></label></li>
+                                <li><label><input type="checkbox"> <span class="bold-item">(7) Sedation /
+                                            GA</span></label></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- CV monitors and IV access -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">CV monitors And IV access (監測與管路)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><span class="bold-item">(1) ABP (動脈血壓)</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Awake A-line</label></li>
+                                        <li><label><input type="checkbox"> Pressure Kit</label>:
+                                            &nbsp; <label style="width:auto;"><input type="checkbox"> 1-Dome</label>
+                                            &nbsp; <label style="width:auto;"><input type="checkbox"> 2-Dome</label>
+                                            &nbsp; <label style="width:auto;"><input type="checkbox"> 3-Dome</label>
+                                        </li>
+                                        <li><label><input type="checkbox"> with</label>:
+                                            &nbsp; <label style="width:auto;"><input type="checkbox"> FloTrac</label>
+                                            &nbsp; <label style="width:auto;"><input type="checkbox"> ProAQT</label>
+                                            &nbsp; <label style="width:auto;"><input type="checkbox"> EV1000</label>
+                                        </li>
+                                        <li><label><input type="checkbox"> Others</label></li>
+                                    </ul>
+                                </li>
+                                <li><span class="bold-item">(2) CVC (中心靜脈導管)</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> Coated 14x14</label></li>
+                                        <li><label><input type="checkbox"> Non-coated 14x14</label></li>
+                                        <li><label><input type="checkbox"> Coated 16x18x18</label></li>
+                                        <li><label><input type="checkbox"> Non-coated 16x18x18</label></li>
+                                        <li><label><input type="checkbox"> 12x12x16</label></li>
+                                        <li><label><input type="checkbox"> 20x22x22</label></li>
+                                        <li><label><input type="checkbox"> Cook 16x18x18</label></li>
+                                        <li><label><input type="checkbox"> ScvO2, 15x18x18</label></li>
+                                        <li><label><input type="checkbox"> Others</label></li>
+                                    </ul>
+                                </li>
+                                <li><span class="bold-item">(3) PAC</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(4) PICCO</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(5) Large-bore IV</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes (>=16G)</label></li>
+                                <li><span class="bold-item">(6) TEE</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(7) LIDCO</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(8) Five leads ECG</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Airway Management -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Airway management (呼吸道處置)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><span class="bold-item">(1) ET tube</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label>
+                                    <ul>
+                                        <li>Oral: &nbsp; <label style="width:auto;"><input type="checkbox">
+                                                一般RAE</label> &nbsp;
+                                            <label style="width:auto;"><input type="checkbox"> Reinforced</label>
+                                        </li>
+                                        <li>Nasal: &nbsp; <label style="width:auto;"><input type="checkbox">
+                                                一般RAE</label> &nbsp;
+                                            <label style="width:auto;"><input type="checkbox"> Reinforced</label>
+                                        </li>
+                                        <li>Laser: &nbsp; <label style="width:auto;"><input type="checkbox"> Yes</label>
+                                        </li>
+                                        <li>Others: &nbsp; <label style="width:auto;"><input type="checkbox">
+                                                Yes</label></li>
+                                    </ul>
+                                </li>
+                                <li><span class="bold-item">(2) LMA</span>: <label style="width:auto;"><input
+                                            type="checkbox">
+                                        Yes</label></li>
+                                <li><span class="bold-item">(3) DLT</span>: <label style="width:auto;"><input
+                                            type="checkbox">
+                                        Yes</label>
+                                    <ul class="nested-hidden">
+                                        <li><label><input type="checkbox"> 35L</label></li>
+                                        <li><label><input type="checkbox"> 37L</label></li>
+                                        <li><label><input type="checkbox"> 32L</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
+                                    </ul>
+                                </li>
+                                <li><span class="bold-item">(4) Blocker</span>: <label style="width:auto;"><input
+                                            type="checkbox">
+                                        Yes</label></li>
+                                <li><span class="bold-item">(5) RSI</span>: <label style="width:auto;"><input
+                                            type="checkbox">
+                                        Yes</label></li>
+                                <li><span class="bold-item">(6) 特殊工具/醫材</span>: <label style="width:auto;"><input
+                                            type="checkbox">
+                                        Yes</label>
+                                    <ul>
+                                        <li><label><input type="checkbox"> GlideScope</label></li>
+                                        <li><label><input type="checkbox" id="chk_mac"> MAC</label></li>
+                                        <li><label><input type="checkbox" id="chk_aws"> AWS</label></li>
+                                        <li><label><input type="checkbox"> Storz: OdBLADE</label></li>
+                                        <li><label><input type="checkbox" id="chk_bronchoscope"> Bronchoscope: <label
+                                                    style="width:auto;"><input type="checkbox"> Awake</label> <label
+                                                    style="width:auto;"><input type="checkbox"> Not
+                                                    Awake</label></label></li>
+                                        <li><label><input type="checkbox"> Trachway</label></li>
+                                        <li><label><input type="checkbox"> Bougie</label></li>
+                                        <li><label><input type="checkbox"> Tube Exchanger</label></li>
+                                        <li><label><input type="checkbox" id="chk_optiflow_thrive"> Optiflow
+                                                THRIVE</label></li>
+                                        <li><label><input type="checkbox"> AirKeeper</label></li>
+                                        <li><label><input type="checkbox" id="chk_optiflow_hfnc"> Optiflow HFNC</label>
+                                        </li>
+                                        <li><label><input type="checkbox"> Others</label></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Neurologic Monitors -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">Neurologic/NM monitors (神經監測)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><span class="bold-item">(1) TOF</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(2) OMT(自費)</span>: <label style="width:auto;"><input
+                                            type="checkbox" id="chk_omt"> Yes</label></li>
+                                <li><span class="bold-item">(3) 麻醉深度監測</span>:
+                                    &nbsp; <label style="width:auto;"><input type="checkbox" id="chk_bis"> BIS</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> Entrophy</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> Sedline</label>
+                                </li>
+                                <li><span class="bold-item">(4) Cerebral oximetry</span>:
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> ForeSight</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> O3</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> INVOS</label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- ICU & Misc -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">ICU & Miscellaneous (其他處置)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><span class="bold-item">(1) ICU admission</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(2) 術後止痛</span>:
+                                    &nbsp; <label style="width:auto;"><input type="checkbox" id="chk_pca">
+                                        完成PCA評估解釋</label>
+                                    &nbsp; <label style="width:auto;"><input type="checkbox"> 病房一般止痛</label>
+                                </li>
+                                <li><span class="bold-item">(3) 眼睛保護貼片(自費)</span>: <label style="width:auto;"><input
+                                            type="checkbox"> Yes</label></li>
+                                <li><span class="bold-item">(4) 暖空氣保溫套(自費)</span>: <label style="width:auto;"><input
+                                            type="checkbox" id="chk_warm_blanket"> Yes</label></li>
+                                <li><span class="bold-item">(5) Mepilex貼片(自費)</span>: <label style="width:auto;"><input
+                                            type="checkbox" id="chk_mepilex"> Yes</label></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- NPO -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">NPO (禁食)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> 藥物/水/透明運動飲料>2hrs, 清腸液>3hrs, 母乳>4hrs, 配方乳>6hrs,
+                                        固體食物>8hrs</label>
+                                </li>
+                                <li><label><input type="checkbox"> Others: <input type="text"
+                                            oninput="checkSection(this)"></label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- POR -->
+                    <div class="h3-section">
+                        <div class="h3-header" onclick="toggleSection(this)">POR (恢復室)</div>
+                        <div class="h3-content">
+                            <ul>
+                                <li><label><input type="checkbox"> 麻醉後恢復一般照護醫令 (如恢復室作業規範)</label></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Section -->
+    <div style="margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px;">
+        <h3>除錯訊息 (Debug Output)</h3>
+        <textarea id="debug-output"
+            style="width: 100%; height: 200px; font-family: monospace; background: #f0f0f0; border: 1px solid #999; padding: 10px; box-sizing: border-box;"
+            readonly></textarea>
+        <button onclick="document.getElementById('debug-output').value=''"
+            style="margin-top: 5px; background: #666; font-size: 0.8rem;">清空 Log</button>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = '/api/his';
+
+        // Global State for Data
+        let currentScheduleData = [];
+
+        // Set default date to today (Local Time)
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+
+        document.getElementById('bgOpDate').value = todayStr;
+        document.getElementById('endOpDate').value = todayStr;
+
+        function logDebug(message) {
+            const el = document.getElementById('debug-output');
+            const time = new Date().toLocaleTimeString();
+            el.value += `[${time}] ${message}\n----------------------------------------\n`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        async function callApi(endpoint, params) {
+            const url = `${API_BASE}/${endpoint}`;
+            const options = {
+                method: 'POST', // Always use POST for the proxy
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(params).toString()
+            };
+
+            logDebug(`Requesting local proxy: ${endpoint}`);
+
+            try {
+                const res = await fetch(url, options);
+                logDebug(`Response Status: ${res.status} ${res.statusText}`);
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const json = await res.json();
+                logDebug(`Raw Response Text (first 500 chars): ${JSON.stringify(json).substring(0, 500)}...`);
+
+                if (json.datastatus === 1) return json.returnList || [];
+                if (json.datastatus === 0) return [];
+
+                const err = new Error(json.errorMsg || 'API Error');
+                err.datastatus = json.datastatus;
+                throw err;
+
+            } catch (e) {
+                console.error(e);
+                logDebug(`ERROR: ${e.name} - ${e.message}`);
+                if (e.message.includes('Failed to fetch')) {
+                    logDebug(`HINT: 'Failed to fetch' usually means network error or the proxy server is not running.`);
+                }
+                throw e;
+            }
+        }
+
+        async function fetchSchedule() {
+            const bgDate = document.getElementById('bgOpDate').value;
+            const endDate = document.getElementById('endOpDate').value;
+            const listDiv = document.getElementById('schedule-list');
+            listDiv.innerHTML = '<div class="loading">查詢中...</div>';
+
+            try {
+                // User provided example uses yyyyMMdd
+                const bgParam = bgDate.replace(/-/g, '');
+                const endParam = endDate.replace(/-/g, '');
+
+                const data = await callApi('getPatOperationList', {
+                    pBGOPDATE: bgParam,
+                    pENDOPDATE: endParam
+                }, 'POST');
+
+                listDiv.innerHTML = '';
+                currentScheduleData = data || []; // Update global state
+
+                if (currentScheduleData.length === 0) {
+                    listDiv.innerHTML = '<div class="loading">該日期區間無手術資料</div>';
+                    return;
+                }
+
+                initFilters(currentScheduleData);
+                applyFilters();
+
+            } catch (error) {
+                const errorInfo = error.datastatus
+                    ? `錯誤碼: ${error.datastatus}<br>${error.message}`
+                    : error.message || '查詢失敗，請檢查網路連接';
+                listDiv.innerHTML = `<div class="error">${errorInfo}</div>`;
+            }
+        }
+
+        function initFilters(data) {
+            // Populate Rooms
+            const roomSet = new Set(data.map(i => i.OROPROOM).filter(x => x));
+            const roomSelect = document.getElementById('filterRoom');
+            roomSelect.innerHTML = '<option value="">全部房號</option>';
+            Array.from(roomSet).sort().forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                opt.textContent = r;
+                roomSelect.appendChild(opt);
+            });
+
+            // Populate Anesthesia Methods
+            const aneSet = new Set(data.map(i => i.ORANENM).filter(x => x));
+            const aneContainer = document.getElementById('ane-filter-container');
+            aneContainer.innerHTML = '';
+
+            Array.from(aneSet).sort().forEach(ane => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'ane-checkbox';
+                // Default hide LA and NI
+                const isChecked = !(ane === 'LA' || ane === 'NI');
+
+                wrapper.innerHTML = `
+                    <label>
+                        <input type="checkbox" value="${ane}" ${isChecked ? 'checked' : ''} onchange="applyFilters()">
+                        ${ane}
+                    </label>
+                `;
+                aneContainer.appendChild(wrapper);
+            });
+        }
+
+        function applyFilters() {
+            const listDiv = document.getElementById('schedule-list');
+            const searchId = document.getElementById('searchId').value.trim();
+            const filterRoom = document.getElementById('filterRoom').value;
+
+            // Get checked anesthesia methods
+            const checkedAne = Array.from(document.querySelectorAll('#ane-filter-container input:checked')).map(cb => cb.value);
+
+            const filtered = currentScheduleData.filter(item => {
+                const idMatch = !searchId || (item.HHISTNUM && item.HHISTNUM.includes(searchId));
+                const roomMatch = !filterRoom || item.OROPROOM === filterRoom;
+                const aneMatch = checkedAne.length === 0 || (item.ORANENM && checkedAne.includes(item.ORANENM));
+                return idMatch && roomMatch && aneMatch;
+            });
+
+            renderSchedule(filtered);
+        }
+
+        function renderSchedule(data) {
+            const listDiv = document.getElementById('schedule-list');
+            listDiv.innerHTML = '';
+
+            if (data.length === 0) {
+                listDiv.innerHTML = '<div class="loading">無符合篩選條件的資料</div>';
+                return;
+            }
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+
+                // --- Logic for Styles ---
+                // Pre-Anesthesia: Finished (Y/完) -> Green, else -> Gray (Default)
+                const isPreAneFinished = item.PREANEASSESFIN === 'Y' || item.PREANEASSESFIN === '完';
+                // EMG: Has value -> Red highlight
+                const isEmg = !!item.EMG;
+
+                const classes = ['surgery-card'];
+                if (isPreAneFinished) classes.push('pre-ane-finished');
+                if (isEmg) classes.push('is-emg');
+
+                card.className = classes.join(' ');
+                card.onclick = () => showDetail(item);
+
+                // Field mapping based on 2024-12 API Doc
+                const time = item.OP_TIME || item.OpTime || '--:--';
+                const name = item.HNAMEC || item.Hnamec || 'Unknown';
+                const gender = item.HSEXE || item.Hsexe || '';
+                const age = item.AGE || item.Age || '';
+                const procedure = item.ORDPROCED || item.OrdProced || 'No Procedure Name';
+                const room = item.OROPROOM || item.OrOpRoom || '';
+                const surgeon = item.ORDOCNM || item.OrDocNm || '';
+                const bed = item.HBED || item.HBed || '';
+                const status = item.STATUS || ''; // Top-right status
+
+                card.innerHTML = `
+                <div class="status-badge">${status}</div>
+                <div class="card-left">
+                    <div class="room-number">${room || '--'}</div>
+                    <div class="time-box">${time}</div>
+                </div>
+                <div class="info-box">
+                    <div class="patient-name">
+                        ${name} 
+                        <span style="font-weight:normal; font-size:0.9em">(${gender}/${age})</span>
+                        ${isEmg ? '<span style="color:red; font-weight:bold; font-size:0.8em; margin-left:5px;">[EMG]</span>' : ''}
+                    </div>
+                    <div class="procedure">${procedure}</div>
+                    <div class="tags">
+                        <span>${surgeon}</span>
+                        <span>${bed}</span>
+                        <span style="background:#fff3cd; color:#856404">${item.ORANENM || ''}</span>
+                    </div>
+                </div>
+                <div style="color:#ccc;">❯</div>
+            `;
+                listDiv.appendChild(card);
+            });
+        }
+
+
+
+        function triggerPdfGen() {
+            if (!window.currentDetailData) return;
+            generateAnesForm(window.currentDetailData.basic, window.currentDetailData.phy, window.currentDetailData.aneHist);
+        }
+
+        // --- PDF Generation Logic ---
+
+        const PDF_FIELD_COORDS = [
+            {
+                "page": 1,
+                "type": "field",
+                "label": "病歷號 :",
+                "text": ":",
+                "plumber_x": 121.24,
+                "plumber_y": 97.86,
+                "pdflib_x": 121.24,
+                "pdflib_y": 741.65
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "病歷號 :             姓名 :",
+                "text": ":",
+                "plumber_x": 235.52,
+                "plumber_y": 97.86,
+                "pdflib_x": 235.52,
+                "pdflib_y": 741.65
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "病歷號 :             姓名 :           生日 :",
+                "text": ":",
+                "plumber_x": 337.72,
+                "plumber_y": 97.86,
+                "pdflib_x": 337.72,
+                "pdflib_y": 741.65
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "病歷號 :             姓名 :           生日 :          床號 :",
+                "text": ":",
+                "plumber_x": 433.0,
+                "plumber_y": 98.18,
+                "pdflib_x": 433.0,
+                "pdflib_y": 741.33
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "病歷號 :             姓名 :           生日 :          床號 :         ID:",
+                "text": ":",
+                "plumber_x": 496.92,
+                "plumber_y": 98.37,
+                "pdflib_x": 496.92,
+                "pdflib_y": 741.14
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "年齡 :",
+                "text": ":",
+                "plumber_x": 114.5,
+                "plumber_y": 114.88,
+                "pdflib_x": 114.5,
+                "pdflib_y": 724.63
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "年齡 :             血型 :",
+                "text": ":",
+                "plumber_x": 228.76,
+                "plumber_y": 114.88,
+                "pdflib_x": 228.76,
+                "pdflib_y": 724.63
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "年齡 :             血型 :        性別 :",
+                "text": ":",
+                "plumber_x": 312.87,
+                "plumber_y": 114.88,
+                "pdflib_x": 312.87,
+                "pdflib_y": 724.63
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "年齡 :             血型 :        性別 :        身高 :",
+                "text": ":",
+                "plumber_x": 396.97,
+                "plumber_y": 114.88,
+                "pdflib_x": 396.97,
+                "pdflib_y": 724.63
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "年齡 :             血型 :        性別 :        身高 :       cm 體重 :",
+                "text": ":",
+                "plumber_x": 495.29,
+                "plumber_y": 114.88,
+                "pdflib_x": 495.29,
+                "pdflib_y": 724.63
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "體溫 :",
+                "text": ":",
+                "plumber_x": 114.5,
+                "plumber_y": 130.51,
+                "pdflib_x": 114.5,
+                "pdflib_y": 709.0
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "體溫 :        心跳 :",
+                "text": ":",
+                "plumber_x": 198.61,
+                "plumber_y": 130.51,
+                "pdflib_x": 198.61,
+                "pdflib_y": 709.0
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "體溫 :        心跳 :      /min 呼吸:",
+                "text": ":",
+                "plumber_x": 295.13,
+                "plumber_y": 130.51,
+                "pdflib_x": 295.13,
+                "pdflib_y": 709.0
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "體溫 :        心跳 :      /min 呼吸:     /min  血壓 :",
+                "text": ":",
+                "plumber_x": 397.68,
+                "plumber_y": 130.51,
+                "pdflib_x": 397.68,
+                "pdflib_y": 709.0
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "體溫 :        心跳 :      /min 呼吸:     /min  血壓 :      mmHg SPO2(RA):",
+                "text": ":",
+                "plumber_x": 529.01,
+                "plumber_y": 130.51,
+                "pdflib_x": 529.01,
+                "pdflib_y": 709.0
+            },
+            {
+                "page": 1,
+                "type": "date_part_day",
+                "label": "預定手術日期_日",
+                "text": "日",
+                "plumber_x": 320.54,
+                "plumber_y": 146.47,
+                "pdflib_x": 320.54,
+                "pdflib_y": 693.04,
+                "input_width": 20
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "預定手術日期:",
+                "text": ":",
+                "plumber_x": 156.74,
+                "plumber_y": 146.47,
+                "pdflib_x": 156.74,
+                "pdflib_y": 693.04
+            },
+            {
+                "page": 1,
+                "type": "date_part_year",
+                "label": "預定手術日期_年",
+                "text": "年",
+                "plumber_x": 178.67,
+                "plumber_y": 146.47,
+                "pdflib_x": 178.67,
+                "pdflib_y": 693.04,
+                "input_width": 30
+            },
+            {
+                "page": 1,
+                "type": "date_part_month",
+                "label": "預定手術日期_月",
+                "text": "月",
+                "plumber_x": 254.69,
+                "plumber_y": 146.47,
+                "pdflib_x": 254.69,
+                "pdflib_y": 693.04,
+                "input_width": 20
+            },
+            {
+                "page": 1,
+                "type": "date_part_day",
+                "label": "預定手術日期_日",
+                "text": "日",
+                "plumber_x": 320.68,
+                "plumber_y": 146.47,
+                "pdflib_x": 320.68,
+                "pdflib_y": 693.04,
+                "input_width": 20
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "預定手術日期:         年         月         日  手術主治醫師 :",
+                "text": ":",
+                "plumber_x": 450.58,
+                "plumber_y": 146.47,
+                "pdflib_x": 450.58,
+                "pdflib_y": 693.04
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "術前診斷 :",
+                "text": ":",
+                "plumber_x": 138.62,
+                "plumber_y": 162.43,
+                "pdflib_x": 138.62,
+                "pdflib_y": 677.08
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "預計手術名稱 :",
+                "text": ":",
+                "plumber_x": 162.76,
+                "plumber_y": 178.04,
+                "pdflib_x": 162.76,
+                "pdflib_y": 661.47
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "備註/未完成事項：",
+                "text": "：",
+                "plumber_x": 449.1,
+                "plumber_y": 290.52,
+                "pdflib_x": 449.1,
+                "pdflib_y": 548.99
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "Others：",
+                "text": "：",
+                "plumber_x": 121.95,
+                "plumber_y": 374.62,
+                "pdflib_x": 121.95,
+                "pdflib_y": 464.89
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "WBC :",
+                "text": ":",
+                "plumber_x": 112.13,
+                "plumber_y": 390.79,
+                "pdflib_x": 112.13,
+                "pdflib_y": 448.72
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "T-Bil :",
+                "text": ":",
+                "plumber_x": 293.87,
+                "plumber_y": 390.79,
+                "pdflib_x": 293.87,
+                "pdflib_y": 448.72
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "Na :",
+                "text": ":",
+                "plumber_x": 453.17,
+                "plumber_y": 390.79,
+                "pdflib_x": 453.17,
+                "pdflib_y": 448.72
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "Hb :",
+                "text": ":",
+                "plumber_x": 99.37,
+                "plumber_y": 406.78,
+                "pdflib_x": 99.37,
+                "pdflib_y": 432.73
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "AST :",
+                "text": ":",
+                "plumber_x": 291.71,
+                "plumber_y": 406.78,
+                "pdflib_x": 291.71,
+                "pdflib_y": 432.73
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "K :",
+                "text": ":",
+                "plumber_x": 447.85,
+                "plumber_y": 406.78,
+                "pdflib_x": 447.85,
+                "pdflib_y": 432.73
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "Hct :",
+                "text": ":",
+                "plumber_x": 102.2,
+                "plumber_y": 422.74,
+                "pdflib_x": 102.2,
+                "pdflib_y": 416.77
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "ALT :",
+                "text": ":",
+                "plumber_x": 291.35,
+                "plumber_y": 422.74,
+                "pdflib_x": 291.35,
+                "pdflib_y": 416.77
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "Cl :",
+                "text": ":",
+                "plumber_x": 450.33,
+                "plumber_y": 422.74,
+                "pdflib_x": 450.33,
+                "pdflib_y": 416.77
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "PLT :",
+                "text": ":",
+                "plumber_x": 105.05,
+                "plumber_y": 438.7,
+                "pdflib_x": 105.05,
+                "pdflib_y": 400.81
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "BUN :",
+                "text": ":",
+                "plumber_x": 294.53,
+                "plumber_y": 438.7,
+                "pdflib_x": 294.53,
+                "pdflib_y": 400.81
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "Ca :",
+                "text": ":",
+                "plumber_x": 452.45,
+                "plumber_y": 438.7,
+                "pdflib_x": 452.45,
+                "pdflib_y": 400.81
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "PT :",
+                "text": ":",
+                "plumber_x": 98.67,
+                "plumber_y": 454.68,
+                "pdflib_x": 98.67,
+                "pdflib_y": 384.83
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "Cre :",
+                "text": ":",
+                "plumber_x": 286.73,
+                "plumber_y": 454.68,
+                "pdflib_x": 286.73,
+                "pdflib_y": 384.83
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "Glu :",
+                "text": ":",
+                "plumber_x": 456.73,
+                "plumber_y": 454.68,
+                "pdflib_x": 456.73,
+                "pdflib_y": 384.83
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "PTT :",
+                "text": ":",
+                "plumber_x": 106.1,
+                "plumber_y": 471.0,
+                "pdflib_x": 106.1,
+                "pdflib_y": 368.51
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "評估醫師：",
+                "text": "：",
+                "plumber_x": 323.12,
+                "plumber_y": 482.49,
+                "pdflib_x": 323.12,
+                "pdflib_y": 357.02
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "PT INR :",
+                "text": ":",
+                "plumber_x": 122.41,
+                "plumber_y": 486.96,
+                "pdflib_x": 122.41,
+                "pdflib_y": 352.55
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "1.ASA Class :",
+                "text": ":",
+                "plumber_x": 154.61,
+                "plumber_y": 523.66,
+                "pdflib_x": 154.61,
+                "pdflib_y": 315.85
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "2.呼吸道評估:",
+                "text": ":",
+                "plumber_x": 156.74,
+                "plumber_y": 541.75,
+                "pdflib_x": 156.74,
+                "pdflib_y": 297.76
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "2.呼吸道評估: □容易 □中等 □困難 :",
+                "text": ":",
+                "plumber_x": 294.78,
+                "plumber_y": 541.75,
+                "pdflib_x": 294.78,
+                "pdflib_y": 297.76
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "Mallampati classification :",
+                "text": ":",
+                "plumber_x": 223.79,
+                "plumber_y": 559.48,
+                "pdflib_x": 223.79,
+                "pdflib_y": 280.03
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "3.心血管系統評估:",
+                "text": ":",
+                "plumber_x": 180.85,
+                "plumber_y": 577.6,
+                "pdflib_x": 180.85,
+                "pdflib_y": 261.91
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "3.心血管系統評估:□RHB     □異常 :",
+                "text": ":",
+                "plumber_x": 295.49,
+                "plumber_y": 577.6,
+                "pdflib_x": 295.49,
+                "pdflib_y": 261.91
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "4.呼吸系統評估:",
+                "text": ":",
+                "plumber_x": 168.79,
+                "plumber_y": 595.68,
+                "pdflib_x": 168.79,
+                "pdflib_y": 243.83
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "4.呼吸系統評估:□BS clear  □異常 :",
+                "text": ":",
+                "plumber_x": 281.65,
+                "plumber_y": 595.68,
+                "pdflib_x": 281.65,
+                "pdflib_y": 243.83
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "5.麻醉計劃:",
+                "text": ":",
+                "plumber_x": 144.65,
+                "plumber_y": 613.77,
+                "pdflib_x": 144.65,
+                "pdflib_y": 225.74
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "(1) 建議麻醉方式:",
+                "text": ":",
+                "plumber_x": 189.37,
+                "plumber_y": 631.53,
+                "pdflib_x": 189.37,
+                "pdflib_y": 207.98
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "(2) 特殊處理:",
+                "text": ":",
+                "plumber_x": 165.25,
+                "plumber_y": 649.62,
+                "pdflib_x": 165.25,
+                "pdflib_y": 189.89
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "(3) 手術後疼痛計劃:",
+                "text": ":",
+                "plumber_x": 201.09,
+                "plumber_y": 703.55,
+                "pdflib_x": 201.09,
+                "pdflib_y": 135.96
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "(4) 禁食開始時間:",
+                "text": ":",
+                "plumber_x": 189.37,
+                "plumber_y": 739.76,
+                "pdflib_x": 189.37,
+                "pdflib_y": 99.75
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "執行麻醉醫師 :",
+                "text": ":",
+                "plumber_x": 162.76,
+                "plumber_y": 775.58,
+                "pdflib_x": 162.76,
+                "pdflib_y": 63.93
+            },
+            {
+                "page": 1,
+                "type": "field",
+                "label": "MR-RE027 [版本:",
+                "text": ":",
+                "plumber_x": 155.24,
+                "plumber_y": 823.23,
+                "pdflib_x": 155.24,
+                "pdflib_y": 16.28
+            }
+        ];
+
+        const FONT_TC_URL = 'https://raw.githubusercontent.com/google/fonts/main/ofl/notosanstc/NotoSansTC%5Bwght%5D.ttf';
+        const FONT_LATIN_URL = 'https://raw.githubusercontent.com/google/fonts/main/ofl/notosans/NotoSans%5Bwdth%2Cwght%5D.ttf';
+
+        let cachedFontTcBuffer = null;
+        let cachedFontLatinBuffer = null;
+        let cachedPdfTemplate = null;
+
+        async function prepareResources() {
+            const promises = [];
+            // Fonts
+            if (!cachedFontTcBuffer) {
+                promises.push(fetch(FONT_TC_URL).then(r => r.arrayBuffer()).then(b => cachedFontTcBuffer = b));
+            }
+            if (!cachedFontLatinBuffer) {
+                promises.push(fetch(FONT_LATIN_URL).then(r => r.arrayBuffer()).then(b => cachedFontLatinBuffer = b));
+            }
+            // PDF Template
+            if (!cachedPdfTemplate) {
+                // Fetch from user-provided URL
+                const pdfUrl = 'https://MDJimmyFu.github.io/FJUHOR/PreAnesEval.pdf';
+                promises.push(fetch(pdfUrl).then(r => {
+                    if (!r.ok) throw new Error('無法載入 PDF 範本 (' + r.status + ')。請確認網路連線。');
+                    return r.arrayBuffer();
+                }).then(b => cachedPdfTemplate = b));
+            }
+
+            if (promises.length > 0) {
+                // Simple loading indicator
+                const btn = document.getElementById('btn-gen-pdf');
+                const originalText = btn.innerText;
+                btn.innerText = '準備資源中...';
+                btn.disabled = true;
+
+                try {
+                    await Promise.all(promises);
+                } finally {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        async function generateAnesForm(basic, phy, aneHist) {
+            try {
+                await prepareResources();
+
+                const pdfDoc = await PDFLib.PDFDocument.load(cachedPdfTemplate);
+                pdfDoc.registerFontkit(fontkit);
+
+                const fontTC = await pdfDoc.embedFont(cachedFontTcBuffer);
+                const fontLatin = await pdfDoc.embedFont(cachedFontLatinBuffer);
+
+                const pages = pdfDoc.getPages();
+                const page = pages[0]; // Assume single page or first page
+
+                // --- Warning Labels ---
+                if (phy) {
+                    let warnY = 800; // Top margin y position
+                    if (phy.ANEHIGHRISK === 'Y') {
+                        // Red color for High Risk
+                        drawTextMixed(page, "麻醉高風險", 50, warnY, 16, fontTC, fontLatin, PDFLib.rgb(1, 0, 0));
+                        warnY -= 25;
+                    }
+                    if (phy.ANEDIFFICINTUB === 'Y') {
+                        // Orange color for Difficult Intubation
+                        drawTextMixed(page, "困難插管", 50, warnY, 16, fontTC, fontLatin, PDFLib.rgb(1, 0.65, 0));
+                    }
+                }
+
+                // --- Map Data to Fields ---
+
+                const safeVal = (v) => (v === undefined || v === null) ? '' : String(v);
+
+                // Helper to find coord by label snippet
+                const findCoord = (keyword) => PDF_FIELD_COORDS.find(c => c.label.includes(keyword));
+
+                const fill = (keyword, value, maxWidth = 300) => {
+                    const coord = findCoord(keyword);
+                    if (coord && value) {
+                        // Use drawTextWrapped with default width
+                        drawTextWrapped(page, value, coord.pdflib_x, coord.pdflib_y, maxWidth, 12, 10, fontTC, fontLatin);
+                    }
+                };
+
+                // 1. Basic Info
+                fill("病歷號", basic.HHISTNUM || basic.HhistNum);
+                fill("姓名", basic.HNAMEC || basic.Hnamec);
+                const dob = (phy && (phy.HBIRTHDT || phy.HBirthDt)) || basic.HBIRTHDT || basic.HBirthDt;
+                fill("生日", dob ? dob.split('T')[0] : '');
+                fill("床號", basic.HBED || basic.HBed);
+                fill("ID", basic.HID || basic.HId);
+                fill("性別", basic.HSEXE || basic.Hsexe);
+                fill("年齡", basic.AGE || basic.Age);
+
+                // Date parsing for "預定手術日期"
+                const opDateStr = basic.OP_DATE || basic.OpDate || basic.OPDATE;
+                if (opDateStr) {
+                    const dateObj = new Date(opDateStr);
+                    if (!isNaN(dateObj.getTime())) {
+                        const y = dateObj.getFullYear();
+                        const m = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+                        const d = dateObj.getDate().toString().padStart(2, '0');
+
+                        fill("預定手術日期_年", String(y));
+                        fill("預定手術日期_月", m);
+                        fill("預定手術日期_日", d);
+                    }
+                }
+
+                fill("術前診斷", basic.ORDIAG || basic.OrDiag || '');
+                fill("預計手術名稱", basic.ORDPROCED || basic.OrdProced);
+                fill("手術主治醫師", basic.ORDOCNM || basic.OrDocNm);
+
+                // 2. Vitals
+                if (phy) {
+                    fill("身高", safeVal(phy.HEIGHT));
+                    fill("體重", safeVal(phy.WEIGHT));
+                    fill("血型", safeVal(phy.BLOODTYPE));
+                    fill("體溫", safeVal(phy.BTEAR));
+                    fill("心跳", safeVal(phy.PULSEUSUAL));
+                    fill("呼吸", safeVal(phy.RESPIRATORY));
+                    fill("血壓", safeVal(phy.BPNBP));
+                    fill("SPO2", safeVal(phy.SPO2));
+
+                    // 3. Labs
+                    fill("WBC", safeVal(phy.WBC));
+                    fill("Hb", safeVal(phy.HGB));
+                    fill("Hct", safeVal(phy.HCT));
+                    fill("PLT", safeVal(phy.PLT));
+                    fill("Na", safeVal(phy.NA));
+                    fill("K", safeVal(phy.K));
+                    fill("Cre", safeVal(phy.CREA)); // JSON label "Cre", Data key "CREA"
+                    fill("Glu", safeVal(phy.GLUCOSE)); // JSON label "Glu", Data key "GLUCOSE"
+                    fill("PT", safeVal(phy.PT));
+                    fill("PTT", safeVal(phy.APTT)); // JSON label "PTT", usually maps to APTT
+                    fill("INR", safeVal(phy.INR));
+                    fill("T-Bil", safeVal(phy.BIL)); // JSON label "T-Bil", Data key "BIL"
+                    fill("AST", safeVal(phy.AST));
+                    fill("ALT", safeVal(phy.ALT));
+                    fill("Cl", safeVal(phy.CL)); // JSON label "Cl"
+                    fill("Ca", safeVal(phy.CA)); // JSON label "Ca"
+                    fill("BUN", safeVal(phy.BUN));
+                }
+
+                // 4. Anesthesia History (Custom coords: 350, 530)
+                if (aneHist && aneHist.length > 0) {
+                    let histY = 530;
+                    // Normalize date for comparison: remove hyphens/slashes, take first 8 chars
+                    const normDate = (d) => d ? String(d).replace(/[^0-9]/g, '').substring(0, 8) : '';
+                    const targetDate = normDate(opDateStr);
+
+                    aneHist.forEach(h => {
+                        const hDateRaw = h.OPDATE;
+                        if (normDate(hDateRaw) !== targetDate) {
+                            // Format: YYYY-MM-DD : Procedure (Method)
+                            const displayDate = h.OPDATE ? h.OPDATE.split('T')[0] : '';
+                            const line = `${displayDate} : ${h.ORDPROCED || ''} (${h.ANENM || ''})`;
+
+                            // Use drawTextWrapped for history lines too
+                            histY = drawTextWrapped(page, line, 350, histY, 220, 6, 6, fontTC, fontLatin);
+                            histY -= 6; // Extra spacing between entries
+                        }
+                    });
+                }
+
+                // --- 5. Integrated Eval Form Content ---
+                if (typeof drawEvalPdfContent === 'function') {
+                    try {
+                        drawEvalPdfContent(page, fontTC, fontLatin);
+                    } catch (e) {
+                        console.error("Error drawing eval content:", e);
+                        // Don't block PDF generation if eval form fails
+                    }
+                }
+
+                const pdfBytes = await pdfDoc.save();
+                downloadBlob(pdfBytes, `AnesEval_${basic.HHISTNUM || 'unknown'}.pdf`);
+
+            } catch (e) {
+                console.error(e);
+                alert('產生 PDF 失敗: ' + e.message);
+            }
+        }
+
+        function toHalfWidth(str) {
+            return str.replace(/[\uff01-\uff5e]/g, function (ch) {
+                return String.fromCharCode(ch.charCodeAt(0) - 0xfee0);
+            }).replace(/\u3000/g, ' ');
+        }
+
+        function drawTextMixed(page, text, x, y, fontSize, fontTC, fontLatin, color) {
+            const fixedText = toHalfWidth(String(text));
+            const segments = fixedText.match(/([\u0000-\u007F]+)|([^\u0000-\u007F]+)/g) || [];
+            let currentX = x;
+
+            for (const segment of segments) {
+                const isLatin = /^[\u0000-\u007F]+$/.test(segment);
+                const fontToUse = isLatin ? fontLatin : fontTC;
+
+                page.drawText(segment, {
+                    x: currentX,
+                    y: y,
+                    size: fontSize,
+                    font: fontToUse,
+                    color: color || PDFLib.rgb(0, 0, 0),
+                });
+
+                const width = fontToUse.widthOfTextAtSize(segment, fontSize);
+                currentX += width;
+            }
+        }
+
+        function measureTextWidth(text, fontSize, fontTC, fontLatin) {
+            if (!text) return 0;
+            const segments = text.match(/([\u0000-\u007F]+)|([^\u0000-\u007F]+)/g) || [];
+            let totalWidth = 0;
+            for (const segment of segments) {
+                const isLatin = /^[\u0000-\u007F]+$/.test(segment);
+                const fontToUse = isLatin ? fontLatin : fontTC;
+                totalWidth += fontToUse.widthOfTextAtSize(segment, fontSize);
+            }
+            return totalWidth;
+        }
+
+        function drawTextWrapped(page, text, x, y, maxWidth, lineHeight, fontSize, fontTC, fontLatin) {
+            if (!text) return y;
+            const fixedText = toHalfWidth(String(text));
+
+            let currentLine = "";
+            let currentY = y;
+            const chars = fixedText.split('');
+
+            for (let i = 0; i < chars.length; i++) {
+                const char = chars[i];
+                const prospectiveLine = currentLine + char;
+                const width = measureTextWidth(prospectiveLine, fontSize, fontTC, fontLatin);
+
+                if (width > maxWidth) {
+                    drawTextMixed(page, currentLine, x, currentY, fontSize, fontTC, fontLatin);
+                    currentY -= lineHeight;
+                    currentLine = char;
+                } else {
+                    currentLine = prospectiveLine;
+                }
+            }
+            if (currentLine) {
+                drawTextMixed(page, currentLine, x, currentY, fontSize, fontTC, fontLatin);
+            }
+            return currentY;
+        }
+
+        function downloadBlob(data, fileName) {
+            const blob = new Blob([data], { type: 'application/pdf' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+        }
+        // Global context for data isolation
+        let currentPatientAppId = null;
+
+        async function showDetail(patient) {
+            const detailView = document.getElementById('detail-view');
+            const contentDiv = document.getElementById('d-content');
+
+            // Populate Header
+            const name = patient.HNAMEC || patient.Hnamec;
+            const hhisNum = patient.HHISTNUM || patient.HhistNum;
+            const encntNo = patient.HCASENO || patient.HcaseNo;
+
+            document.getElementById('d-patient-name').textContent = name;
+
+            // Set current app ID for isolation (HHISTNUM + OPDATE roughly unique for schedule)
+            // Fallback to purely HHISTNUM if date missing, or just random if nothing (shouldn't happen)
+            const opDateKey = patient.OP_DATE || patient.OpDate || patient.OPDATE || 'nodate';
+            currentPatientAppId = (hhisNum || 'unknown') + '_' + opDateKey;
+
+            // Header Content
+            const headerMeta = `病歷號: ${hhisNum} | 就診號: ${encntNo || '--'}`;
+            document.getElementById('d-meta').innerHTML = headerMeta;
+
+            detailView.style.display = 'block';
+            contentDiv.innerHTML = '<div class="loading">載入詳細資料中...</div>';
+
+            const ordSeq = patient.ORDSEQ || patient.OrdSeq;
+
+            const safeCall = (promise) => promise.catch(e => {
+                console.warn('Detail fetch failed:', e);
+                return [];
+            });
+
+            // Parallel Data Fetching
+            const [phy, cxr, aneHist, consults, meds, hist, memos] = await Promise.all([
+                // 1. Physiological (New)
+                ordSeq ? safeCall(callApi('getAneAssessOrdseqDTTM', { pOrdSeq: ordSeq })) : [],
+                // 2. Imaging (Renamed)
+                ordSeq ? safeCall(callApi('getAneAssessCXRList', { pOrdSeq: ordSeq })) : [],
+                // 3. Ane History (New)
+                hhisNum ? safeCall(callApi('getPatAnaestheHistList', { pHHISNum: hhisNum })) : [],
+                // 4. Consultations (New)
+                encntNo ? safeCall(callApi('getPatConsultationList', { pENCNTNO: encntNo })) : [],
+                // 5. Meds
+                encntNo ? safeCall(callApi('getPatADMDrugList', { pENCNTNO: encntNo })) : [],
+                // 6. Admission History
+                hhisNum ? safeCall(callApi('getPatADMHistList', { pHHISNum: hhisNum })) : [],
+                // 7. Memos (Moved to bottom)
+                ordSeq ? safeCall(callApi('getAneAssessDrMemoList', { pOrdSeq: ordSeq })) : []
+            ]);
+
+            // --- Update Global State for PDF ---
+            window.currentDetailData = {
+                basic: patient,
+                phy: (phy && phy.length > 0) ? phy[0] : {},
+                lab: (phy && phy.length > 0) ? phy[0] : {},
+                aneHist: aneHist || []
+            };
+            const btnPdf = document.getElementById('btn-gen-pdf');
+            if (btnPdf) btnPdf.style.display = 'inline-block';
+
+            // --- Header Badges Logic ---
+            if (phy && phy.length > 0) {
+                const p = phy[0];
+                const badges = [];
+                if (p.ANEHIGHRISK === 'Y') {
+                    badges.push('<span style="background:#dc3545; color:white; padding:2px 8px; border-radius:4px; font-size:0.8rem; margin-left:10px;">麻醉高風險 (ANEHIGHRISK)</span>');
+                }
+                if (p.ANEDIFFICINTUB === 'Y') {
+                    badges.push('<span style="background:#ffc107; color:black; padding:2px 8px; border-radius:4px; font-size:0.8rem; margin-left:5px;">困難插管 (ANEDIFFICINTUB)</span>');
+                }
+                if (badges.length > 0) {
+                    document.getElementById('d-meta').innerHTML += badges.join('');
+                }
+            }
+
+            let html = '';
+
+            // --- Data Logic: Stale Check ---
+            // Try to parse surgery date for comparison
+            const opDateStr = patient.OP_DATE || patient.OpDate || patient.OPDATE || new Date().toISOString();
+            const opDateObj = new Date(opDateStr);
+
+            // Helper to format value + time
+            const showVal = (val, dttm) => {
+                if (!val && val !== 0) return '<span style="color:#eee">--</span>';
+
+                let timeHtml = '';
+                let isStale = false;
+
+                if (dttm) {
+                    const dObj = new Date(dttm);
+                    // Check if difference > 30 days
+                    const diffTime = Math.abs(opDateObj - dObj);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays > 30) isStale = true;
+
+                    // Smaller font size (0.5em) and conditional gray color
+                    const timeColor = isStale ? '#ccc' : '#888';
+                    timeHtml = `<div style="font-size:5pt; color:${timeColor}; white-space:nowrap;">${dttm.replace('T', ' ')}</div>`;
+                }
+
+                // If stale, value is also gray
+                const valColor = isStale ? '#aaa' : 'var(--primary)';
+                return `<div><strong style="color:${valColor}">${val}</strong>${timeHtml}</div>`;
+            };
+
+            // --- 1. Physiological Measurements (Separated) ---
+            html += `<h3 class="section-title">生理量測資料 (Physiological)</h3>`;
+            if (phy && phy.length > 0) {
+                const p = phy[0];
+                const fields = [
+                    { k: 'BLOODTYPE', label: '血型' },
+                    { k: 'HEIGHT', label: '身高(Height)' }, { k: 'WEIGHT', label: '體重(Weight)' },
+                    { k: 'BTEAR', label: '體溫(Temp)' },
+                    { k: 'PULSEUSUAL', label: '心跳(Pulse)' },
+                    { k: 'RESPIRATORY', label: '呼吸' },
+                    { k: 'BPNBP', label: '血壓(BP)' },
+                    { k: 'SPO2', label: 'SPO2' }
+                ];
+                html += `<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap:10px; background:#f8f9fa; padding:15px; border-radius:8px;">`;
+                fields.forEach(f => {
+                    const val = p[f.k];
+                    const dttm = p[f.k + 'DTTM']; // Helper to find matching DTTM key
+                    if (val || val === 0) {
+                        html += `<div style="background:white; padding:5px; border-radius:4px; border:1px solid #eee;">
+                            <div style="font-size:0.75rem; color:#666">${f.label}</div>
+                            ${showVal(val, dttm)}
+                         </div>`;
+                    }
+                });
+                html += `</div>`;
+            } else {
+                html += `<p style="color:#999">無資料</p>`;
+            }
+
+            // --- 1.5 Lab Data (Separated) ---
+            html += `<h3 class="section-title">檢驗資料 (Lab Data)</h3>`;
+            if (phy && phy.length > 0) {
+                const p = phy[0];
+                // Note: Using WBC instead of WEB if user typo, check key existence via API doc
+                // API Doc says WBC. Code previously implemented WBC.
+                const labFields = [
+                    { k: 'WBC', label: 'WBC' }, { k: 'HGB', label: 'HGB' },
+                    { k: 'HCT', label: 'HCT' }, { k: 'PLT', label: 'PLT' },
+                    { k: 'PT', label: 'PT' }, { k: 'APTT', label: 'APTT' },
+                    { k: 'INR', label: 'INR' }, { k: 'BIL', label: 'BIL' },
+                    { k: 'AST', label: 'AST' }, { k: 'ALT', label: 'ALT' },
+                    { k: 'BUN', label: 'BUN' }, { k: 'CREA', label: 'CREA' },
+                    { k: 'NA', label: 'NA' }, { k: 'K', label: 'K' },
+                    { k: 'CL', label: 'CL' }, { k: 'CA', label: 'CA' },
+                    { k: 'GLUCOSE', label: 'GLUCOSE' }
+                ];
+
+                html += `<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap:10px; background:#f8f9fa; padding:15px; border-radius:8px;">`;
+                let hasData = false;
+                labFields.forEach(f => {
+                    const val = p[f.k];
+                    const dttm = p[f.k + 'DTTM'];
+                    // Show item if value exists
+                    if (val || val === 0) {
+                        hasData = true;
+                        html += `<div style="background:white; padding:5px; border-radius:4px; border:1px solid #eee;">
+                            <div style="font-size:0.75rem; color:#666">${f.label}</div>
+                            ${showVal(val, dttm)}
+                         </div>`;
+                    }
+                });
+                html += `</div>`;
+                if (!hasData) html += `<p style="color:#999; font-size:0.9em; margin-top:-10px; padding-left:5px;">(無數值)</p>`;
+
+            } else {
+                html += `<p style="color:#999">無資料</p>`;
+            }
+
+            // --- 2. Imaging Reports (Renamed) ---
+            html += `<h3 class="section-title">影像報告 (Imaging Reports)</h3>`;
+            if (cxr && cxr.length > 0) {
+                html += `<div style="display:flex; flex-wrap:wrap; gap:10px;">`;
+                cxr.forEach(c => {
+                    html += `<a href="${c.CXRURL}&LID=A02664" target="_blank" style="display:block; padding:10px; background:#f0f8ff; border:1px solid #cce5ff; border-radius:5px; text-decoration:none; color:var(--primary)">
+                        <div style="font-weight:bold">${c.PFTYPE || 'Image'} - ${c.ORDPROCED}</div>
+                        <small style="color:#666">${c.ORDSIGNDTTM ? c.ORDSIGNDTTM.replace('T', ' ') : ''}</small>
+                    </a>`;
+                });
+                html += `</div>`;
+            } else {
+                html += `<p style="color:#999">無資料</p>`;
+            }
+
+            // Add EKG Link (Always visible if HHISTNUM exists)
+            if (hhisNum) {
+                html += `<div style="margin-top:10px;">
+                    <a href="http://10.10.246.140/musescripts/museweb.dll?RetrieveTestList?PatientID=${hhisNum}&site=1" target="_blank" style="display:inline-block; padding:6px 12px; background:#fff0f5; border:1px solid #ffccd5; border-radius:5px; text-decoration:none; color:#d63384; font-size:0.9rem;">
+                        <strong>EKG System</strong>
+                    </a>
+                </div>`;
+            }
+
+            // --- 3. Anesthesia History (Filtered) ---
+            html += `<h3 class="section-title">麻醉歷史紀錄 (Anesthesia History)</h3>`;
+            const filteredAneHist = (aneHist || []).filter(h => {
+                const aneMethod = h.ANENM || '';
+                // 1. Filter out 'LA' and 'NI'
+                if (aneMethod === 'LA' || aneMethod === 'NI') return false;
+
+                // 2. Filter out current surgery date
+                const normDate = (d) => d ? String(d).replace(/[^0-9]/g, '').substring(0, 8) : '';
+                return normDate(h.OPDATE) !== normDate(opDateStr);
+            });
+
+            if (filteredAneHist.length > 0) {
+                html += `<table class="data-table">
+                    <thead><tr><th>日期</th><th>手術名稱</th><th>麻醉方式</th><th>詳情</th></tr></thead>
+                    <tbody>`;
+                filteredAneHist.forEach((h, index) => {
+                    // Create a unique ID for the detail row
+                    const detailRowId = `ane-hist-detail-${index}`;
+                    html += `
+                    <tr>
+                        <td>${h.OPDATE}</td>
+                        <td>${h.ORDPROCED}</td>
+                        <td>${h.ANENM}</td>
+                        <td>
+                            <button class="secondary" style="padding:2px 8px; font-size:0.8rem;" 
+                                onclick="toggleAneDetail('${h.ORDSEQ}', '${detailRowId}', this)">
+                                展開
+                            </button>
+                        </td>
+                    </tr>
+                    <tr id="${detailRowId}" style="display:none; background-color:#fafafa;">
+                        <td colspan="4" style="padding:10px;">
+                            <div class="loading">載入中...</div>
+                        </td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+            } else {
+                html += `<p style="color:#999">無符合條件資料 (LA/NI 已隱藏)</p>`;
+            }
+
+            // --- 4. Consultations (New) ---
+            html += `<h3 class="section-title">會診紀錄 (Consultations)</h3>`;
+            if (consults && consults.length > 0) {
+                html += `<table class="data-table"><thead><tr><th>科別</th><th>醫師</th><th>類別</th><th>日期</th></tr></thead><tbody>`;
+                consults.forEach(c => {
+                    html += `<tr>
+                        <td>${c.SECTIONNMC}</td>
+                        <td>${c.ORDOEDRNMC}</td>
+                        <td>${c.CONSTYPE}</td>
+                        <td>${c.ORDMODDTTM ? c.ORDMODDTTM.split('T')[0] : ''}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+            } else {
+                html += `<p style="color:#999">無資料</p>`;
+            }
+
+            // --- 5. Meds ---
+            html += `<h3 class="section-title">用藥紀錄 (Medications)</h3>`;
+            if (meds && meds.length > 0) {
+                // Separate Active and Stopped
+                const activeMeds = meds.filter(d => (d.CURRENTUSE === 'Y' || d.CurrentUse === 'Y'));
+                const stoppedMeds = meds.filter(d => !(d.CURRENTUSE === 'Y' || d.CurrentUse === 'Y'));
+
+                html += `<table class="data-table"><thead><tr><th>藥名</th><th>劑量</th><th>頻次</th><th>狀態</th></tr></thead>`;
+
+                // Helper to render med row
+                const renderMedRow = (d, isActive) => {
+                    const style = isActive ? 'style="background-color:#e8f5e9"' : 'style="color:#999"';
+                    let drugName = d.ORDPROCED || d.OrdProced || d.PFNM || d.Pfnm || 'Unknown Drug';
+
+                    // --- Display Note if Name contains "自備藥" ---
+                    if (drugName.includes('自備藥') || drugName.includes('劑量用法')) {
+                        // Priority: Drug-specific Instruction (UDOINSTRUCTION) or Memo (ORDERMEMO)
+                        // Note: The API returns specific instructions in UDOINSTRUCTION for the drug row
+                        const replacement = d.UDOINSTRUCTION || d.UdoInstruction || d.ORDERMEMO || d.OrderMemo;
+                        if (replacement) {
+                            drugName = replacement; // Replace entire name
+                        }
+                    }
+                    return `<tr ${style}>
+                        <td>${drugName}</td>
+                        <td>${d.DOSE} ${d.GIVUNIT}</td>
+                        <td>${d.FREQUENCY}</td>
+                        <td>${isActive ? '使用中' : '停用'}</td>
+                    </tr>`;
+                };
+
+                html += `<tbody>`;
+
+                // Render Active First
+                if (activeMeds.length > 0) {
+                    activeMeds.forEach(d => {
+                        html += renderMedRow(d, true);
+                    });
+                } else {
+                    html += `<tr><td colspan="4" style="color:#999; text-align:center;">無使用中藥物</td></tr>`;
+                }
+
+                html += `</tbody>`;
+
+                // Render Stopped (Hidden by default)
+                if (stoppedMeds.length > 0) {
+                    html += `<tbody>
+                        <tr>
+                            <td colspan="4" style="text-align:center; background:#f9f9f9; cursor:pointer;" onclick="
+                                const tb = document.getElementById('stopped-meds-body'); 
+                                const btn = this.querySelector('span');
+                                if(tb.style.display==='none'){
+                                    tb.style.display='table-row-group'; 
+                                    btn.textContent='隱藏停用藥物';
+                                }else{
+                                    tb.style.display='none';
+                                    btn.textContent='顯示停用藥物 (${stoppedMeds.length})';
+                                }
+                            ">
+                                <span style="color:var(--primary); font-weight:bold; font-size:0.9rem;">顯示停用藥物 (${stoppedMeds.length})</span>
+                            </td>
+                        </tr>
+                     </tbody>`;
+
+                    html += `<tbody id="stopped-meds-body" style="display:none; background:#f0f0f0;">`;
+                    stoppedMeds.forEach(d => {
+                        html += renderMedRow(d, false);
+                    });
+                    html += `</tbody>`;
+                }
+
+                html += `</table>`;
+            } else {
+                html += `<p style="color:#999">無資料</p>`;
+            }
+
+            // --- 6. Admission History ---
+            html += `<h3 class="section-title">住院歷史 (Admission History)</h3>`;
+            if (hist && hist.length > 0) {
+                html += `<ul style="padding-left:20px; font-size:0.9em;">`;
+                hist.forEach(h => {
+                    html += `<li>${h.HADMDT} ~ ${h.HLVDT ? h.HLVDT.split('T')[0] : 'Now'}: <strong>${h.HDIAGTXC}</strong> (${h.HPATSTATNM})</li>`;
+                });
+                html += `</ul>`;
+            } else {
+                html += `<p style="color:#999">無資料</p>`;
+            }
+
+            // --- 7. Memos (Moved to Bottom) ---
+            html += `<h3 class="section-title">交班事項 (Shift Memos)</h3>`;
+            if (memos && memos.length > 0) {
+                html += `<ul style="padding-left:20px;">`;
+                memos.forEach(m => {
+                    html += `<li><div style="white-space:pre-wrap">${m.CONTEXT}</div><small style="color:#888">${m.OPNM} @ ${m.CREATEDT}</small></li>`;
+                });
+                html += `</ul>`;
+            } else {
+                html += `<p style="color:#999">無資料</p>`;
+            }
+
+            contentDiv.innerHTML = html;
+        }
+
+        async function toggleAneDetail(ordSeq, rowId, btn) {
+            const row = document.getElementById(rowId);
+            if (row.style.display !== 'none') {
+                row.style.display = 'none';
+                btn.textContent = '展開';
+                return;
+            }
+
+            row.style.display = 'table-row';
+            btn.textContent = '關閉';
+
+            try {
+                // Fetch Details
+                // 1. Billing: getBilAnaestheOrderList
+                // 2. Drugs: getBilAnaestheDrugList
+                // 3. Materials: getBilAnaestheMaterialList
+
+                const safe = (p) => p.catch(() => []);
+                const [bill, drugs, mat] = await Promise.all([
+                    safe(callApi('getBilAnaestheOrderList', { pOrdSeq: ordSeq })),
+                    safe(callApi('getBilAnaestheDrugList', { pOrdSeq: ordSeq })),
+                    safe(callApi('getBilAnaestheMaterialList', { pOrdSeq: ordSeq }))
+                ]);
+
+                let dHtml = `<div style="padding:10px; border:1px solid #eee; background:#fff">`;
+
+                // --- Billing ---
+                if (bill.length) {
+                    dHtml += `<h5>麻醉計價 (Billing)</h5>`;
+                    dHtml += `<ul class="sub-list">` +
+                        bill.map(b => `<li>${b.ORDPROCED} ($${b.PFPRICE1})</li>`).join('') +
+                        `</ul>`;
+                }
+
+                // --- Procedures / Materials (Filtered) ---
+                // Request: Only show > 1000. Others hidden but clickable.
+                if (mat.length) {
+                    const highPrice = mat.filter(m => (parseFloat(m.PFPRICE1) || 0) > 1000);
+                    const lowPrice = mat.filter(m => (parseFloat(m.PFPRICE1) || 0) <= 1000);
+
+                    dHtml += `<h5>麻醉處置 (Procedures)</h5>`;
+
+                    // Always Show High Price
+                    if (highPrice.length > 0) {
+                        dHtml += `<ul class="sub-list">` +
+                            highPrice.map(m => `<li>${m.ORDPROCED} (<span style="color:#dc3545; font-weight:bold">$${m.PFPRICE1}</span>)</li>`).join('') +
+                            `</ul>`;
+                    }
+
+                    // Toggle for Low Price
+                    if (lowPrice.length > 0) {
+                        const lowId = `mat-low-${ordSeq}`;
+                        dHtml += `<div style="margin-top:5px;">
+                            <button class="secondary" style="font-size:0.8rem; padding:2px 6px;" onclick="document.getElementById('${lowId}').style.display = 'block'; this.style.display='none'">
+                                顯示其他 ${lowPrice.length} 項細節...
+                            </button>
+                            <ul id="${lowId}" class="sub-list" style="display:none; margin-top:5px; border-left:3px solid #eee; padding-left:10px;">
+                                ${lowPrice.map(m => `<li>${m.ORDPROCED} ($${m.PFPRICE1})</li>`).join('')}
+                            </ul>
+                         </div>`;
+                    }
+
+                    if (highPrice.length === 0 && lowPrice.length === 0) {
+                        dHtml += `<span style="color:#ccc">無資料</span>`;
+                    }
+                }
+
+                // --- Drugs (Default Hidden) ---
+                if (drugs.length) {
+                    const drugId = `drug-list-${ordSeq}`;
+                    dHtml += `<h5>麻醉藥品 (Drugs)</h5>`;
+                    dHtml += `<div style="margin-top:5px;">
+                            <button class="secondary" style="font-size:0.8rem; padding:2px 6px;" onclick="document.getElementById('${drugId}').style.display = 'block'; this.style.display='none'">
+                                顯示全部藥品 (${drugs.length})...
+                            </button>
+                            <ul id="${drugId}" class="sub-list" style="display:none; margin-top:5px;">
+                                ${drugs.map(d => `<li>${d.ORDPROCED} (${d.OCQNTY} ${d.GIVUNIT || ''})</li>`).join('')}
+                            </ul>
+                         </div>`;
+                }
+
+                dHtml += `</div>`;
+
+                const cell = row.querySelector('td');
+                cell.innerHTML = dHtml;
+
+            } catch (e) {
+                row.querySelector('td').innerHTML = `<div class="error">載入失敗: ${e.message}</div>`;
+            }
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-view').style.display = 'none';
+        }
+
+        function toggleSection(headerElement) {
+            const section = headerElement.closest('.h3-section');
+            if (section) {
+                section.classList.toggle('collapsed');
+            }
+        }
+
+        function checkSection(element) {
+            const section = element.closest('.h3-section');
+            const header = section.querySelector('.h3-header');
+            const inputs = section.querySelectorAll('input');
+            let hasActiveInput = false;
+
+            for (let i = 0; i < inputs.length; i++) {
+                if ((inputs[i].type === 'checkbox' || inputs[i].type === 'radio') && inputs[i].checked) {
+                    hasActiveInput = true;
+                    break;
+                }
+                if (inputs[i].type === 'text' && inputs[i].value.trim() !== '') {
+                    hasActiveInput = true;
+                    break;
+                }
+            }
+
+            if (hasActiveInput) {
+                header.classList.add('active');
+            } else {
+                header.classList.remove('active');
+            }
+        }
+
+        function handleParentCheckbox(checkbox) {
+            const parentLi = checkbox.closest('li');
+            const childUl = parentLi.querySelector('ul');
+
+            if (childUl) {
+                if (checkbox.checked) {
+                    childUl.classList.remove('nested-hidden');
+                } else {
+                    childUl.classList.add('nested-hidden');
+                    // Uncheck all children
+                    const childInputs = childUl.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+                    childInputs.forEach(input => {
+                        input.checked = false;
+                        // Recursively hide their children if they are parents
+                        const grandChildUl = input.closest('li')?.querySelector('ul');
+                        if (grandChildUl) {
+                            handleParentCheckbox(input);
+                        }
+                    });
+
+                    // Optional: Clear text inputs in children?
+                    // User said "cancel all selection" (取消選單的所有勾選).
+                    // Usually safer to clear text too if hidden, but let's stick to unchecking for now to avoid data loss if accidental.
+                    // However, strict interpretation of "cancel selection" usually means checkboxes.
+                    // Let's also clear text for a full reset effect as implied by "hidden" UI.
+                    const childTexts = childUl.querySelectorAll('input[type="text"]');
+                    childTexts.forEach(input => input.value = '');
+                }
+            }
+            // Trigger section check to update header color
+            checkSection(checkbox);
+        }
+
+        // Attach event listeners to all inputs for immediate feedback
+        document.addEventListener('DOMContentLoaded', () => {
+            const allInputs = document.querySelectorAll('input');
+
+            // Initial setup for nested lists
+            const allLis = document.querySelectorAll('li');
+            allLis.forEach(li => {
+                const childUl = li.querySelector('ul');
+                if (childUl) {
+                    // Find the direct checkbox of this li (should be the first one in the label)
+                    // The structure is <li><label><input>...</label><ul>...</ul></li>
+                    // Or <li><span class="bold">...</span><ul>...</ul></li> (some cases like Mallampati don't have a parent checkbox?)
+                    // Let's check if there is a controlling checkbox.
+
+                    // Try to find the controlling checkbox
+                    let checkbox = null;
+                    const label = li.querySelector('label');
+                    if (label) {
+                        checkbox = label.querySelector('input[type="checkbox"], input[type="radio"]');
+                    }
+
+                    // Fallback: look for direct input child if label structure is different
+                    if (!checkbox) {
+                        const potentialCheckbox = li.querySelector('input[type="checkbox"], input[type="radio"]');
+                        if (potentialCheckbox && !childUl.contains(potentialCheckbox)) {
+                            checkbox = potentialCheckbox;
+                        }
+                    }
+
+                    if (checkbox) {
+                        checkbox.addEventListener('change', (e) => handleParentCheckbox(e.target));
+                        handleParentCheckbox(checkbox);
+                    }
+                }
+            });
+
+            allInputs.forEach(input => {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.addEventListener('change', (e) => checkSection(e.target));
+                } else if (input.tagName === 'SELECT' || input.type === 'text') {
+                    input.addEventListener('input', (e) => handleTextInput(e.target));
+                    input.addEventListener('change', (e) => handleTextInput(e.target));
+                }
+            });
+        });
+
+        function handleTextInput(input) {
+            if (input.value.trim() !== '') {
+                // Find the closest checkbox to check
+                const label = input.closest('label');
+                if (label) {
+                    const checkbox = label.querySelector('input[type="checkbox"], input[type="radio"]');
+                    if (checkbox && !checkbox.checked) {
+                        checkbox.checked = true;
+                        handleParentCheckbox(checkbox);
+                    }
+                } else {
+                    const parentLi = input.closest('li');
+                    if (parentLi) {
+                        const checkbox = parentLi.querySelector('input[type="checkbox"], input[type="radio"]');
+                        if (checkbox && !checkbox.checked) {
+                            checkbox.checked = true;
+                            handleParentCheckbox(checkbox);
+                        }
+                    }
+                }
+            }
+            checkSection(input);
+        }
+
+        // Helper to get checked items from a section by looking for checkboxes
+        function getCheckedText(headerText) {
+            // Find H3 header with text
+            const headers = Array.from(document.querySelectorAll('.h3-header'));
+            const header = headers.find(h => h.textContent.includes(headerText));
+            if (!header) return [];
+
+            const content = header.nextElementSibling;
+            if (!content) return [];
+
+            const checkboxes = Array.from(content.querySelectorAll('input[type="checkbox"]'));
+            const checked = checkboxes.filter(cb => cb.checked);
+
+            let results = [];
+            checked.forEach(cb => {
+                // Find label text
+                let label = cb.parentElement.textContent.trim();
+                // Clean index like "(1) "
+                label = label.replace(/^\(\d+\)\s*/, '');
+
+                // If there is associated text input, append it
+                // Look for next sibling input
+                let nextInput = cb.parentElement.nextElementSibling;
+                if (nextInput && nextInput.tagName === 'INPUT' && nextInput.type === 'text') {
+                    if (nextInput.value) label += ': ' + nextInput.value;
+                } else {
+                    // Try finding input inside same LI
+                    const li = cb.closest('li');
+                    if (li) {
+                        const textInput = li.querySelector('input[type="text"]');
+                        if (textInput && textInput.value && textInput !== cb) {
+                            // If close
+                        }
+                    }
+                }
+                if (label) results.push(label);
+            });
+            return results;
+        }
+
+        // Updated: Extract text recursively from a section
+        function extractSectionDetails(keyword) {
+            // 1. Find main Label or List Item containing the keyword
+            // We search for span.bold-item first as they are the section headers
+            const spans = Array.from(document.querySelectorAll('span.bold-item'));
+            const header = spans.find(s => s.textContent.includes(keyword));
+
+            if (!header) return "";
+
+            // Check if main checkbox is checked
+            const mainLi = header.closest('li');
+            const mainCb = mainLi.querySelector('input[type="checkbox"]');
+            if (!mainCb || !mainCb.checked) return ""; // Not checked, skip
+
+            let parts = [];
+
+            // 2. Gather inputs/checkboxes within this LI (grouped by sub-UL)
+
+            // Function to traverse LI and collect checked items text
+            function traverse(element) {
+                const ul = element.querySelector('ul');
+                if (ul) {
+                    Array.from(ul.children).forEach(childLi => {
+                        const cb = childLi.querySelector('input[type="checkbox"]');
+                        if (cb && cb.checked) {
+                            // Valid selection
+
+                            // Safe label extraction for hidden/collapsed elements
+                            // Clone to strip nested UL without modifying DOM
+                            const clone = childLi.cloneNode(true);
+                            const nestedUl = clone.querySelector('ul');
+                            if (nestedUl) nestedUl.remove();
+                            let labelText = clone.textContent.replace(/\s+/g, ' ').trim();
+
+                            // check for any input text in the ORIGINAL element (to get live values)
+                            const textInputs = Array.from(childLi.querySelectorAll('input[type="text"], input[type="number"], select'));
+                            textInputs.forEach(input => {
+                                // Do NOT check visibility, allowing collapsed sections to be read
+                                // Ensure input is not part of a nested UL (recursion handles those)
+                                const inputUl = input.closest('ul');
+                                const childUl = childLi.querySelector('ul');
+                                // If input is inside a nested UL of *this* childLi, ignore (covered by recursive traverse)
+                                if (childUl && childUl.contains(input)) return;
+
+                                if (input.value) {
+                                    // Avoid duplicating if label already contains the value
+                                    if (!labelText.includes(input.value)) {
+                                        if (labelText.toLowerCase().includes("others")) {
+                                            if (labelText.trim().toLowerCase().replace(/:$/, '').trim() === "others") {
+                                                labelText = input.value;
+                                            } else {
+                                                labelText += ": " + input.value;
+                                            }
+                                        } else {
+                                            labelText += ": " + input.value;
+                                        }
+                                    }
+                                }
+                            });
+                            // Clean double colons
+                            labelText = labelText.replace(/: \s*:/g, ':');
+
+                            parts.push(labelText);
+
+                            // Recurse for deeper levels
+                            traverse(childLi);
+                        }
+                    });
+                }
+            }
+
+            // Collect any direct input on the main item (e.g. "Other: [text]")
+            const directInput = mainLi.querySelector('input[type="text"]');
+            // Be careful not to pick up inputs from children
+            if (directInput && !mainLi.querySelector('ul')?.contains(directInput)) {
+                if (directInput.value) parts.push(directInput.value);
+            }
+
+            traverse(mainLi);
+
+            if (parts.length === 0) return ""; // Checked but no details (was "Yes")
+            return parts.join(", ");
+        }
+
+        function isChecked(keyword) {
+            const lis = Array.from(document.querySelectorAll('li, label'));
+            const target = lis.find(el => el.textContent.includes(keyword));
+            if (target) {
+                const cb = target.querySelector('input[type="checkbox"], input[type="radio"]');
+                if (cb && cb.checked) return true;
+                // Check if target is the label itself
+                if (target.tagName === 'LABEL') {
+                    const id = target.getAttribute('for');
+                    if (id) {
+                        const inp = document.getElementById(id);
+                        if (inp && inp.checked) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // --- New Helper: Collect Checkbox Summaries from a Section Container ---
+        function collectSectionSummary(sectionTitle) {
+            // Find the H2 container that has the specific title
+            const headers = Array.from(document.querySelectorAll('h2.h2-title'));
+            const header = headers.find(h => h.textContent.includes(sectionTitle));
+            if (!header) return [];
+
+            const container = header.closest('.h2-container');
+            if (!container) return [];
+
+            let summaries = [];
+
+            // Iterate over each H3 section in this container
+            const h3s = container.querySelectorAll('.h3-section');
+            h3s.forEach(h3 => {
+                // Get header text, removing anything in parentheses
+                let h3Header = h3.querySelector('.h3-header').innerText.trim();
+                h3Header = h3Header.replace(/\s*\([^)]*\)/g, ""); // Remove (xxx) content
+
+                // Get the main list
+                const ul = h3.querySelector('.h3-content > ul');
+                if (!ul) return;
+
+                // Traverse
+                const items = getRecursivelyCheckedText(ul);
+                if (items.length > 0) {
+                    // Format: "Header: Item1, Item2..."
+                    summaries.push(`${h3Header}: ${items.join(", ")}`);
+                }
+            });
+            return summaries;
+        }
+
+        function getRecursivelyCheckedText(ul) {
+            let results = [];
+            Array.from(ul.children).forEach(li => {
+                // Check if this LI has a checked checkbox/radio
+                // Be careful not to count children's checkboxes yet
+                const directLabelState = isLiChecked(li);
+
+                if (directLabelState.checked) {
+                    let text = directLabelState.label;
+
+                    // Check for nested UL
+                    const nestedUl = li.querySelector('ul');
+                    if (nestedUl) {
+                        const childTexts = getRecursivelyCheckedText(nestedUl);
+                        if (childTexts.length > 0) {
+                            text += " (" + childTexts.join(", ") + ")";
+                        }
+                    }
+                    results.push(text);
+                }
+            });
+            return results;
+        }
+
+        function isLiChecked(li) {
+            // Find the label or input that controls this LI
+            // The structure is usually <li><label><input> Text</label>...</li>
+            // Or <li><span class="bold">Text</span>... <label><input>...</label></li>
+
+            // Getting direct label text:
+            // We want to capture the text "Hypertension" or "DM"
+
+            // Strategy: Look for the first input[type=checkbox/radio] in this LI that is NOT in a nested UL
+            // If checked, extract text from its parent label OR the LI text excluding children
+
+            const nestedUl = li.querySelector('ul');
+            const inputs = Array.from(li.querySelectorAll('input[type="checkbox"], input[type="radio"]'));
+
+            // Filter inputs that are NOT inside the nested UL
+            const directInputs = inputs.filter(inp => !nestedUl || !nestedUl.contains(inp));
+
+            const checkedInput = directInputs.find(i => i.checked);
+
+            if (checkedInput) {
+                // Extract text
+                // 1. Try parent label text
+                let labelText = "";
+                const label = checkedInput.closest('label');
+                if (label) {
+                    labelText = getCleanText(label);
+                }
+
+                // Check if we need to prepend the bold item title
+                const cleanLabel = labelText.trim();
+                const isShortOrKeyword = cleanLabel.length <= 3 ||
+                    /^(Limited|Free|Normal|Loose Teeth|Yes)$/i.test(cleanLabel) ||
+                    /^\d+$/.test(cleanLabel); // digits only
+
+                if (isShortOrKeyword || cleanLabel === "") {
+                    const boldSpan = li.querySelector('.bold-item');
+                    if (boldSpan && (!nestedUl || !nestedUl.contains(boldSpan))) {
+                        // Get clean bold text
+                        let title = boldSpan.innerText.replace(/\s+/g, ' ').trim();
+                        title = title.replace(/\s*\([^)]*\)/g, ""); // Remove (xxx) from title
+
+                        // If the label is just "Yes" or empty, we use the title
+                        if (cleanLabel.toLowerCase() === 'yes' || cleanLabel === "") {
+                            labelText = title;
+                        } else {
+                            // Otherwise combine: "Mallampati score: 1"
+                            labelText = `${title}: ${cleanLabel}`;
+                        }
+                    }
+                }
+
+                // Remove text in () from the final label text
+                labelText = labelText.replace(/\s*\([^)]*\)/g, "");
+
+                // Also check for "Others: [text]"
+                const textInputs = Array.from(li.querySelectorAll('input[type="text"], select'));
+                const directTextInputs = textInputs.filter(inp => !nestedUl || !nestedUl.contains(inp));
+
+                directTextInputs.forEach(txt => {
+                    if (txt.value) {
+                        if (txt.tagName === 'SELECT') {
+                            labelText += " " + txt.value;
+                        } else {
+                            // If label contains "Others", replace or append
+                            if (labelText.toLowerCase().includes("others")) {
+                                labelText = txt.value; // Replace "Others" with value
+                            } else {
+                                labelText += ": " + txt.value;
+                            }
+                        }
+                    }
+                });
+
+                // Helper to remove "(1) " prefix
+                labelText = labelText.replace(/^\(\d+\)\s*/, '').trim();
+
+                return { checked: true, label: labelText };
+            }
+
+            return { checked: false, label: "" };
+        }
+
+        function getCleanText(node) {
+            // Clone to remove children inputs/selects/ul to get pure text
+            const clone = node.cloneNode(true);
+            const removes = clone.querySelectorAll('input, select, ul, .nested-hidden');
+            removes.forEach(n => n.remove());
+            return clone.innerText.replace(/\s+/g, ' ').trim();
+        }
+
+
+        // --- Modal Logic ---
+        function openEvalModal() {
+            document.getElementById('eval-modal').style.display = 'block';
+
+            // Init listeners if first time
+            if (!window.evalListenersAdded) {
+                initEvalListeners();
+                window.evalListenersAdded = true;
+            }
+
+            // 1. Reset Form First
+            resetForm();
+
+            // 2. Load Data if exists
+            if (currentPatientAppId) {
+                const key = 'anes_eval_data_' + currentPatientAppId;
+                const savedJson = localStorage.getItem(key);
+                if (savedJson) {
+                    try {
+                        const data = JSON.parse(savedJson);
+                        restoreFormData(data);
+                    } catch (e) {
+                        console.error("Failed to load saved data", e);
+                    }
+                }
+            }
+        }
+
+        function closeEvalModal() {
+            document.getElementById('eval-modal').style.display = 'none';
+        }
+
+        function saveEvalData() {
+            if (!currentPatientAppId) {
+                alert("無法確認病患身分，無法儲存");
+                return;
+            }
+
+            const data = collectFormData();
+            const key = 'anes_eval_data_' + currentPatientAppId;
+            localStorage.setItem(key, JSON.stringify(data));
+
+            alert('暫存完成 (已儲存於瀏覽器)');
+            closeEvalModal();
+        }
+
+        // Helper: Collect all inputs
+        function collectFormData() {
+            const formData = {};
+            const modal = document.getElementById('eval-form-body');
+            const inputs = modal.querySelectorAll('input, select');
+
+            inputs.forEach((input, index) => {
+                // Use ID if available, else use specific path/index? 
+                // Since structure is static, index is fragile but simple. 
+                // Better to use a combination of type + hierarchy index if needed, 
+                // but strictly ordered index is fine for this single file app if structure doesn't change dynamically.
+                // To be safer, let's use a generated ID based on position if no ID.
+
+                let val;
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    val = input.checked;
+                } else {
+                    val = input.value;
+                }
+                formData[`field_${index}`] = val;
+            });
+            return formData;
+        }
+
+        // Helper: Restore
+        function restoreFormData(data) {
+            const modal = document.getElementById('eval-form-body');
+            const inputs = modal.querySelectorAll('input, select');
+
+            inputs.forEach((input, index) => {
+                const val = data[`field_${index}`];
+                if (val !== undefined) {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = val;
+                        // Trigger change logic like showing nested children
+                        if (input.checked && (input.type === 'checkbox' || input.type === 'radio')) {
+                            // Locate parent LI handling
+                            // We need to trigger handleParentCheckbox if it's a parent
+                            // Use the existing logic
+                            handleParentCheckbox(input);
+                            checkSection(input);
+                        }
+                    } else {
+                        input.value = val;
+                        checkSection(input);
+                    }
+                }
+            });
+        }
+
+        // Helper: Reset
+        function resetForm() {
+            const modal = document.getElementById('eval-form-body');
+            // Uncheck all checkboxes/radios
+            const checks = modal.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+            checks.forEach(c => {
+                c.checked = false;
+                // Hide nested
+                const parentLi = c.closest('li');
+                if (parentLi) {
+                    const ul = parentLi.querySelector('ul');
+                    if (ul) ul.classList.add('nested-hidden');
+                }
+            });
+
+            // Clear texts
+            const texts = modal.querySelectorAll('input[type="text"], select');
+            texts.forEach(t => t.value = '');
+
+            // Reset active headers
+            const sections = modal.querySelectorAll('.h3-header');
+            sections.forEach(s => s.classList.remove('active'));
+        }
+
+        function initEvalListeners() {
+            // Attach event listeners to all inputs in the modal
+            const modal = document.getElementById('eval-form-body');
+            const allInputs = modal.querySelectorAll('input');
+            const allLis = modal.querySelectorAll('li');
+
+            allLis.forEach(li => {
+                const childUl = li.querySelector('ul');
+                if (childUl) {
+                    let checkbox = null;
+                    const label = li.querySelector('label');
+                    if (label) {
+                        checkbox = label.querySelector('input[type="checkbox"], input[type="radio"]');
+                    }
+                    if (!checkbox) {
+                        const potentialCheckbox = li.querySelector('input[type="checkbox"], input[type="radio"]');
+                        if (potentialCheckbox && !childUl.contains(potentialCheckbox)) {
+                            checkbox = potentialCheckbox;
+                        }
+                    }
+                    if (checkbox) {
+                        checkbox.addEventListener('change', (e) => handleParentCheckbox(e.target));
+                        // handleParentCheckbox(checkbox); // Don't reset on init, might have data?
+                    }
+                }
+            });
+
+            allInputs.forEach(input => {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.addEventListener('change', (e) => checkSection(e.target));
+                } else if (input.tagName === 'SELECT' || input.type === 'text') {
+                    input.addEventListener('input', (e) => handleTextInput(e.target));
+                    input.addEventListener('change', (e) => handleTextInput(e.target));
+                }
+            });
+        }
+
+
+        // --- Integrated Eval Form PDF Logic ---
+        function drawEvalPdfContent(page, fontTC, fontLatin) {
+            const fontSize = 10;
+            const checkSize = 14;
+
+            function draw(text, x, y) {
+                drawTextMixed(page, text, x, y, fontSize, fontTC, fontLatin);
+            }
+            function check(x, y) {
+                page.drawText("V", { x: x, y: y, size: checkSize, font: fontLatin });
+            }
+
+            // Extracted from pre_anes_eval.html
+            // --- Past History Checkbox Data (Left Side) ---
+            const LEFT_SIDE_CHECKBOXES = [
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "DM No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 200.41,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 641.48,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "DM Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 200.41,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 641.48,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "CVA No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 214.28,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 627.61,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "CVA Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 214.28,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 627.61,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Hypertension No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 228.11,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 613.78,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Hypertension Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 228.11,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 613.78,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Cardiac disease No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 242.32,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 599.57,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Cardiac disease Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 242.32,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 599.57,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Asthma No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 256.16,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 585.73,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Asthma Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 256.16,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 585.73,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "COPD No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 270.36,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 571.53,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "COPD Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 270.36,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 571.53,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Hepatitis No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 284.19,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 557.7,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Hepatitis Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 284.19,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 557.7,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Renal Disease No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 298.39,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 543.5,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Renal Disease Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 298.39,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 543.5,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Bleeding disorder No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 312.53,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 529.36,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Bleeding disorder Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 312.53,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 529.36,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Allergy No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 326.72,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 515.17,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Allergy Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 326.72,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 515.17,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Smoking No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 340.57,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 501.32,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Smoking Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 340.57,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 501.32,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Major operations No",
+                    "text": "V",
+                    "plumber_x": 195.19,
+                    "plumber_y": 354.76,
+                    "pdflib_x": 195.19,
+                    "pdflib_y": 487.13,
+                    "width": 12,
+                    "height": 12
+                },
+                {
+                    "page": 1,
+                    "type": "checkbox_target",
+                    "label": "Major operations Yes",
+                    "text": "V",
+                    "plumber_x": 227.14,
+                    "plumber_y": 354.76,
+                    "pdflib_x": 227.14,
+                    "pdflib_y": 487.13,
+                    "width": 12,
+                    "height": 12
+                }
+            ];
+
+            // Prepare PH Coordinates Map
+            const PH_COORDS = {};
+            LEFT_SIDE_CHECKBOXES.forEach(item => {
+                const key = item.label.replace(/ (No|Yes)$/, "");
+                const type = item.label.endsWith("Yes") ? "yes" : "no";
+                if (!PH_COORDS[key]) PH_COORDS[key] = {};
+                PH_COORDS[key][type] = item;
+            });
+
+            function checkPhItem(label, hasContent) {
+                const coords = PH_COORDS[label];
+                if (!coords) return;
+                if (hasContent) {
+                    if (coords.yes) check(coords.yes.pdflib_x, coords.yes.pdflib_y - 10);
+                } else {
+                    if (coords.no) check(coords.no.pdflib_x, coords.no.pdflib_y - 10);
+                }
+            }
+
+
+            // Mapping Logic
+            // 1. Past History Comments
+
+            // "Diabetes mellitus" -> DM Note
+            let note = extractSectionDetails("Diabetes mellitus");
+            if (note && note !== "CHECKED") draw(note, 250.19, 628.75 + 2);
+            checkPhItem("DM", (note && note !== "CHECKED") || isChecked("Diabetes mellitus"));
+
+            // "CVA" -> CVA Note
+            note = extractSectionDetails("CVA");
+            if (note && note !== "CHECKED") draw(note, 250.19, 614.92 + 2);
+            checkPhItem("CVA", (note && note !== "CHECKED") || isChecked("CVA"));
+
+            // "Hypertension" -> Hypertension Note
+            note = extractSectionDetails("Hypertension");
+            if (note && note !== "CHECKED") draw(note, 250.19, 601.09 + 2);
+            checkPhItem("Hypertension", (note && note !== "CHECKED") || isChecked("Hypertension"));
+
+            // "Heart disease" -> Cardiac disease Note
+            let heartExtras = [];
+            const heartItems = [
+                { key: "CAD", label: "CAD" },
+                { key: "Valvular disease", label: "Valvular" },
+                { key: "Arrhythmia", label: "Arrhythmia" },
+                { key: "Heart failure", label: "Heart failure" }
+            ];
+
+            heartItems.forEach(item => {
+                let subNote = extractSectionDetails(item.key);
+                if (subNote) {
+                    heartExtras.push(`${item.label}: ${subNote}`);
+                } else if (isChecked(item.key)) {
+                    heartExtras.push(item.label);
+                }
+            });
+
+            note = (note && note !== "CHECKED" ? note + ", " : "") + heartExtras.join(", ");
+            if (note) draw(note, 250.19, 586.88 + 2);
+            checkPhItem("Cardiac disease", (note && note !== "") || isChecked("Heart disease") || heartExtras.length > 0);
+
+            // "Asthma"
+            note = extractSectionDetails("Asthma");
+            if (note && note !== "CHECKED") draw(note, 250.19, 573.04 + 2);
+            checkPhItem("Asthma", (note && note !== "CHECKED") || isChecked("Asthma"));
+
+            // "COPD"
+            note = extractSectionDetails("COPD");
+            if (note && note !== "CHECKED") draw(note, 250.19, 558.86 + 2);
+            checkPhItem("COPD", (note && note !== "CHECKED") || isChecked("COPD"));
+
+            // "Hepatitis"
+            note = "";
+            extras = [];
+            if (isChecked("HBV")) extras.push("HBV");
+            if (isChecked("HCV")) extras.push("HCV");
+            if (isChecked("Cirrhosis")) extras.push("Cirrhosis");
+            if (extras.length > 0) note = extras.join(", ");
+            if (note) draw(note, 250.19, 545.0 + 2);
+            checkPhItem("Hepatitis", note.length > 0);
+
+            // "Renal disease"
+            note = extractSectionDetails("Renal disease");
+            if (note === "CHECKED" || note === "Yes") note = "";
+            extras = [];
+            if (isChecked("ESRD")) extras.push("ESRD");
+            if (isChecked("PD")) extras.push("PD");
+            if (isChecked("HD")) extras.push("HD");
+            if (isChecked("Renal Failure")) extras.push("Renal Failure");
+            if (extras.length > 0) note = (note ? note + ", " : "") + extras.join(", ");
+            if (note) draw(note, 250.19, 530.81 + 2);
+            checkPhItem("Renal Disease", (note && note !== "CHECKED" && note.length > 0) || isChecked("Renal disease") || extras.length > 0);
+
+            // "Bleeding disorder"
+            note = extractSectionDetails("Bleeding disorder");
+            if (note && note !== "CHECKED") draw(note, 250.19, 516.98 + 2);
+            checkPhItem("Bleeding disorder", (note && note !== "CHECKED") || isChecked("Bleeding disorder"));
+
+            // "Allergy"
+            note = extractSectionDetails("Allergy");
+            if (note && note !== "CHECKED") draw(note, 250.19, 502.79 + 2);
+            checkPhItem("Allergy", (note && note !== "CHECKED") || isChecked("Allergy"));
+
+            // "Smoking"
+            note = extractSectionDetails("Smoking");
+            if (note && note !== "CHECKED") draw(note, 250.19, 488.94 + 2);
+            checkPhItem("Smoking", (note && note !== "CHECKED") || isChecked("Smoking"));
+
+            // "Major operation"
+            note = extractSectionDetails("Major operation");
+            if (note && note !== "CHECKED") draw(note, 250.19, 474.75 + 2);
+            checkPhItem("Major operations", (note && note !== "CHECKED") || isChecked("Major operation"));
+
+            // 2. Anesthesia Orders Checkboxes
+
+            // ASA Class (List of checkboxes)
+            const asaX = [0, 158.64, 186.68, 218.6, 254.45, 291.0, 323.66];
+            // Look for the "Classification (ASA phân cấp)" bold item to find the section
+            const boldItems = Array.from(document.querySelectorAll('span.bold-item'));
+            const asaHeader = boldItems.find(s => s.textContent.includes('Classification'));
+
+            if (asaHeader) {
+                const li = asaHeader.closest('li');
+                // Checkboxes are direct children or wrapped in labels in this LI
+                const checkboxes = li.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach((cb) => {
+                    if (cb.checked) {
+                        const labelText = cb.parentElement.textContent.trim();
+                        // "1", "2", "3", "4(High risk)"...
+                        const match = labelText.match(/^(\d)/);
+                        if (match) {
+                            const val = parseInt(match[1]);
+                            if (val >= 1 && val <= 6) check(asaX[val] + 1, 314.26);
+                        }
+                    }
+                });
+
+                // ASA-E
+                if (isChecked("Emergency (緊急手術)")) {
+                    check(361.21, 314.26); // E
+                }
+            }
+
+            // Mallampati (Radio buttons)
+            const mallampati = document.querySelector('input[name="mallampati"]:checked');
+            if (mallampati) {
+                const val = parseInt(mallampati.value);
+                const malX = [0, 227.85, 255.87, 287.81, 323.66];
+                if (val >= 1 && val <= 4) check(malX[val], 278.44);
+            }
+
+            // CV Assessment
+            if (isChecked("Hypotension") || isChecked("Hypertension") || isChecked("IHD") || isChecked("Heart failure") || isChecked("Arrythmia") || isChecked("Valvular disease") || isChecked("CAD")) {
+                check(245.58, 260.32); // Abnormal
+            } else {
+                check(180.3, 260.32); // RHB
+            }
+
+            // Respiratory Assessment
+            if (isChecked("Asthma") || isChecked("COPD") || isChecked("Pneumonia") || isChecked("TB") || isChecked("URI") || isChecked("Smoking")) {
+                check(231.75, 242.24); // Abnormal
+            } else {
+                check(170.3, 242.24); // BS clear
+            }
+
+            // Anesthesia Plan (Applied -6 Y offset)
+            const planYKey = -10;
+
+            if (isChecked("GA with Endotracheal Tube")) {
+                check(190.96, 216.39 + planYKey); // ETGA
+            }
+            if (isChecked("GA with Supraglottic Airway Device")) {
+                check(243.1, 216.39 + planYKey); // LMA
+            }
+            if (isChecked("Face Mask/IVGA")) {
+                check(293.84, 216.39 + planYKey); // Mask
+                check(344.58, 216.39 + planYKey); // IVGA (Added per request)
+            }
+            // Check specific IVGA checkbox if exists, or assume covered by above.
+
+            if (isChecked("TCI")) {
+                check(234.23, 162.1 + planYKey); // TCI
+            }
+
+            if (isChecked("SA (脊隨麻醉)")) {
+                check(398.19, 216.39 + planYKey); // SA
+            }
+            if (isChecked("EA (硬脊膜外麻醉)")) {
+                check(437.94, 216.39 + planYKey); // EA
+            }
+            if (isChecked("Peripheral Nerve Block")) {
+                check(478.04, 216.39 + planYKey); // Nerve block
+            }
+
+            // Special handling & Monitors Mapping
+            // 1. "ABP" (User likely refers to Awake A-line or Arterial Line)
+            if (isChecked("Arterial Line") || isChecked("Awake A-line") || isChecked("Pressure Kit")) {
+                check(165.96, 198.3 + planYKey); // 動脈導管
+            }
+            if (isChecked("CVC")) {
+                check(229.27, 198.3 + planYKey); // CVC
+            }
+            if (isChecked("TEE")) {
+                check(277.88, 198.3 + planYKey); // TEE
+            }
+
+            // DLT / Blocker logic (Airway)
+            const isDLT = isChecked("DLT");
+            const isBlocker = isChecked("Blocker");
+
+            if (isDLT || isBlocker) {
+                check(109.96, 180.21 + planYKey); // Lung separation
+            }
+
+            if (isBlocker) {
+                check(209.06, 180.21 + planYKey); // Bronchial blocker
+            }
+            if (isDLT) {
+                check(320.47, 180.21 + planYKey); // Endobronchial tube
+                check(190.96, 216.39 + planYKey); // ETGA (User rule)
+            }
+
+            // Bronchoscope -> Fiberscopic intubation
+            const elBroncho = document.getElementById("chk_bronchoscope");
+            if (elBroncho && elBroncho.checked) {
+                check(108.96, 162.1 + planYKey); // Fiberscopic intubation
+            }
+
+            // ICU Admission -> 預計術後轉送ICU
+            if (isChecked("ICU admission")) {
+                check(271.85, 162.1 + planYKey);
+            }
+
+            // Pain
+            // "完成PCA評估解釋" -> "麻醉部急性疼痛小組處理流程"
+            // "病房一般止痛" -> "一般病房疼痛處理流程"
+            if (isChecked("PCA") || isChecked("完成PCA評估解釋")) {
+                check(199.09, 144.37 + planYKey); // 麻醉部急性疼痛小組處理流程
+            }
+
+            if (isChecked("病房一般止痛")) {
+                check(199.09, 116.28); // Generally Ward Pain
+            }
+
+            // --- Summary Rendering ---
+            // 1. Assessment (Right Top)
+            const assessmentSummary = collectSectionSummary("Pre-anesthetic Assessment");
+            if (assessmentSummary.length > 0) {
+                let currentY = 648; // Start Y
+                const startX = 343; // Start X
+                const lineHeight = 5;
+
+                page.drawText("【Assessment Summary】", { x: startX, y: currentY + 6, size: 6, font: fontLatin, color: PDFLib.rgb(0, 0, 0) });
+
+                assessmentSummary.forEach(line => {
+                    // Wrapped drawing for summary
+                    currentY = drawTextWrapped(page, line, startX, currentY, 220, lineHeight, 6, fontTC, fontLatin);
+                    currentY -= lineHeight;
+                });
+            }
+
+            // 2. Plan (Right Bottom)
+            const planSummary = collectSectionSummary("Anesthesia Plan");
+            if (planSummary.length > 0) {
+                let currentY = 330; // Start Y (Adjust as needed)
+                const startX = 390;
+                const lineHeight = 5;
+
+                page.drawText("【Plan Summary】", { x: startX, y: currentY + 6, size: 6, font: fontLatin, color: PDFLib.rgb(0, 0, 0) });
+
+                planSummary.forEach(line => {
+                    currentY = drawTextWrapped(page, line, startX, currentY, 175, lineHeight, 6, fontTC, fontLatin);
+                    currentY -= lineHeight;
+                });
+            }
+
+            // --- Highlighted Items (Bottom Right) ---
+            const highlightItems = [
+                { id: "chk_mac", label: "MAC" },
+                { id: "chk_omt", label: "OMT" },
+                { id: "chk_warm_blanket", label: "溫毯" },
+                { id: "chk_mepilex", label: "Mepilex貼片" },
+                { id: "chk_pca", label: "PCA" },
+                { id: "chk_bis", label: "BIS" },
+                { id: "chk_aws", label: "AWS" },
+                { id: "chk_optiflow_thrive", label: "Optiflow" },
+                { id: "chk_optiflow_hfnc", label: "Optiflow" }
+            ];
+
+            let highlights = [];
+            highlightItems.forEach(item => {
+                const el = document.getElementById(item.id);
+                if (el && el.checked) {
+                    if (!highlights.includes(item.label)) highlights.push(item.label);
+                }
+            });
+
+            if (highlights.length > 0) {
+                const text = highlights.join(", ");
+                // Draw Red Bold Text at Y=80, X=350 (Right side, above date area)
+                drawTextWrapped(page, text, 350, 85, 200, 10, 10, fontTC, fontLatin, PDFLib.rgb(0, 0, 0));
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>

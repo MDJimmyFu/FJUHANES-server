@@ -1,0 +1,36 @@
+# Goal: Integrate Lab Reports with Status 68
+
+The objective is to fetch "Status 68_Official Report" (正式報告) items from the hospital's lab report system and display them in the patient detail view.
+
+## Proposed Changes
+
+### [HIS Client](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+
+#### [MODIFY] [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+- Add `get_official_lab_reports(self, patient_id, user_id)` method.
+- This method will fetch `http://10.10.246.73/ReportOrder/OpoQ0R1Form.aspx` with the provided parameters.
+- It will parse the HTML using regex to extract rows where the status includes "68" or "正式".
+- Each report will include: `name`, `sample`, [status](file:///c:/Users/A03772/.gemini/antigravity/scratch/hospital_login_tool/main.py#70-72), `order_ap_no`, and `url`.
+
+### [Backend API](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+
+#### [MODIFY] [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- Update `/api/details` (or the relevant patient detail route) to call `get_official_lab_reports`.
+- Add the results to the response JSON under the `official_reports` key.
+
+### [Frontend Template](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+- Update the patient detail rendering logic to check for `official_reports`.
+- Display these reports in a dedicated section (e.g., "正式報告 (Official Reports)").
+- Each report should be a clickable link opening the `url` in a new window.
+
+## Verification Plan
+
+### Automated Tests
+- Run `python -m py_compile app.py his_client_final.py` to ensure no syntax errors.
+
+### Manual Verification
+- Log in and view a patient with official reports (e.g., `003003641A`).
+- Verify that the new "Official Reports" section appears and contains the correct items.
+- Click a report to ensure it opens the correct URL.

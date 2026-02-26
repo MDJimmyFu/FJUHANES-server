@@ -1,0 +1,29 @@
+# Goal: Categorize Lab Reports by Status
+
+The objective is to separate lab reports into two categories: "Status 68 (Official)" and "Status 64 (Working)", and display them in a tabbed interface where status 64 is hidden by default.
+
+## Proposed Changes
+
+### [HIS Client](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+
+#### [MODIFY] [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+- Rename [get_official_lab_reports](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#502-550) or update its logic to return all relevant reports (status 64 and 68).
+- Each report object will already contain its [status](file:///c:/Users/A03772/.gemini/antigravity/scratch/hospital_login_tool/main.py#70-72).
+
+### [Frontend Template](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+- Update the patient detail rendering logic to split `official_reports` into two groups: [official](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#502-550) (status 68) and `working` (status 64).
+- Implement a simple tabbed UI or a toggle button to switch between the two lists.
+- Set the default view to show only "Official" (68) reports.
+
+## Verification Plan
+
+### Automated Tests
+- Run `python -m py_compile app.py his_client_final.py` to ensure no syntax errors.
+
+### Manual Verification
+- Log in and view a patient with both status 64 and 68 reports.
+- Verify that only status 68 reports are visible by default.
+- Click the "Working Reports" tab or toggle to reveal status 64 reports.
+- Verify that clicking reports in either tab opens the correct URL.

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>麻醉排程 | Premium Anesthesia Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <!-- Dependencies for PDF and Icons (Optional Icons) -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>輔醫麻醉手術排程</h1>
+            <p style="color: var(--text-muted)">Premium Surgical Data Management System</p>
+        </header>
+
+        <div class="controls-bar glass-card">
+            <div class="field-item">
+                <label
+                    style="font-size: 0.8rem; display: block; margin-bottom: 4px; color: var(--text-muted);">日期</label>
+                <input type="date" id="searchDate">
+            </div>
+            <div class="field-item">
+                <label style="font-size: 0.8rem; display: block; margin-bottom: 4px; color: var(--text-muted);">關鍵字 /
+                    病歷號</label>
+                <input type="text" id="searchKeyword" placeholder="搜尋病患或手術..." style="width: 250px;">
+            </div>
+            <div class="field-item">
+                <label
+                    style="font-size: 0.8rem; display: block; margin-bottom: 4px; color: var(--text-muted);">房號</label>
+                <select id="filterRoom">
+                    <option value="">全部房號</option>
+                </select>
+            </div>
+            <button id="btnSearch" style="margin-top: 20px;">
+                <i class="fas fa-search"></i> 查詢排程
+            </button>
+        </div>
+
+        <!-- Main Schedule Grid -->
+        <div id="scheduleGrid" class="surgery-grid">
+            <!-- Skeleton Loaders or Empty State -->
+            <div class="glass-card" style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                <i class="fas fa-calendar-alt fa-3x" style="color: var(--glass-border); margin-bottom: 20px;"></i>
+                <p style="color: var(--text-muted)">請選擇日期並點擊查詢按鈕以載入排程資料</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide-over Patient Detail Panel -->
+    <div class="panel-backdrop" id="panelBackdrop">
+        <div class="side-panel">
+            <div class="panel-header">
+                <div>
+                    <h2 id="pDetailName" style="color: var(--primary);">--</h2>
+                    <div id="pDetailMeta" style="font-size: 0.9rem; color: var(--text-muted);">病歷號: -- | 就診號: --</div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="secondary" onclick="app.closePanel()"><i class="fas fa-times"></i> 關閉</button>
+                </div>
+            </div>
+
+            <div class="panel-content" id="pDetailContent">
+                <!-- Dynamic Content -->
+            </div>
+
+            <!-- Footer Actions in Panel -->
+            <div
+                style="padding: 24px 30px; border-top: 1px solid var(--glass-border); background: var(--card-bg); display: flex; justify-content: flex-end; gap: 12px;">
+                <button id="btnGenPdf" style="display:none; background: linear-gradient(135deg, #10b981, #059669);"><i
+                        class="fas fa-file-pdf"></i> 產生評估單</button>
+                <button id="btnSaveEval" class="secondary"><i class="fas fa-save"></i> 暫存評估內容</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Main Logic -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+
+</html>

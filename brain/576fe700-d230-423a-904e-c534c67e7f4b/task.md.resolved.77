@@ -1,0 +1,16 @@
+# Task: Implement Authentication System
+
+- [x] Research existing authentication mechanisms in HIS
+    - [x] Identified `VerifyUser` SOAP service (plain text)
+    - [x] Identified `/HISLogin/CheckUserByID` endpoint (returns JSON with UniqueID)
+- [x] Implement backend authentication flow
+    - [x] Create [auth_handler.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/auth_handler.py) to interface with hospital auth APIs
+    - [x] Update [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py) with session support and login/logout routes
+- [x] Create the login interface
+    - [x] Design and implement [login.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/login.html) with premium styling
+    - [x] Update [index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html) (and legacy_schedule.html) to handle session status (logout, user name)
+- [x] Integrate authentication with data access
+    - [x] Update [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py#3-61) to use dynamic user IDs from session
+    - [x] Update Inpatient links to use authenticated user details
+- [x] Verify the complete authentication and access control flow
+- [x] Backup current version before implementation (`backup_20260220_1140`)

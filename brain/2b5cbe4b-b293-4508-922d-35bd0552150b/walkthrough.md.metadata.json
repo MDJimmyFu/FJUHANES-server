@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary": "Walkthrough of the fix for the anesthesia history detail bug. Corrected template strings in `his_client_final.py` to ensure proper binary payload patching.",
+  "updatedAt": "2026-02-21T12:01:59.961179700Z"
+}

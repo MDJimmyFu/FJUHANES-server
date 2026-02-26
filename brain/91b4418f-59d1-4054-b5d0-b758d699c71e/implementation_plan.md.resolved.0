@@ -1,0 +1,37 @@
+# Hospital Login Automation - Implementation Plan
+
+## Goal Description
+Design and implement a Python-based tool that allows a user to enter their credentials once and automatically logs them into:
+1.  **Inpatient Web System**: A web-based application (using Playwright).
+2.  **Hospital HIS**: A desktop application (using `pywinauto` or similar, or just launching it if automation is too complex without access).
+
+## User Review Required
+> [!IMPORTANT]
+> **Missing Information**: I do not have the specific URLs for the web system or the executable path/window titles for the HIS system. I will use **placeholders** (e.g., `http://example-hospital-web.com`, `C:\Program Files\HIS\Client.exe`). The user will need to update these in the configuration or code.
+
+> [!WARNING]
+> **Security**: Storing passwords or handling them in plain text can be risky. This tool will accept passwords in memory for the session, but if we save them, we must use secure storage (like Windows Credential Manager). For this prototype, we will input them each time or save them insecurely for demonstration if requested (defaulting to input each time).
+
+## Proposed Changes
+
+### Project Structure
+`C:\Users\A03772\.gemini\antigravity\scratch\hospital_login_tool\`
+- `main.py`: Entry point, GUI for login.
+- `web_login.py`: Handles browser automation.
+- `his_login.py`: Handles desktop application automation.
+- `config.py`: Configuration for URLs and paths.
+- `requirements.txt`: Dependencies.
+
+### Dependencies
+- `playwright`: For robust web automation.
+- `tk` (Standard library): For the simple GUI.
+- `pywinauto` (Optional): For desktop app interaction if needed.
+
+## Verification Plan
+### Automated Tests
+- None possible without access to the real systems.
+### Manual Verification
+- Run `main.py`.
+- Enter dummy credentials.
+- Verify browser launches and attempts to type into placeholder fields.
+- Verify "HIS" stub prints actions to console.

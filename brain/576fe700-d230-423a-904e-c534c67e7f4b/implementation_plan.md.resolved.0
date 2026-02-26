@@ -1,0 +1,41 @@
+# Implementation Plan - Replay HIS API Request
+
+The goal is to successfully retrieve the surgery list from the HIS server by replaying a valid request captured in [traffic.pcapng](file:///c:/Users/A03772/.gemini/antigravity/scratch/traffic.pcapng).
+
+## User Review Required
+
+> [!IMPORTANT]
+> This approach uses a **binary replay attack**. We are sending the exact binary payload captured from the official client.
+> - **Pros:** High chance of success without reverse-engineering the .NET Remoting protocol.
+> - **Cons:** The payload might contain session IDs, timestamps, or specific parameters (like date ranges) that could expire or become invalid. If the request fails, we may need to capture a fresh [pcap](file:///c:/Users/A03772/.gemini/antigravity/scratch/analyze_pcap_scapy.py#4-51) or analyze the binary structure further to parameterize it.
+
+## Proposed Changes
+
+### Scripts
+
+#### [NEW] [replay_c250_pcap.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/replay_c250_pcap.py)
+- **Purpose**: A standalone script to send the captured binary payload to the HIS server.
+- **Logic**:
+    1. Read `c250_payload.bin` (extracted from pcap).
+    2. Send POST request to `http://10.10.246.90:8800/HISOrmC250Facade`.
+    3. Headers:
+        - `Content-Type: application/octet-stream`
+        - `X-Compress: yes`
+        - `User-Agent: Mozilla/4.0+(compatible; MSIE 6.0; Windows 6.2.9200.0; MS .NET Remoting; MS .NET CLR 2.0.50727.9164 )`
+    4. Save response to `response_c250.bin`.
+
+#### [MODIFY] [his_api_client.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py)
+- **Update**: Update the `api_url` class variable to the discovered endpoint.
+- **Update**: Add a method `get_surgery_list_raw()` that implements the logic above, utilizing the saved binary file for now.
+
+## Verification Plan
+
+### Automated Verification
+- Run `python replay_c250_pcap.py`.
+- **Success Criteria**:
+    - HTTP Status Code: `200`
+    - Response Content-Length > 0
+    - Output file `response_c250.bin` is created.
+
+### Manual Verification
+- Inspect the output of the script to ensure no connection errors (ConnectionRefused, Timeout).

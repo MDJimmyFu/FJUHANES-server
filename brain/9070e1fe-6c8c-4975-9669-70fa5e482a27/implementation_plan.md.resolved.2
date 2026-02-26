@@ -1,0 +1,32 @@
+# implementation_plan.md - Adding Settings Menu and Theme Support
+
+This plan details the addition of a floating settings menu to the surgery schedule page, enabling auto-refresh and theme customization.
+
+## Proposed Changes
+
+### [Component] UI/UX & Themes Refinement
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+
+- **Global Variable Cleanup**:
+    - Ensure all components (Assessment, Details, Table) use `var(--text)`, `var(--bg)`, `var(--card)`, and `var(--border)`.
+    - Handle `.h2-container`, `.h3-header`, `.h3-content` styles.
+
+- **Surgery Card Visibility**:
+    - Add `border: 1px solid var(--border)` to `.surgery-card`.
+    - In `.theme-dark`, ensure `--border` is light enough (e.g., `#444`) to be visible against the background.
+
+- **Modal & Overlay Support**:
+    - Ensure `#detail-view` and `#eval-modal-content` correctly inherit theme backgrounds.
+    - Update `data-table` and `sub-list` borders to use CSS variables.
+
+## Verification Plan
+
+### Automated Tests
+- N/A
+
+### Manual Verification
+1.  **Surgery Cards**: Verify cards have a distinct 1px border in dark mode.
+2.  **Patient Details**: Verify the detailed data page is fully themed.
+3.  **Assessment Form**: Verify the evaluation form (collapsed and expanded states) is fully themed.
+4.  **Tables**: Verify lab results and other tables have visible borders in dark mode.

@@ -1,0 +1,29 @@
+# Implementation Plan - Fix HBV Printing Bug & Add Unique IDs
+
+The user has requested unique IDs for every input field in [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html). This will not only improve the reliability of automated testing but also provide a cleaner way to fix the reported HBV printing bug.
+
+## Proposed Changes
+
+### [Component Name] SurgerySchedule Templates
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+
+1.  **Add unique IDs to ALL input fields**:
+    *   Iterate through all sections (Cardiovascular, Neurologic, Endocrine, etc.) and assign semantic, unique IDs to every checkbox, radio button, and text input.
+    *   Convention example: `chk_cv_htn` (Hypertension checkbox), `txt_cv_others` (Others text input).
+    *   Special focus on `chk_carrier_hbv` and `chk_carrier_hcv` to resolve the reported printing bug.
+
+2.  **Update JavaScript logic**:
+    *   **Improve [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3560-3577) function**: Modify it to prioritize matching by ID if the "keyword" starts with a hash (e.g., `#chk_carrier_hbv`). If not an ID, use the improved shortest-match logic discussed previously.
+    *   **Update PDF mapping**: Update the `extras.push` and [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3560-3577) calls in the PDF generation logic to use the new unique IDs instead of labels where possible for 100% reliability.
+
+## Verification Plan
+
+### Automated Tests
+I will use the browser subagent to:
+1.  Verify that every entry in a sample of input fields across different sections has a unique [id](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#2415-2420).
+2.  Verify that checking `#chk_carrier_hcv` correctly triggers the HCV label in the Hepatitis note without triggering HBV.
+
+### Manual Verification
+1.  Open the page and use browser dev tools to inspect several input fields to verify they have the expected unique IDs.
+2.  Generate a PDF and ensure all mapped fields (including the Hepatitis section) are correctly populated based on the checked IDs.

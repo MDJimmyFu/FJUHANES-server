@@ -1,0 +1,20 @@
+# Surgery Schedule Restoration Plan
+
+Restarting the project to restore the original [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) design while integrating the new backend data methods.
+
+## Proposed Changes
+
+### [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- [MODIFY] Implement `/api/his/<method>` proxy endpoints to handle legacy frontend requests.
+- [MODIFY] Ensure data returned by [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#9-364) aligns with legacy frontend expectations.
+
+### [templates/legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+- [NEW] Create based on original [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html).
+- [MODIFY] Update `API_BASE` to point to `/api/his`.
+- [MODIFY] Simplify [callApi](file:///c:/Users/A03772/.gemini/antigravity/scratch/legacy/templates/index.html#1420-1478) to handle JSON response directly (removing XML parsing).
+- [MODIFY] Ensure data fields map correctly to the backend response structure.
+
+## Verification
+- Verify the schedule list loads correctly.
+- Verify clicking a patient opens the detail view with populated Vitals, Labs, and History.
+- Verify PDF generation still works (using the original logic embedded in the file).

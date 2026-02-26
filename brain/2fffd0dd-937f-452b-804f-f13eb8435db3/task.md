@@ -1,0 +1,22 @@
+# Network Traffic Analysis & Client Update
+
+- [x] Identify Remote Server <!-- id: 10 -->
+    - [x] Run `netstat` to find app connection <!-- id: 11 -->
+- [x] Guide User to Capture Traffic <!-- id: 0 -->
+    - [x] Explain Fiddler installation and setup <!-- id: 12 -->
+    - [/] Wait for user to provide HAR/Log <!-- id: 13 -->
+- [x] Analyse Login Request <!-- id: 1 -->
+    - [x] Identify URL, Headers, and Payload <!-- id: 2 -->
+    - [x] Identify Auth Token mechanism (Standard Credentials) <!-- id: 3 -->
+- [x] Analyse Patient Data Request <!-- id: 4 -->
+    - [x] Identify URL and Payload parameters (Binary .NET Remoting Protocol) <!-- id: 5 -->
+- [/] Update `his_api_client.py` <!-- id: 6 -->
+    - [x] Implement actual Login logic <!-- id: 7 -->
+    - [ ] Implement actual Patient Search logic (Blocked by Binary Protocol Complexity) <!-- id: 8 -->
+- [x] Verify Client against real API (Python Installed) <!-- id: 9 -->
+- [/] Analyze `HISOrmC250Facade` Request <!-- id: 14 -->
+    - [x] Extract and decode request body (Blocked: Corrupted/Truncated in HAR) <!-- id: 15 -->
+    - [x] Analyze session ID (None found in Cookies/Headers - likely binary embedded) <!-- id: 20 -->
+    - [x] Analyze response headers (Content-Length: 36KB) <!-- id: 18 -->
+    - [x] Extract surgery list from response (Success: Found 60 records for 20260212) <!-- id: 19 -->
+    - [x] Create specialized script to replay/modify this request (Failed: Server threw `SerializationException`) <!-- id: 17 -->

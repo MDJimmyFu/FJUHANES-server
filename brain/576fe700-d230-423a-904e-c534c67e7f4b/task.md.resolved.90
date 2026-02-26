@@ -1,0 +1,22 @@
+# Task: Debugging Missing Lab and Vitals Data & Integrating Reports
+
+- [x] Analyze discrepancy between current [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#9-520) and backup
+- [x] Restore missing data retrieval methods
+    - [x] Restore [get_vitals_from_exm](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#244-314) with full mapping
+    - [x] Restore [get_lab_data](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#195-226) with comprehensive mapping
+    - [x] Restore clinical notes ([get_opd_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#451-467), [get_emg_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#468-501))
+    - [x] Update [get_visit_details](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#421-450) to include clinical notes
+- [x] Fix data flow bugs
+    - [x] Update [get_pre_anesthesia_data](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#83-119) to use current date by default
+    - [x] Update `/api/details` in [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py) to include [vitals](file:///c:/Users/A03772/.gemini/antigravity/scratch/debug_vitals.py#4-29) data
+    - [x] Add "Query Lab Report" button to Laboratory Data section
+- [x] Integrate Lab Reports with Status 68
+- [x] Categorize Lab Reports (Status 64 vs 68)
+    - [x] Update [get_official_lab_reports](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#502-550) to return all statuses
+    - [x] Implement tabbed UI for 64 (Sampling) and 68 (Imaging)
+    - [x] Hide 64 tab by default
+    - [x] Update labels and code identifiers to `imaging`/`sampling`
+- [x] Investigate Vital Signs Discrepancy for 003616525A
+    - [x] Identify mapping gap for `BP.ABP` (Invasive Blood Pressure)
+    - [x] Update priority mapping in [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#9-520)
+    - [x] Verify fix with live hospital data

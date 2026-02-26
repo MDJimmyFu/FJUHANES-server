@@ -1,0 +1,23 @@
+# Plan: Fix Missing Patient Detail Data
+
+The user reported that Lab Data and Physiological Report data are missing. This is due to state being lost between the Phase 1 (partial) and Phase 2 (full) rendering cycles.
+
+## Proposed Changes
+
+### [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html)
+- [MODIFY] [showDetail](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#2510-2640) function:
+    - Add a `let storedLabs = null;` variable to store Phase 1 lab data.
+    - Pass `storedLabs` to the Phase 2 [renderDetails](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#2641-2789) call instead of `null`.
+    - Ensure `memos` and `phy` are correctly updated and passed.
+- [MODIFY] [renderDetails](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html#2641-2789) function:
+    - Ensure the logic for "Physiological Measurement" correctly handles all available data, including entries from `pre.INSPECTION`.
+    - Verify if there are other "Report" fields in the physiological data that should be shown (e.g., text memos or results).
+
+### [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- (No changes needed, the API is correctly returning sectioned data).
+
+## Verification Plan
+1. Open the patient detail view.
+2. Verify Phase 1 shows vitals and labs.
+3. Verify Phase 2 populates history/meds *without* removing the vitals and labs from Phase 1.
+4. Check that all expected fields in physiological and lab sections are present.

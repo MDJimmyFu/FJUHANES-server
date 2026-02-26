@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_OTHER",
+  "summary": "Comprehensive data dump of all fields parsed from HISOrmC430Facade (Pre-Anesthesia Evaluation) for patients 003617083J and 003509917D.\nLists every table and row returned by the live system without filtering.",
+  "updatedAt": "2026-02-18T09:39:26.087679500Z"
+}

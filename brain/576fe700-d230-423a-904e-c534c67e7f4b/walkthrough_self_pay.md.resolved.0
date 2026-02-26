@@ -1,0 +1,26 @@
+# Walkthrough: Anesthesia History Enhancements
+
+I have successfully added a new "Self-Pay Items" (自費項目) category to the anesthesia history detail view and separated it from the standard "Materials" (醫藥耗材).
+
+## Changes Made
+
+### Backend ([app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py))
+- Updated the `/api/ane_history_detail/<ordseq>` endpoint to categorize charging items based on their `PFKEY` prefix:
+  - **Self-Pay Items**: Prefix `551N`.
+  - **Materials**: Prefix `551` (excluding `551N`).
+  - **Procedures**: Other prefixes.
+
+### Frontend ([legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html))
+- Updated the detail expansion logic ([toggleAneDetail](file:///c:/Users/A03772/.gemini/antigravity/scratch/legacy/templates/index.html#2790-2906)) to render the new `self_pay` category if items are present.
+- Improved the UI with a distinct header color (`#007bff`) for self-pay items to make them easily identifiable.
+
+## Verification Results
+
+### Data Categorization
+Using patient `003363078D` as a test case:
+- Items like `551N9001` (Semi-closed anesthesia) are now correctly filtered into **自費項目**.
+- Items like `55105060` (G.A. On Endo.) remain in **醫藥耗材**.
+
+### UI Restoration
+- Verified that the surgery list and details page load correctly after fixing previous JavaScript syntax errors.
+- The "展開" (Expand) button correctly fetches and displays the categorized history details.

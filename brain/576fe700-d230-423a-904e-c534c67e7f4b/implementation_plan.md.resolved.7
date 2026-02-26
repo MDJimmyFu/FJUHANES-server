@@ -1,0 +1,18 @@
+# Surgery Schedule Restoration Plan
+
+Restarting the project to restore the original [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) design while integrating the new backend data methods.
+
+## Proposed Changes
+
+### [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- [MODIFY] Root route `/` to accept `search_date` and fetch surgery list server-side.
+- [NEW] `/patient_detail/<ordseq>`: Returns a consolidated JSON object containing all patient details (Vitals, Labs, Hx, Meds) in one call.
+
+### [templates/legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+- [MODIFY] Remove [fetchSchedule](file:///c:/Users/A03772/.gemini/antigravity/scratch/legacy/templates/index.html#1479-1519) and client-side API calls for the list.
+- [MODIFY] Inject `currentScheduleData` via Jinja2 template variable.
+- [MODIFY] Update [showDetail](file:///c:/Users/A03772/.gemini/antigravity/scratch/legacy/templates/index.html#2510-2640) to call the single `/patient_detail` endpoint.
+
+## Verification
+- Verify the schedule list loads instantly on page load/refresh.
+- Verify clicking a patient fetches full details successfully.

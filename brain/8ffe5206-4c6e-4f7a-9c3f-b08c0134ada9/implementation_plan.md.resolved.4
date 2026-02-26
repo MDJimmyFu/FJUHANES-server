@@ -1,0 +1,66 @@
+# Implementation Plan - Fix HBV Printing Bug & Fix Nested Sub-item Extraction & Selection Bug
+
+The goal is to fix a bug where text from unselected sub-items (like "Right" in Hemiparesis) is incorrectly included in the PDF summary, and to ensure that sub-items are correctly selected and identified. This will also improve the reliability of automated testing and provide a cleaner way to fix the reported HBV printing bug.
+
+## Proposed Changes
+
+### [HTML Structure Standardization]
+
+Convert in-line sub-options to standard nested `<ul>` structures. This ensures the [getRecursivelyCheckedText](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3905-3933) and [isLiChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3934-4015) functions work reliably.
+
+Affected sections:
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+- **Cardiovascular**: Atrial fibrillation, AV Block.
+- **Neurologic**: Hemiparesis.
+- **Respiratory**: Asthma Classification.
+- **Anesthesia Plan**: Bronchoscope options.
+
+---
+
+### [Component Name] SurgerySchedule Templates
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+
+1.  **Add unique IDs to ALL input fields**:
+    *   Iterate through all sections (Cardiovascular, Neurologic, Endocrine, etc.) and assign semantic, unique IDs to every checkbox, radio button, and text input.
+    *   Convention example: `chk_cv_htn` (Hypertension checkbox), `txt_cv_others` (Others text input).
+    *   Special focus on `chk_carrier_hbv` and `chk_carrier_hcv` to resolve the reported printing bug.
+
+2.  **Update JavaScript logic**:
+    *   **Improve [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3847-3871) function**: Modify it to prioritize matching by ID if the "keyword" starts with a hash (e.g., `#chk_carrier_hbv`). If not an ID, use the improved shortest-match logic discussed previously.
+    *   **Update PDF mapping**: Update the `extras.push` and [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3847-3871) calls in the PDF generation logic to use the new unique IDs instead of labels where possible for 100% reliability.
+
+### [Component Name]
+
+Summary of what will change in this component, separated by files. For specific files, Use [NEW] and [DELETE] to demarcate new and deleted files, for example:
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+- Redesign patient detail header: Remove prominent blue box and place Surgery Name, Anesthesia Info, and Surgery Notes as subtle gray text below the main info row.
+- Fix data mapping in [showDetail](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#2799-3178): Use `ORANENM` for anesthesia method and `OP_TIME` for procedure time.
+- Correct `opMemo` population to ensure surgery notes are displayed if available.
+
+### [JavaScript Logic Refinement]
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+- **[getCleanText(node)](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4016-4023)**: Update to explicitly remove nested `<label>` elements during text extraction to prevent capturing child label text.
+- **[isLiChecked(li)](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3934-4015)**: Ensure it handles LIs with multiple sibling checkboxes/radios correctly by only returning the label associated with the *first* checked input in that level (or refine to return a list if needed).
+
+---
+
+## Verification Plan
+
+### Automated Tests
+I will use the browser subagent to:
+1.  Verify that every entry in a sample of input fields across different sections has a unique [id](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#2695-2700).
+2.  Verify that checking `#chk_carrier_hcv` correctly triggers the HCV label in the Hepatitis note without triggering HBV.
+- Manual verification of the UI in the browser.
+
+### Manual Verification
+1.  Open the page and use browser dev tools to inspect several input fields to verify they have the expected unique IDs.
+2.  Generate a PDF and ensure all mapped fields (including the Hepatitis section) are correctly populated based on the checked IDs.
+- Open a patient detail view and verify all information is displayed correctly:
+    - Name, Chart No, ID No
+    - Age/Sex
+    - Surgery Name
+    - anesthesia method/time
+    - Surgery Notes

@@ -1,0 +1,30 @@
+# Implementation Plan - Fix HBV Printing Bug
+
+The reported bug is that "HBV" is printed even when only "Carrier of" and "HCV" are selected. This is caused by the [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3560-3577) JavaScript function matching the parent `<li>` element (which contains the text "Carrier of", "HBV", and "HCV") when searching for "HBV". Since it picks the first match and then finds the first checkbox within that match, it incorrectly returns the state of the "Carrier of" checkbox instead of the specific "HBV" checkbox.
+
+## Proposed Changes
+
+### [Component Name] SurgerySchedule Templates
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+
+1.  **Add unique IDs** to the HBV and HCV checkboxes to allow for more reliable selection if needed, although the improved matching logic should handle it.
+2.  **Improve [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3560-3577) function**:
+    *   Find all elements ([li](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#1536-1537), `label`) containing the keyword.
+    *   Select the element with the shortest `textContent` among matches. This ensures that a more specific child element (like a label) is picked over a larger parent element (like an `<li>`).
+3.  **Fix global variable leak**: Add `let` or `const` to the `extras` variable in the drawing logic to prevent it from becoming a global variable.
+
+## Verification Plan
+
+### Automated Tests
+I will use the browser subagent to:
+1.  Open the legacy schedule page.
+2.  Simulate checking only "Carrier of" and "HCV".
+3.  Click "Generate PDF" (or verify the data gathered for PDF).
+4.  Verify that only "HCV" is included in the Hepatitis note, not "HBV".
+
+### Manual Verification
+1.  Open the application and navigate to a patient's pre-anesthesia evaluation.
+2.  Check "Carrier of" and "HCV" but leave "HBV" unchecked.
+3.  Print or generate the PDF.
+4.  Verify the PDF output contains "HCV" but not "HBV".

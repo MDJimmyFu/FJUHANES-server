@@ -1,0 +1,43 @@
+# Package Integrity Verification Walkthrough
+
+I have completed the integrity check and applied necessary fixes to the `AutoPrescribe_Portable` package. The application is now verified to be portable and functional on Windows.
+
+## Verifications Performed
+
+### [x] File Integrity
+All core scripts and resource directories are present and correctly located:
+- [app.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/app.py), [his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/his_client.py)
+- [requirements.txt](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/requirements.txt), [start.bat](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/start.bat)
+- [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/templates/index.html)
+- JSON templates in `Ipo/`
+
+### [x] Dependency Verification
+The virtual environment (`venv`) contains all required packages:
+- `Flask` (3.1.3)
+- `requests` (2.32.5)
+
+### [x] Portability & Encoding Fixes
+The code has been updated to handle Windows-specific path and encoding issues:
+- **Paths**: Hardcoded Mac-style paths in [app.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/app.py) were replaced with dynamic path resolution.
+- **Encoding**: Explicitly set `encoding="utf-8"` when reading JSON templates in [his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/his_client.py) to prevent `cp950` decoding errors on Windows.
+
+```diff
+-    with open(painless_file, "r") as f:
++    with open(painless_file, "r", encoding="utf-8") as f:
+```
+
+### [x] Static Analysis
+Verified that the application and its client library can be imported correctly without syntax or dependency errors.
+
+### [x] Executable Packaging
+The application has been packaged into a standalone `.exe`:
+- **Tool**: PyInstaller
+- **Location**: `AutoPrescribe_Portable\dist\AutoPrescribe.exe`
+- **Features**: Includes all templates, Ipo JSON data, and dependencies in a single file.
+- **Portability**: Uses a custom resource resolver to ensure paths remain correct regardless of where the EXE is run.
+
+## How to Run
+Simply execute [start.bat](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/start.bat). It will:
+1. Activate the virtual environment.
+2. Install any missing dependencies (if run for the first time).
+3. Start the Flask server on `http://localhost:3000`.

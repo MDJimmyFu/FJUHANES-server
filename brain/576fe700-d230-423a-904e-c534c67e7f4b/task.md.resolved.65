@@ -1,0 +1,6 @@
+# Task: Extracting Consultation Links
+
+- [/] Analyze `consult_form.php` content for links.
+- [ ] Implement backend logic to extract URLs automatically.
+- [ ] Display extracted links in the comprehensive patient history.
+- [ ] Handle multiple consultations per visit if applicable.

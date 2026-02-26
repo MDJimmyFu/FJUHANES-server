@@ -1,0 +1,45 @@
+# Surgery Board Feature Walkthrough
+
+The Surgery Board is a new, dedicated view designed to provide a real-time, comprehensive overview of the surgical schedule across all 18 operating rooms.
+
+## Core Features
+
+### 1. Header Information
+-   **Real-time Clock**: A prominent, lively clock displaying the exact current time (down to the second) sits at the top right of the screen.
+-   **Last Update**: The exact time of the last successful data pull from the HIS server is displayed directly beneath the real-time clock.
+
+### 2. 18-Room Horizontal Scroll Layout
+-   **Structure**: The UI features 18 distinct horizontal lanes, one for each operating room (OR 01 to OR 18).
+-   **Navigation**: Each lane allows for smooth horizontal scrolling, enabling staff to view an unlimited number of scheduled surgeries in a single room without breaking the page layout.
+-   **Clean View**: Surgeries marked as "完成" (Completed) are automatically filtered out of the board to keep focus on pending and active cases.
+
+### 2. Surgery Cards
+Each surgery is represented by a cleanly designed card containing key information:
+-   **Status Badge (Top Left)**: Clearly indicates the current phase (手術中, 等候區, 叫刀). Colors are tied to the status for quick visual scanning.
+-   **Anesthesia Method & Assessment Status (Top Right)**: Displays the required anesthesia (e.g., GE, SA). Crucially, **if the patient's pre-anesthesia assessment is complete, the background of this badge turns distinctively green**, allowing for rapid identification. Hovering over it also provides a tooltip confirming the status.
+-   **Procedure & Surgeon (Center)**: The name of the operation and the responsible physician.
+-   **Estimated Duration (Bottom)**: Displays the planned length of the surgery in minutes (`OROPMIN`).
+
+### 3. Intelligent Sorting Algorithm
+Within each operating room lane, uncompleted surgeries are sorted dynamically based on their real-time HIS status, prioritizing active cases:
+1.  **手術中 (In Surgery)**: Active surgeries always float to the left (first position).
+2.  **等候區 (Waiting Area)**: Patients currently in the preoperative holding area.
+3.  **叫刀 (Called)**: Patients who have been called for surgery.
+4.  **Scheduled Console Order**: Any remaining surgeries are sorted sequentially based on their original console order (`OROPROOMSEQ_OPSTA_NUM` and `OROPROOMSEQ_DR_NUM`).
+
+### 4. Customizable Settings (Bottom Right Gear Icon)
+A fully functional settings modal allows users to tailor the board to their environment. Settings are saved locally to the browser (`localStorage`), meaning preferences persist across page reloads.
+
+-   **外觀模式 (Theme Mode)**: 
+    -   *日間模式 (Light)*: High contrast for bright environments.
+    -   *夜間模式 (Dark)*: Low glare for dark rooms or monitoring stations.
+    -   *依照系統設定 (Auto)*: Automatically matches the OS theme.
+-   **隱藏沒有手術的房間 (Hide Empty Rooms)**: When checked (default), any operating room that currently has no active/scheduled surgeries will be completely hidden from the board, saving screen space.
+-   **自動更新間隔 (Auto-Refresh Interval)**: Users can define how often the board fetches fresh data from the HIS server (default is every 5 minutes).
+
+## Verification Results
+- [x] Backend `/board` route successfully serves the new template.
+- [x] Data fetch successfully retrieves today's surgery list via the existing C250 API interface.
+- [x] Horizontal scroll layout renders 18 rooms correctly.
+- [x] Sorting algorithm accurately groups and prioritizes cards by status.
+- [x] Settings modal successfully toggles Dark Mode, hides empty lanes dynamically, and adjusts the refresh timer.

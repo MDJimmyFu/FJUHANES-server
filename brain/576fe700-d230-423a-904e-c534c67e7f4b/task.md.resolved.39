@@ -1,0 +1,51 @@
+# Task: Analyze Network Traffic
+
+- [x] Obtain pcap file from user <!-- id: 0 -->
+- [x] Analyze pcap file for HTTP/TCP traffic to `auth.fjcuh.org.tw` or internal HIS IPs <!-- id: 1 -->
+- [x] Extract API endpoints, headers, and payloads <!-- id: 2 -->
+- [x] Update [his_api_client.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py) with findings <!-- id: 3 -->
+- [x] Verify connectivity/logic <!-- id: 4 -->
+- [x] Verify and fix Traditional Chinese character encoding <!-- id: 5 -->
+- [x] Investigate why `ORMC430` returns empty structured data for some patients.
+  - [x] Check if `PAT_ADM_DRMEMO` (memos) are returning correctly (YES).
+  - [x] Check if `PAT_ADM_CASE` (Admission) data is sufficient fallback.
+  - [x] **Research Alternative APIs per user request**: Found `HISExmFacade`.
+  - [x] Implement direct DB query via `HISExmFacade` to retrieve VITALSIGN.
+- [x] **Fix Missing Data**: Integrate `HISExmFacade` fallback into [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py). <!-- id: 8 -->
+- [x] Extract Anesthesia Duration, Anesthesiologist, Procedures, and Material Fees from Q050 <!-- id: 9 -->
+- [x] Create comprehensive data schema/dictionary for all endpoints <!-- id: 10 -->
+- [x] Debug and Extract Full Data for Case 75176750 <!-- id: 11 -->
+
+# Task: Web Interface Implementation
+- [x] Update [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py) to return full dataset <!-- id: 12 -->
+- [x] Create Flask [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py) <!-- id: 13 -->
+- [x] Adapt [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) to [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html) <!-- id: 14 -->
+- [x] Verify local web interface <!-- id: 15 -->
+
+# Task: Debug Missing Vitals for `003617083J`
+- [x] Investigate missing vital signs (Height 157, Weight 49.1).
+- [x] Identify correct data source: `CPOE.OR_SIGN_IN` (Ht/Wt) & `OPDUSR.VITALSIGNUPLOAD` (Monitoring).
+- [x] Implement fallback logic in [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py) to fetch identifying `ORDSEQ` data.
+- [x] Update frontend ([index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html)) to display SpO2, Resp, BP, Pulse in requested order.
+
+# Task: Retrieve Missing Lab Data
+- [x] Retrieve missing lab data for User
+    - [x] Debug patient detail view hang
+    - [x] Fix `ReferenceError: data is not defined`
+    - [x] Fix syntax errors and redundant blocks in [index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html)
+    - [x] Implement incremental loading (Phase 1: Vitals/Labs, Phase 2: Extended)
+        - [x] Optimize [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py) and [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#9-273) to reduce redundant API calls
+        - [x] Add granular progress logging to [index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html) (requested by user)
+        - [ ] Verify fix with user feedback
+    - [x] Research Lab Tables (Found `PAT_RESULTH`)
+    - [x] Validate Schema & IDs (Validated `PRH_PAT_ID`)
+    - [x] Attempt Data Retrieval (Initial attempts failed)
+    - [x] **Investigate ID Aliases**: Found [HIDNO](file:///c:/Users/A03772/.gemini/antigravity/scratch/search_by_hidno.py#6-42) (C221748019) and `ENCNTNO` (75176986).
+    - [x] Exhaustive DB Search (No results for 003617083J in PAT_RESULTH/D today)
+    - [x] **Analyze traffic0218.pcapng**: Extracted real lab results from `HISOrmC430Facade`.
+    - [x] **Solve Laboratory Data Trigger**: Identified that `C250` activation + `C430` date matching is required for live labs.
+    - [x] Implement Real Fetching Logic (No Mocks/Fallbacks needed)
+    - [x] Display Real Lab Data in Frontend
+    - [x] **User Request**: List out EVERY data parsed from HISOrmC430Facade.
+    - [x] **User Request**: Re-query C430 and find `INSPECTION` table (Wider search).
+      - [x] Verified: `INSPECTION` table is returned by live C430 AFTER activation and date patching.

@@ -1,0 +1,25 @@
+# Package Integrity Fixes
+
+This plan addresses integrity issues discovered during the check of the `AutoPrescribe_Portable` package. The primary goal is to ensure the application is truly portable and functional on Windows.
+
+## Proposed Changes
+
+### Core Application
+
+#### [MODIFY] [app.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/app.py)
+
+- Fix the hardcoded PDF download path. It currently points to a Mac-style user directory (`/Users/chunhsienfu/...`).
+- Update the path to dynamically use the application's base directory, matching where [his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/his_client.py) saves the file.
+- Ensure `Controlled_Drug_Sheet_P022.pdf` is served from the correct location.
+
+#### [MODIFY] [his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/his_client.py)
+
+- Ensure the PDF save path is consistently handled. (Currently it uses `os.path.dirname(os.path.abspath(__file__))`, which is good for portability).
+
+## Verification Plan
+
+### Manual Verification
+1. **Start the application**: Run [start.bat](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/start.bat) and ensure it initializes the virtual environment and starts the Flask server without errors.
+2. **Check API Route**: Verify that the `/api/download_pdf` route now points to the correct local path.
+3. **Simulate PDF generation**: If possible, trigger a prescription (requires HIS access) and verify the PDF is saved and downloadable.
+4. **Static Check**: Verify that `os.path.join(os.path.dirname(__file__), ...)` is used everywhere instead of hardcoded paths.

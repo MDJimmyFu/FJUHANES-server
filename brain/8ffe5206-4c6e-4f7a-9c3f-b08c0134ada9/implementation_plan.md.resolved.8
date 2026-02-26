@@ -1,0 +1,42 @@
+# Surgery Board View Implementation Plan
+
+The goal is to create a new "Surgery Board" web page that visualizes the current day's surgical schedule across 18 operating rooms.
+
+## Core Requirements
+1.  **Layout**: 18 horizontal rows (one per operating room). Each row scrolls horizontally.
+2.  **Cards**: Each card represents a surgery and displays:
+    *   Top Left: Surgery Status (Hidden if empty/unstarted).
+    *   Center: Procedure Name & Surgeon Name.
+    *   Bottom/Details: Estimated Duration.
+    *   Top Right: Anesthesia Method.
+3.  **Filtering & Sorting**:
+    *   Exclude "Completed" (完成) surgeries.
+    *   Status Badge Colors: Highlighted active surgeries immediately.
+    *   Anesthesia Assessment Indicator: The Anesthesia Method badge background turns green when the `PREANEASSESFIN` field indicates the assessment is complete.
+4.  **Settings Modal (Bottom Right)**:
+    *   Theme Toggle: Day Mode / Night Mode / System Match.
+    *   Hide Empty Rooms Toggle: Default is hidden.
+    *   Auto-Refresh Interval: Configurable, default 5 minutes.
+
+## Proposed Architecture
+
+### Backend ([app.py](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/app.py) & [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/his_client_final.py))
+-   Create a new route: `@app.route('/board')` that serves [board.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/board.html).
+-   Reuse the existing `client.get_surgery_list()` logic to fetch today's surgeries via C250.
+-   Create an API endpoint `/api/board_data` (or reuse `/api/surgery_schedule`) to supply the raw JSON data to the board frontend.
+
+### Frontend ([templates/board.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/board.html) & static assets)
+-   **Structure**: A responsive grid or flexbox layout.
+-   **CSS**: Implement clean, modern, high-contrast styles. Include CSS variables for easy Dark/Light theme switching.
+-   **JavaScript Logic**:
+    -   Fetch data periodically based on the settings timer.
+    -   Group surgeries by `OROPROOM` (1-18).
+    -   Filter out completed surgeries.
+    -   Apply the custom multi-tiered sorting logic described above.
+    -   Render horizontal rows dynamically. If a room has no active surgeries and "Hide Empty" is checked, set `display: none` for that row.
+-   **Settings Management**: Use `localStorage` to persist the user's theme, empty-room preference, and refresh interval across sessions.
+
+## Verification Plan
+1.  **Visual Check**: Verify 18 distinct horizontal scrolling lanes render correctly.
+2.  **Sorting Logic Check**: Ensure surgeries accurately appear in the "Surgery -> Waiting -> Called -> Console" order, and completed ones are hidden.
+3.  **Settings check**: Verify changing to Night mode works immediately, hiding empty rooms removes empty lanes, and the timer accurately re-fetches data every 5 minutes.

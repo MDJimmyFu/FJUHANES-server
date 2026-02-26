@@ -1,0 +1,38 @@
+# Surgery Schedule Rebuild Plan
+
+Rebuild the anesthesia surgery schedule and patient evaluation system from scratch with a premium "WOW" interface and robust data integration.
+
+## Proposed Changes
+
+### [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- [MODIFY] Rewrite to provide a clean API layer:
+  - `/api/surgery_list` (POST): Returns a list of surgeries for a specific date range.
+  - `/api/details` (POST): Returns patient data with support for incremental loading (`section=vitals` or `section=extended`).
+  - `/api/save_eval` (POST): Persists anesthesia evaluation form data (temporary storage for demo).
+
+### [static/css/main.css](file:///c:/Users/A03772/.gemini/antigravity/scratch/static/css/main.css)
+- [NEW] Create a dedicated CSS system:
+  - Theme: Deep Blue / Emerald / Slate.
+  - Components: Cards, Badges, Modals, Loading Skeletons.
+  - Effects: Glassmorphism, smooth transitions, micro-animations.
+
+### [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html)
+- [NEW] Rebuild UI from scratch:
+  - Modern Dashboard: Interactive list with better room/status grouping.
+  - Slide-over Detail Panel: Replaces the simple modal for a premium feel.
+  - Sectioned Evaluation Form: A well-structured, user-friendly form matching the complexity of [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html).
+  - PDF Generation: Integrated using `pdf-lib`.
+
+## Technical Strategy
+- **Incremental Loading**: Phase 1 (Vitals/Labs) shows first, Phase 2 (History/Meds) loads in the background to ensure no UI hangs.
+- **State Management**: Use a global `appState` object in JS to manage current patient, evaluation data, and UI state.
+
+## Verification Plan
+### Automated Tests
+- Browser test: Verify surgery list loads for today's date.
+- Browser test: Verify patient detail view opens and displays vitals.
+
+### Manual Verification
+- Test all filters (Room, Search, Anesthesia type).
+- Verify "WOW" factor (Hover effects, smooth transitions).
+- Save a sample evaluation and generate a PDF.

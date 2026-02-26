@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary": "Implementation plan for integrating imaging reports from ORMC430 into the patient details view. Focuses on consolidating table names (CXR, INSPECTION_CXR) and improving frontend display.",
+  "updatedAt": "2026-02-18T14:04:09.240784800Z"
+}

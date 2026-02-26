@@ -1,0 +1,41 @@
+# Implement Authentication System
+
+Implement a login interface that authenticates users via the hospital's `HISLogin` service and manages sessions to enable secure data retrieval and deep linking.
+
+## Proposed Changes
+
+### Backend (Flask)
+
+#### [MODIFY] [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- Add `/login` and `/logout` routes.
+- Integrate `flask-session` to store authenticated user credentials (`SignOnID`, `CreateID`, etc.).
+- Protect existing routes (`/`, `/api/*`) to require an active session.
+- Update data fetching logic to use the authenticated user's ID instead of the hardcoded `A03772`.
+
+#### [NEW] [auth_handler.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/auth_handler.py)
+- Implement `validate_user(username, password)` calling `http://10.10.246.80/Ipo/HISLogin/CheckUserByID`.
+
+#### [MODIFY] [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+- Update [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py#3-61) and its methods to accept a `current_user` ID and patch binary templates dynamically with this ID.
+
+### Frontend
+
+#### [NEW] [login.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/login.html)
+- A premium, modern login page with hospital branding.
+- Fields for Username/ID and Password.
+
+#### [MODIFY] [index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html)
+- Add a "Logout" button and display the current logged-in user's name.
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+- Dynamically populate the IPD links using the `SignOnID` and `CreateID` (encrypted password) stored in the session.
+
+## Verification Plan
+
+### Automated Tests
+- Test `/api/login` with valid and invalid credentials.
+- Verify that accessing `/` without a session redirects to `/login`.
+
+### Manual Verification
+- Log in as a authorized user and verify that surgery lists and patient details are retrieved correctly.
+- Click on an "Inpatient Record" link and verify it opens the external HIS system with the correct authenticated session.

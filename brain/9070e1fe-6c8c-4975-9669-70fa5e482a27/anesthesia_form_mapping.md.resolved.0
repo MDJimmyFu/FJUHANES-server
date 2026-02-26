@@ -1,0 +1,127 @@
+# 麻醉評估表單欄位與 PDF 對應表 (Anesthesia Evaluation Form Mapping)
+
+此文件詳細列出「麻醉前評估與計畫表單」中所有的輸入項（Checkbox 與 Text Input），及其在產生 PDF 時對應的座標位置。
+
+---
+
+## 1. 基本資料 (Basic Information)
+*這些欄位通常由系統自動帶入，但在 PDF 上有固定位置。*
+
+| 階層 / 顯示文字 | 類型 | HTML ID / 來源 | PDF 座標 (pdflib_x, pdflib_y) |
+| :--- | :--- | :--- | :--- |
+| 病歷號 (Chart No) | Text | `d-hhis-num` | 121.24, 741.65 |
+| 姓名 (Name) | Text | `d-patient-name` | 235.52, 741.65 |
+| 生日 (Birth Date) | Text | `basic.BIRTHDT` | 337.72, 741.65 |
+| 床號 (Bed No) | Text | `basic.HBED` | 433.0, 741.33 |
+| 身分證字號 (ID No) | Text | `d-id-no` | 496.92, 741.14 |
+| 年齡 (Age) | Text | `basic.AGE` | 114.5, 724.63 |
+| 血型 (Blood Type) | Text | `basic.BLOODTYPE` | 228.76, 724.63 |
+| 性別 (Sex) | Text | `basic.HSEXE` | 312.87, 724.63 |
+| 身高 (Height) | Text | `vitals.HEIGHT` | 396.97, 724.63 |
+| 體重 (Weight) | Text | `vitals.WEIGHT` | 495.29, 724.63 |
+
+---
+
+## 2. 生命徵象 (Vitals)
+
+| 階層 / 顯示文字 | 類型 | HTML ID / 來源 | PDF 座標 (pdflib_x, pdflib_y) |
+| :--- | :--- | :--- | :--- |
+| 體溫 (BT) | Text | `vitals.BT` | 114.5, 709.0 |
+| 心跳 (Pulse) | Text | `vitals.PULSE` | 198.61, 709.0 |
+| 呼吸 (Resp) | Text | `vitals.RESP` | 295.13, 709.0 |
+| 血壓 (BP) | Text | `vitals.BP` | 397.68, 709.0 |
+| SPO2 | Text | `vitals.SPO2` | 529.01, 709.0 |
+
+---
+
+## 3. 既往病史 (Past Medical History)
+*勾選項目對應 PDF 左側的 Yes/No Checkbox，備註文字對應其右側的填充線。*
+
+| 階層 / 顯示文字 | 類型 | HTML ID | PDF 勾選位置 (x, y) | PDF 文字位置 (x, y) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Cardiovascular System** | Section | - | - | - |
+| (1) Hypertension (高血壓) | Checkbox | `chk_cv_htn` | Yes: 227.14, 613.78 / No: 195.19, 613.78 | 250.19, 601.09 |
+| 　└ Regular control | Checkbox | `chk_cv_htn_reg` | (邏輯整合於 Hypertension) | - |
+| 　└ Poor control | Checkbox | `chk_cv_htn_poor` | (邏輯整合於 Hypertension) | - |
+| (2) CAD (冠狀動脈疾病) | Checkbox | `chk_cv_cad` | Yes: 227.14, 599.57 / No: 195.19, 599.57 | 250.19, 586.88 |
+| 　└ POBA/POBAS | Checkbox | `chk_cv_cad_poba` | (邏輯整合於 Cardiac) | - |
+| 　└ CABG | Checkbox | `chk_cv_cad_cabg` | (邏輯整合於 Cardiac) | - |
+| 　└ Others | Checkbox | `chk_cv_cad_oth` | (邏輯整合於 Cardiac) | - |
+| 　└ [Others 文字] | Text | `txt_cv_cad_oth` | - | 250.19, 586.88 |
+| (3) Valvular disease | Checkbox | `chk_cv_valve` | (邏輯整合於 Cardiac) | - |
+| 　└ [補充說明] | Text | `txt_cv_valve_note` | - | 250.19, 586.88 |
+| (5) Heart failure (心衰竭) | Checkbox | `chk_cv_hf` | (邏輯整合於 Cardiac) | - |
+| ... (以此類推) | ... | ... | ... | ... |
+
+> [!NOTE]
+> **PDF 映射邏輯說明：**
+> 1. **Yes/No 判定**：如果 HTML 中的主 Checkbox 被勾選，或者其子項目的文字方塊有內容，PDF 會在 "Yes" 的座標畫 "V"，否則在 "No" 畫 "V"。
+> 2. **文字映射**：該項目下所有被勾選的子項文字與文字方塊內容會被串接，顯示在對應的橫線上。
+
+---
+
+## 4. 風險評估與計畫 (Assessment & Plan)
+
+| 階層 / 顯示文字 | 類型 | HTML ID | PDF 座標 (pdflib_x, pdflib_y) |
+| :--- | :--- | :--- | :--- |
+| **ASA 分級** | - | - | - |
+| ASA 1 | Checkbox | `chk_asa_1` | 158.64, 314.26 |
+| ASA 2 | Checkbox | `chk_asa_2` | 186.68, 314.26 |
+| ASA 3 | Checkbox | `chk_asa_3` | 218.6, 314.26 |
+| ASA 4 (高風險) | Checkbox | `chk_asa_4` | 254.45, 314.26 |
+| ASA E (緊急手術) | Checkbox | `chk_asa_e` | 361.21, 314.26 |
+| **Airway (呼吸道)** | - | - | - |
+| Mallampati 1 | Radio | `rad_aw_mal_1` | 227.85, 278.44 |
+| Mallampati 2 | Radio | `rad_aw_mal_2` | 255.87, 278.44 |
+| Mallampati 3 | Radio | `rad_aw_mal_3` | 287.81, 278.44 |
+| Mallampati 4 | Radio | `rad_aw_mal_4` | 323.66, 278.44 |
+| **Anesthesia Plan** | - | - | - |
+| ETGA | Checkbox | `chk_ga_ett` | 190.96, 206.39 |
+| LMA | Checkbox | `chk_ga_lma` | 243.1, 206.39 |
+| Spinal Anesthesia (SA) | Checkbox | `chk_ra_sa` | 398.19, 206.39 |
+| Epidural Anesthesia (EA) | Checkbox | `chk_ra_ea` | 437.94, 206.39 |
+
+---
+
+## 5. 修改範例 (How to Modify)
+
+如果您想要增加新的欄位，請依照以下步驟修改並告知我：
+
+### 範例 A：增加一個簡單的 Checkbox (例如：增加一個自費項目)
+
+1.  **在 Markdown 中列出需求：**
+    ```markdown
+    #### [ADD] Checkbox
+    - 位置：ICU & Miscellaneous 區塊
+    - 顯示文字：自費止吐藥
+    - HTML ID：pk_self_anti_emetic
+    - PDF 座標：(X=350, Y=100)
+    ```
+
+2.  **我將會執行的修改：**
+    - 在 [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) 的 HTML 部分增加：
+      `<li><label><input type="checkbox" id="pk_self_anti_emetic"> 自費止吐藥</label></li>`
+    - 在 [drawEvalPdfContent](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4283-4891) 函數中增加繪製邏輯：
+      `if (isChecked("pk_self_anti_emetic")) check(350, 100);`
+
+### 範例 B：增加一個包含文字說明的項目
+
+1.  **在 Markdown 中列出需求：**
+    ```markdown
+    #### [ADD] Checkbox + Text
+    - 位置：Cardiovascular System 區塊 (12)
+    - 顯示文字：Myocarditis (心肌炎) / 備註
+    - HTML ID：chk_cv_myo / txt_cv_myo_note
+    - PDF Yes 座標：(227.14, 460) / No 座標：(195.19, 460)
+    - PDF 文字位置：(250.19, 460)
+    ```
+
+2.  **我將會執行的修改：**
+    - 增加 HTML 結構。
+    - 在 `LEFT_SIDE_CHECKBOXES` 陣列中增加 PDF 座標定義。
+    - 在 [drawEvalPdfContent](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4283-4891) 中加入 mapping 程式碼。
+
+---
+
+> [!TIP]
+> **座標測量建議**：PDF 座標系通常以左下角為 (0,0)。如果在調整位置時不確定，可以參考鄰近欄位的座標進行微調（通常 Y 軸間距約為 14 單位）。

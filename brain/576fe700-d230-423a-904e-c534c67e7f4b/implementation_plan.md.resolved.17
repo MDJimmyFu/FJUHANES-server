@@ -1,0 +1,27 @@
+# Goal: Categorize Lab Reports by Status
+
+The objective is to separate lab reports into two categories: "Status 68 (Official)" and "Status 64 (Working)", and display them in a tabbed interface where status 64 is hidden by default.
+
+## Proposed Changes
+
+### [HIS Client](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+
+#### [MODIFY] [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+- Update [get_vitals_from_exm](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#244-314) to:
+    - Prioritize `BP.ABP` (Arterial Blood Pressure) over `BP.NBP`.
+    - Accept an optional `pre_data` argument.
+    - If `HEIGHT`, `WEIGHT`, or `BT` are missing or `0`, fallback to `VITALSIGN_HEIGHT`, `VITALSIGN_WEIGHT`, and `VITALSIGN_BTVALUE` tables in `pre_data`.
+- Support multiple pulse (`HR.ECG`, `PULSE`) and respiratory (`RR`, `RESP`) keys.
+
+#### [MODIFY] [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- Pass the fetched `pre_data` to `client.get_vitals_from_exm(...)`.
+
+### Automated Tests
+- Run `python -m py_compile app.py his_client_final.py` to ensure no syntax errors.
+- Run `python debug_vitals.py` and verify the output includes the prioritized BP data.
+
+### Manual Verification
+- Log in and view a patient with both status 64 and 68 reports.
+- Verify that only status 68 reports are visible by default.
+- Click the "Working Reports" tab or toggle to reveal status 64 reports.
+- Verify that clicking reports in either tab opens the correct URL.

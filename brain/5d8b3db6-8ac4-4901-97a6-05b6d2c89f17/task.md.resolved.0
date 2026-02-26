@@ -1,0 +1,7 @@
+# Task List
+
+- [ ] Analyze `pcea.pcapng` to identify PCEA API requests to HIS
+- [ ] Create a JSON template for PCEA if necessary
+- [ ] Update [his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py)'s [prescribe_package](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py#81-222) to handle PCEA logic
+- [ ] Update [app.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/app.py) to support `PCEA` packageType in [prescribe](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/app.py#37-71) endpoint
+- [ ] Update frontend UI [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/templates/index.html) to add a PCEA button

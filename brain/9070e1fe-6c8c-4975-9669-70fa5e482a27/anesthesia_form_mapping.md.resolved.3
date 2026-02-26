@@ -1,0 +1,100 @@
+# 麻醉評估表單欄位與 PDF 對應表 (詳細座標與階層版)
+
+此文件詳細列出「麻醉前評估與計畫表單」中所有的輸入項，並依據 **第1階**、**第2階**、**第3階** 標明階層，並包含完整的 **PDF 映射座標**。
+
+---
+
+## 🔘 欄位定義說明
+- **第1階 / 第2階 / 第3階**: 代表表單的樹狀結構層級。
+- **類型**: Checkbox (勾選框), Text (文字方塊), Radio (單選鈕)。
+- **PDF 座標**: (x, y) 座標，座標原點通常為 PDF 左下角。
+
+---
+
+## 1. 評估紀錄 (Pre-anesthetic Assessment)
+*此部分勾選後，第1階項目會判斷 PDF 左側之 Yes/No，其餘子階層或文字方塊會串接顯示於右側 Summary 區。*
+
+### A. 心血管系統 (Cardiovascular System)
+| 階層 | 顯示名稱 | HTML ID | 類型 | PDF 映射詳細資料 (pdflib_x, pdflib_y) |
+| :--- | :--- | :--- | :--- | :--- |
+| 第1階 | (1) Hypertension (高血壓) | `chk_cv_htn` | Checkbox | Yes: 227.14, 613.78 / No: 195.19, 613.78 |
+| 第2階 | 　└ Regular control | `chk_cv_htn_reg` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第2階 | 　└ Poor control | `chk_cv_htn_poor` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第1階 | (2) CAD (冠狀動脈疾病) | `chk_cv_cad` | Checkbox | Yes: 227.14, 599.57 / No: 195.19, 599.57 |
+| 第2階 | 　└ POBA/POBAS | `chk_cv_cad_poba` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第2階 | 　└ CABG | `chk_cv_cad_cabg` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第2階 | 　└ Others | `chk_cv_cad_oth` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第3階 | 　　└ [備註文字] | `txt_cv_cad_oth` | Text | 顯示於心血管橫線處 (X:250.19, Y:586.88) |
+| 第1階 | (3) Valvular disease (瓣膜疾病) | `chk_cv_valve` | Checkbox | Yes: 227.14, 599.57 (與 CAD 共用 Cardiac 行) |
+| 第2階 | 　└ 補充說明 | `txt_cv_valve_note` | Text | 顯示於心血管橫線處 (X:250.19, Y:586.88) |
+| 第1階 | (4) Arrhythmia (心律不整) | `chk_cv_arr` | Checkbox | Yes: 227.14, 599.57 (與 CAD 共用 Cardiac 行) |
+| 第2階 | 　└ Pacemaker | `chk_cv_arr_pm` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第2階 | 　└ Atrial fibrillation | `chk_cv_arr_af` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第3階 | 　　└ Paroxysmal | `chk_cv_arr_af_par` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第3階 | 　　└ Persistent | `chk_cv_arr_af_per` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第2階 | 　└ AV Block | `chk_cv_arr_avb` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第3階 | 　　└ First degree / Mobitz I/II / Complete | `chk_cv_arr_avb_1`~`3` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第1階 | (5) Heart failure (心衰竭) | `chk_cv_hf` | Checkbox | Yes: 227.14, 599.57 |
+| 第2階 | 　└ NYHA Class | `sel_cv_hf_nyha` | Select | 顯示於心血管橫線處 (X:250.19, Y:586.88) |
+
+### B. 神經精神系統 (Neurologic & Psychiatric)
+| 階層 | 顯示名稱 | HTML ID | 類型 | PDF 映射詳細資料 (pdflib_x, pdflib_y) |
+| :--- | :--- | :--- | :--- | :--- |
+| 第1階 | (1) CVA (腦中風) | `chk_neu_cva` | Checkbox | Yes: 227.14, 627.61 / No: 195.19, 627.61 |
+| 第2階 | 　└ Ischemic (缺血性) | `chk_neu_cva_isc` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第2階 | 　└ Hemorrhagic (出血性) | `chk_neu_cva_hem` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第2階 | 　└ Hemiparesis (偏癱) | `chk_neu_cva_hemi` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第3階 | 　　└ Right / Left | `chk_neu_cva_hemi_r`/`l` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第1階 | (8) GCS (昏迷指數) | `chk_neu_gcs` | Checkbox | 文字顯示於右側 Summary 區 |
+| 第2階 | 　└ E / V / M | `sel_neu_gcs_e/v/m` | Select | 顯示於右側 Summary 區括號內 |
+
+---
+
+## 2. 呼吸道評估 (Airway)
+*此部分映射至 PDF 中央的 Mallampati 與相關勾選位。*
+
+| 階層 | 顯示名稱 | HTML ID | 類型 | PDF 映射詳細資料 (pdflib_x, pdflib_y) |
+| :--- | :--- | :--- | :--- | :--- |
+| 第1階 | (1) Mallampati score | - | Radio | 1: 227.85, 278.44 / 2: 255.87... |
+| 第2階 | 　└ 1 / 2 / 3 / 4 | `rad_aw_mal_1`~`4` | Radio | 對應各級別 X 軸 |
+| 第1階 | (2) Neck ROM (頸部活動度) | - | Group | - |
+| 第2階 | 　└ Limited | `chk_aw_neck_lim` | Checkbox | 邏輯判斷 Airway Abnormal |
+| 第2階 | 　└ Free | `chk_aw_neck_free` | Checkbox | 邏輯判斷 Airway Normal |
+| 第1階 | (8) Dentition (牙齒狀況) | - | Group | - |
+| 第2階 | 　└ Loose Teeth (鬆動牙齒) | `chk_aw_dent_loose` | Checkbox | 邏輯判斷 Airway Abnormal |
+
+---
+
+## 3. 麻醉計畫 (Anesthesia Plan)
+
+| 階層 | 顯示名稱 | HTML ID | 類型 | PDF 映射詳細資料 (pdflib_x, pdflib_y) |
+| :--- | :--- | :--- | :--- | :--- |
+| 第1階 | (1) GA with ETT (插管) | `chk_ga_ett` | Checkbox | **畫 V 於座標 (190.96, 206.39)** |
+| 第1階 | (2) GA with LMA | `chk_ga_lma` | Checkbox | **畫 V 於座標 (243.1, 206.39)** |
+| 第1階 | (3) Face Mask/IVGA | `chk_face_mask_ivga` | Checkbox | **畫 V 於座標 (293.84, 206.39)** |
+| 第1階 | (1) ABP (動脈血壓) | `chk_mon_abp` | Checkbox | **畫 V 於座標 (165.96, 188.3)** |
+| 第1階 | (2) CVC (中心靜脈導管) | `chk_mon_cvc` | Checkbox | **畫 V 於座標 (229.27, 188.3)** |
+| 第1階 | (10) 深度監測 - BIS | `chk_bis` | Checkbox | **右下角備註區顯示 "BIS"** |
+
+---
+
+## 4. 修改範例 (修改方式的範例)
+
+### 範例：增加第3階選項及其 PDF 座標
+
+1.  **您的指令：**
+    > #### [ADD] 第3階 Checkbox
+    > - 位置：神經精神系統 (1) CVA -> 第2階 偏癱 -> 之下
+    > - 顯示名稱：使用助行器
+    > - HTML ID：`chk_neu_cva_walker`
+    > - PDF 映射：不需獨立座標，請併入 Summary 文字串接。
+
+2.  **我將會執行的修改：**
+    - 在 HTML 結構中的 `chk_neu_cva_hemi_l` 下方新增一個 `<li>`。
+    - 在對應表 PDF 映射詳細資料註明為「系統自動文字串接」。
+
+---
+
+> [!IMPORTANT]
+> **座標偏移說明**：
+> 檔案中的 `pdflib_y` 座標為 PDF 內部的絕對座標。若您需要調整位置，Y 軸減少 14 通常代表向下移動一行。

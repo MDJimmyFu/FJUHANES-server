@@ -1,0 +1,87 @@
+# Pre-Anesthesia Evaluation Data (Sample)
+
+The following data tables and fields were extracted for patient **潘永銘** (ORDSEQ: `A75176797OR0014`, HHISTNUM: `003158375C`).
+
+## 1. INSPECTION (Lab Results)
+*Contains 29 records (Blood tests, etc.)*
+
+| Title | Value | Date |
+|-------|-------|------|
+| ALB | 3.5 | 20260203 |
+| ALT/GPT | 23 | 20260211 |
+| APTT | 37.0 | 20260211 |
+| AST | 26 | 20260211 |
+| BASO | 0.2 | 20260211 |
+| BUN | 56 | 20260211 |
+| CREA | 1.22 | 20260211 |
+| EO | 0.2 | 20260211 |
+| GLU RANDOM | 121 | 20260211 |
+| HCT | 41.2 | 20260211 |
+| HGB | 13.4 | 20260211 |
+| INR | 1.07 | 20260211 |
+| K | 3.7 | 20260211 |
+| LYM | 11.5 | 20260211 |
+| Lactate | 2.03 | 20260203 |
+| MCH | 29.9 | 20260211 |
+| MCHC | 32.5 | 20260211 |
+| MCV | 92.0 | 20260211 |
+| MONO | 3.5 | 20260211 |
+| NA | 133 | 20260211 |
+| NRBC | 0.0 | 20260211 |
+| PLT | 353 | 20260211 |
+| PT | 11.1 | 20260211 |
+| RBC | 4.48 | 20260211 |
+| RDW | 14.8 | 20260211 |
+| SEG | 84.6 | 20260211 |
+| WBC | 14.94 | 20260211 |
+| eGFR | 62.78 | 20260211 |
+
+## 2. VITALSIGN_HEIGHT
+- `HEIGHT`: 169
+- `MEASUREDATETIME`: 20260211143800
+
+## 3. VITALSIGN_WEIGHT
+- `WEIGHT`: 40
+- `MEASUREDATETIME`: 20260211143800
+
+## 4. VITALSIGN_SBPDBPVALUE (Blood Pressure)
+- `SBPVALUE`: 89
+- `DBPVALUE`: 69
+- `MEASUREDATETIME`: 20260211160600
+
+## 5. VITALSIGN_PULSEVALUE
+- `PULSEVALUE`: 98
+- `PULSESITE`: 脈搏
+- `MEASUREDATETIME`: 20260211160600
+
+## 6. VITALSIGN_BTVALUE (Body Temperature)
+- `BTVALUE`: 36.6
+- `BTSITE`: 耳溫
+- `MEASUREDATETIME`: 20260211160600
+
+## 7. VITALSIGN_SPO2
+- `SPO2`: 98
+
+## 8. VITALSIGN_RESPVALUE (Respiration)
+- `RESPVALUE`: 15
+- `MEASUREDATETIME`: 20260211160600
+
+## 9. ORRANER (Anesthesia Info)
+- `ANENM`: GE (General Anesthesia?)
+- `ANEASA`: 1
+- `ANEBGNDTTM`: 2026-02-12T09:14:00+08:00
+- `ANEENDDTTM`: 2026-02-12T11:14:00+08:00
+- `PROCNMC`: 徐鳳霙
+
+## 10. CXR (Chest X-Ray)
+- `ORDPROCED`: Chest PA view
+- `ORDSIGNDTTM`: 2026-02-11T12:58:00+08:00
+
+## 11. PAT_ADM_DRMEMO (Doctor Memos)
+- `CONTEXT`: DM.Hypopharyngeal ca-> laparoscopic gastrostomy 2/12
+- `OPNM`: 吳珮嘉
+- `CREATEDT`: 2026-02-11T15:04:45+08:00
+
+## 12. OPOHOME_PAT_MARKS
+- `MARK_ID`: CMBDC (Chronic Disease?)
+- `CREATE_NAME`: 黃微晴

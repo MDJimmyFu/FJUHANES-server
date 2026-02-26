@@ -1,0 +1,75 @@
+# Walkthrough - Retrieving HIS Data
+
+I have successfully analyzed the network traffic and implemented a unified script to retrieve the **surgery list**, **pre-anesthesia evaluation data**, and **anesthesia charging data** from the HIS server.
+
+## 6. Web Interface (Local)
+A local web interface is available to view the surgery schedule and patient details in a user-friendly format, replicating the original [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) but using live data.
+
+### 6.1 Setup & Run
+1.  Ensure dependencies are installed: `pip install flask requests`
+2.  Run the server:
+    ```bash
+    python app.py
+    ```
+3.  Open browser to: `http://localhost:5000`
+
+### 6.2 Features
+-   **Surgery List**: Shows today's surgeries by default. Filterable by date.
+-   **Patient Details**: Click on any card to view detailed Pre-Anesthesia and Charging data.
+-   **Data Source**: Uses [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py) to fetch data from HIS API on demand.
+
+### 6.3 File Structure
+-   [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py): Flask backend.
+-   [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html): The main frontend interface (adapted from original).
+-   [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py): The logic engine for API communication.
+
+## Findings
+
+1.  **Protocol**: The HIS server (`10.10.246.90:8800`) uses **.NET Remoting** over HTTP.
+    -   Content-Type: `application/octet-stream`
+    -   Compression: `X-Compress: yes` (Zlib)
+    -   Data Encoding: **UTF-8**
+2.  **Endpoints**:
+    -   `/HISOrmC250Facade`: Retrieves the surgery list for a specific date.
+    -   `/HISOrmC430Facade`: Retrieves pre-anesthesia data (requires `ORDSEQ` and `HHISTNUM`).
+    -   `/HISOrmQ050Facade`: Retrieves anesthesia charging data (requires `ORDSEQ` and `HHISTNUM`).
+
+## Endpoint Details
+
+| Endpoint | Parameterization | Payload Template | Description |
+| :--- | :--- | :--- | :--- |
+| **C250** | Date (YYYYMMDD) | `c250_payload_1.bin` | Daily Surgery List. Source of `ORDSEQ`/`HHISTNUM`. |
+| **C430** | `ORDSEQ` + `HHISTNUM` | `c430_payload_0.bin` | Pre-anesthesia Evaluation (Vitals, Lab, Memos). |
+| **Q050** | `ORDSEQ` + `HHISTNUM` | `q050_payload_0.bin` | Anesthesia Charging Data (Orders, Procedures). |
+
+## Solution
+
+I created a script [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py) that:
+1.  **Fetches Surgery List**: Lists all surgeries for the day.
+2.  **Fetches Pre-Anesthesia Data**: Demonstrates fetching detailed evaluation data for the first patient.
+3.  **Fetches Charging Data**: Demonstrates fetching billing/charging orders (`OPDORDM`, `ANEORDER`, `OCCURENCS`) for the first patient.
+
+## Results structure
+
+### Charging Data (Q050)
+The Q050 endpoint returns distinct tables related to billing and orders:
+-   `OPDORDM`: Outpatient Orders (Billing Items)
+-   `ANEORDER`: Anesthesia Orders (Patient Info)
+-   `OCCURENCS`: Occurrences (Anesthesia Procedures, Monitoring)
+-   `ORDOP`: Operation Orders
+-   `ORRANER`: Anesthesia Record (Doctor, Time)
+-   `COMMON_ORDER`: Detailed Order Info
+
+### Case 75176750 Analysis
+For this specific PRO-ANESTHESIA CARE case, I identified that:
+-   **Anesthesiologist** is found in `ORRANER` -> `ANEDOCNMC`.
+-   **Anesthesia Procedures** (e.g., 551 codes) are found in `OCCURENCS` and `COMMON_ORDER`.
+-   **Billing Items** are found in `OPDORDM`.
+
+## How to Run
+
+1.  Ensure all 3 binary templates (`c250...`, `c430...`, `q050...`) are in the same directory.
+2.  Run the client:
+    ```bash
+    python his_client_final.py
+    ```

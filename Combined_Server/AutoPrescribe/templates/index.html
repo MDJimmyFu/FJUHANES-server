@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCA / Painless Labor System</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #10b981;
+            --secondary-hover: #059669;
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #020617 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            padding: 2rem;
+            text-align: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--surface-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            color: #e2e8f0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.5);
+            color: var(--text-main);
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .patient-list {
+            margin-top: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .patient-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .patient-item:last-child {
+            border-bottom: none;
+        }
+
+        .patient-item:hover {
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .patient-item.selected {
+            background: rgba(79, 70, 229, 0.2);
+            border-left: 4px solid var(--primary);
+        }
+
+        .patient-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .patient-meta {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .actions-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        #status-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #020617;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-family: monospace;
+            max-height: 50px;
+            color: #10b981;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            overflow-y: auto;
+        }
+
+        #pdf-viewer {
+            margin-top: 1.5rem;
+            width: 100%;
+            height: 500px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Auto Prescribe</h1>
+        <p style="color: var(--text-muted); margin-top: 0.5rem;">Automated PCA & Painless Labor System</p>
+    </header>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="left-col">
+            <div class="panel" id="login-panel">
+                <h2>System Authentication</h2>
+                <div class="form-group">
+                    <label>HIS ID</label>
+                    <input type="text" id="username" placeholder="請輸入員工編號">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="請輸入密碼">
+                </div>
+                <button class="btn btn-primary" onclick="login()" id="login-btn">
+                    <span class="loader" id="login-loader"></span> Login
+                </button>
+            </div>
+
+            <div class="panel" id="search-panel" style="display: none; margin-top: 1.5rem;">
+                <h2>Patient Selection</h2>
+                <div class="form-group">
+                    <label>Ward Query</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="ward" placeholder="請輸入病房">
+                        <button class="btn btn-primary" style="width: auto;" onclick="searchWard()">Search</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Chart No Query</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="chart-no" placeholder="請輸入病歷號">
+                        <button class="btn btn-primary" style="width: auto;" onclick="searchChart()">Search</button>
+                    </div>
+                </div>
+
+                <div class="patient-list" id="patient-list">
+                    <!-- Patients render here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="panel" id="action-panel" style="opacity: 0.5; pointer-events: none;">
+            <h2>Prescription Actions</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <div>
+                    <h3 id="selected-patient-name" style="margin: 0; color: #60a5fa;">No Patient Selected</h3>
+                    <p id="selected-patient-meta"
+                        style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.875rem;"></p>
+                </div>
+            </div>
+
+            <div class="actions-panel">
+                <!-- Column 1 -->
+                <button class="btn btn-secondary" onclick="prescribe('PCA')" id="btn-pca">PCA</button>
+                <!-- Column 2 -->
+                <button class="btn btn-secondary" onclick="prescribe('INTUBATION')" id="btn-intub"
+                    style="background: #0ea5e9;">病房插管</button>
+
+                <!-- Column 1 -->
+                <button class="btn btn-secondary" onclick="prescribe('PCEA')" id="btn-pcea"
+                    style="background: #8b5cf6;">PCEA</button>
+                <!-- Column 2 -->
+                <button class="btn btn-secondary" onclick="prescribe('INTUBATION_INF')" id="btn-intub-inf"
+                    style="background: #f59e0b;">感染插管</button>
+
+                <!-- Column 1 -->
+                <button class="btn btn-secondary" onclick="prescribe('PAINLESS')" id="btn-painless"
+                    style="background: #e11d48;">Painless</button>
+                <!-- Column 2 (Empty) -->
+                <div></div>
+            </div>
+
+            <div id="status-box">System idle...</div>
+
+            <iframe id="pdf-viewer"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let currentPatient = null;
+
+        function log(message) {
+            const box = document.getElementById('status-box');
+            box.innerText += `\n[${new Date().toLocaleTimeString()}] ${message}`;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function login() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            document.getElementById('login-btn').disabled = true;
+            document.getElementById('login-loader').style.display = 'inline-block';
+            log('Authenticating with HIS...');
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    log('Login successful.');
+                    document.getElementById('login-panel').style.display = 'none';
+                    document.getElementById('search-panel').style.display = 'block';
+                } else {
+                    log('Login failed: ' + data.message);
+                    document.getElementById('login-btn').disabled = false;
+                }
+            } catch (e) {
+                log('Connection error: ' + e.message);
+                document.getElementById('login-btn').disabled = false;
+            } finally {
+                document.getElementById('login-loader').style.display = 'none';
+            }
+        }
+
+        document.getElementById('username').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('password').focus();
+            }
+        });
+
+        document.getElementById('password').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                login();
+            }
+        });
+
+        async function searchWard() {
+            const ward = document.getElementById('ward').value;
+            log(`Querying ward ${ward}...`);
+            const res = await fetch(`/api/patients?ward=${ward}`);
+            const data = await res.json();
+            renderPatients(data.data);
+            log(`Found ${data.data.length} patients in ${ward}.`);
+        }
+
+        async function searchChart() {
+            const chart = document.getElementById('chart-no').value;
+            if (!chart) return;
+            log(`Querying chart ${chart}...`);
+            const res = await fetch(`/api/patients?chartNo=${chart}`);
+            const data = await res.json();
+            renderPatients(data.data);
+
+            if (data.data && data.data.length === 1) {
+                log(`Found and auto-selecting patient ${chart}.`);
+                selectPatient(data.data[0], document.querySelector('.patient-item'));
+            } else if (data.data && data.data.length > 1) {
+                log(`Found ${data.data.length} patients for ${chart}.`);
+            }
+        }
+
+        document.getElementById('chart-no').addEventListener('input', function (e) {
+            const val = e.target.value;
+            if (val.length === 9 && /^\d+$/.test(val)) {
+                // Calculate check digit based on scratch/MRN.md
+                const weights = [9, 8, 7, 6, 5, 4, 3, 2, 1];
+                let sum = 0;
+                for (let i = 0; i < 9; i++) {
+                    sum += parseInt(val[i]) * weights[i];
+                }
+                const remainder = sum % 10;
+                const checkDigit = String.fromCharCode(65 + remainder); // 0-9 -> A-J
+
+                // Update value and trigger search
+                e.target.value = val + checkDigit;
+                searchChart();
+                e.target.value = ''; // Clear input after search
+            }
+        });
+
+        function renderPatients(patients) {
+            const list = document.getElementById('patient-list');
+            list.innerHTML = '';
+
+            if (!patients || !patients.length) {
+                list.innerHTML = '<div style="padding: 1rem; color: var(--text-muted)">No patients found</div>';
+                return;
+            }
+
+            patients.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'patient-item';
+                div.innerHTML = `
+                    <div>
+                        <div class="patient-name">${p.HNameC || p.HName || p.hName || 'Unknown Patient'}</div>
+                        <div class="patient-meta">Bed: ${p.HNurSta || p.HDtl_No || p.Bed || 'N/A'} | Chart: ${p.HHISNum || p.HChartNo || p.HChartno || 'N/A'}</div>
+                    </div>
+                `;
+                div.onclick = () => selectPatient(p, div);
+                list.appendChild(div);
+            });
+        }
+
+        function selectPatient(patient, elem) {
+            document.querySelectorAll('.patient-item').forEach(e => e.classList.remove('selected'));
+            if (elem) elem.classList.add('selected');
+
+            currentPatient = patient;
+
+            document.getElementById('action-panel').style.opacity = '1';
+            document.getElementById('action-panel').style.pointerEvents = 'auto';
+
+            document.getElementById('selected-patient-name').innerText = patient.HNameC || patient.HName || patient.hName || 'Selected Patient';
+            document.getElementById('selected-patient-meta').innerText = `Chart: ${patient.HHISNum || patient.HChartNo || patient.HChartno} | Admiss ID: ${patient.HCaseNo || patient.Hcaseno}`;
+
+            log(`Selected patient: ${patient.HNameC || patient.HName || patient.hName} (${patient.HHISNum || patient.HChartNo || patient.HChartno})`);
+
+            // hide pdf
+            document.getElementById('pdf-viewer').style.display = 'none';
+        }
+
+        async function prescribe(type) {
+            if (!currentPatient) return;
+
+            const btnPca = document.getElementById('btn-pca');
+            const btnPcea = document.getElementById('btn-pcea');
+            const btnIntub = document.getElementById('btn-intub');
+            const btnIntubInf = document.getElementById('btn-intub-inf');
+            const btnPain = document.getElementById('btn-painless');
+            btnPca.disabled = true;
+            btnPcea.disabled = true;
+            btnIntub.disabled = true;
+            btnIntubInf.disabled = true;
+            btnPain.disabled = true;
+
+            log(`Initiating ${type} prescription flow for ${currentPatient.HNameC || currentPatient.HName || currentPatient.hName}...`);
+            log(`- Validating package content...`);
+            log(`- Submitting prescription payload (IpoC11GSave)...`);
+            log(`- Triggering Telerik Report Engine...`);
+
+            try {
+                const res = await fetch('/api/prescribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patient: currentPatient, packageType: type })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    log(`==== SUCCESS ====`, 'success');
+                    log(data.message, 'success');
+
+                    if (data.pdfUrl) {
+                        log(`Controlled Drug Sheet downloaded. Loading preview...`);
+                        const viewer = document.getElementById('pdf-viewer');
+                        viewer.src = data.pdfUrl;
+                        viewer.style.display = 'block';
+                    }
+                } else {
+                    log(`ERROR: ${data.message}`);
+                }
+            } catch (e) {
+                log(`Network ERROR: ${e.message}`);
+            } finally {
+                btnPca.disabled = false;
+                btnPcea.disabled = false;
+                btnIntub.disabled = false;
+                btnIntubInf.disabled = false;
+                btnPain.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

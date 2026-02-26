@@ -1,0 +1,33 @@
+# Surgery Board Implementation Tasks
+
+- [ ] 1. Backend Setup ([app.py](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/app.py))
+    - [ ] Create `/board` route serving `board.html`
+    - [ ] Ensure existing `/api/surgery_schedule` or new API can provide full C250 data efficiently
+
+- [ ] 2. Frontend Foundation (`board.html`)
+    - [ ] Create base HTML structure with CSS variables for Light/Dark themes
+    - [ ] Build the layout for 18 horizontal lanes (`OROPROOM` 1-18)
+    - [ ] Implement horizontal scrolling within each lane
+    - [ ] Design the individual Surgery Card component (Status, Name, Surgeon, Duration, Anesthesia)
+
+- [ ] 3. Data Processing & Logic (JavaScript)
+    - [ ] Fetch data periodically via AJAX/Fetch
+    - [ ] Filter out "完成" (Completed) surgeries
+    - [ ] Group surgeries by `OROPROOM`
+    - [ ] Implement Sorting Algorithm:
+        - [ ] 1. "手術中" (In Surgery)
+        - [ ] 2. "等候區" (Waiting Area/Room)
+        - [ ] 3. "叫刀" (Called/Sent for)
+        - [ ] 4. Console Order (`OROPROOMSEQ_OPSTA_NUM` / `OROPROOMSEQ_DR_NUM`)
+
+- [ ] 4. Settings Menu & Functionality
+    - [ ] Build bottom-right Settings Modal
+    - [ ] Theme Toggle: Light / Dark / Auto (System Match)
+    - [ ] Room Display Toggle: Option to hide empty rooms (Default: Hidden)
+    - [ ] Auto-Refresh Timer: Option to configure (Default: 5min)
+    - [ ] Save settings to `localStorage` to persist across reloads
+
+- [ ] 5. Final Styling & Verification
+    - [ ] Polish UI (animations, card hover states, clear typography)
+    - [ ] Verify sorting logic matches real-time HIS data correctly
+    - [ ] Create final Walkthrough documentation

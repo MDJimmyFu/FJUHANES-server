@@ -1,0 +1,241 @@
+# 麻醉評估表單完整項目結構與 PDF 勾選對照表
+
+本文件詳細列出目前麻醉評估表單的所有階層項目、輸入欄位類型以及對應的 PDF 輸出邏輯。
+
+---
+
+## 1. 麻醉前評估紀錄 (Pre-anesthetic Assessment)
+
+### (1) Cardiovascular System (心血管系統)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) Hypertension** | - | Checkbox | `Hypertension Yes` |
+| | Regular control | Checkbox | - (Note) |
+| | Poor control | Checkbox | - (Note) |
+| **(2) CAD** | - | Checkbox | `Cardiac disease Yes` |
+| | POBA/POBAS | Checkbox | - (Note: CAD) |
+| | CABG | Checkbox | - (Note: CAD) |
+| | Others | Checkbox + **Text** | - (Note: CAD) |
+| **(3) Valvular disease** | - | Checkbox + **Text** | `Cardiac disease Yes` (Note: Valvular) |
+| **(4) Arrhythmia** | - | Checkbox | `Cardiac disease Yes` |
+| | Pacemaker | Checkbox | - (Note: Arrhythmia) |
+| | Atrial fibrillation | Paroxysmal / Persistent (Checkbox) | - (Note: Arrhythmia) |
+| | AV Block | 1st, Mobitz I, II, Complete (Checkbox) | - (Note: Arrhythmia) |
+| | ST-T Abnormality | Checkbox | - (Note: Arrhythmia) |
+| | s/p ablation | Checkbox | - (Note: Arrhythmia) |
+| | Others | Checkbox + **Text** | - (Note: Arrhythmia) |
+| **(5) Heart failure** | NYHA Class | **Select (I~IV)** | `Cardiac disease Yes` (Note: Heart failure) |
+| | HFpEF / HFrEF | Checkbox | - (Note: Heart failure) |
+| **(6) Dyslipidemia** | Medical control | Checkbox | - (Note) |
+| **(7) PAOD** | - | Checkbox | - (Note) |
+| **(8) Vascular disease** | Aortic Aneurysm / Dissection | Checkbox | - (Note) |
+| | Others | Checkbox + **Text** | - (Note) |
+| **(9) Congenital Heart** | - | Checkbox | - (Note) |
+| **(10) Pulmonary Hypertension** | - | Checkbox | - (Note) |
+| **(11) Others** | - | Checkbox + **Text** | - (Note) |
+
+### (2) Neurologic & Psychiatric System (神經精神系統)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) CVA (腦中風)** | Ischemic / Hemorrhagic | Checkbox | `CVA Yes` |
+| | Hemiparesis | Right / Left (Checkbox) | - (Note: CVA) |
+| | Others | Checkbox + **Text** | - (Note: CVA) |
+| **(2) Traumatic Brain Injury** | - | Checkbox | - (Note) |
+| **(3) Parkinson disease** | - | Checkbox | - (Note) |
+| **(4) Seizure (癲癇)** | Regular control | Checkbox | - (Note) |
+| **(5) Aneurysm/AVM** | Medical control / Surgery | Checkbox | - (Note) |
+| **(6) Dementia** | - | Checkbox | - (Note) |
+| **(7) Psychiatric Problem** | Schizophrenia, Bipolar, etc. | Checkbox | - (Note) |
+| | Others | Checkbox + **Text** | - (Note) |
+| **(8) GCS** | E, V, M | **Select (1~6/T)** | - (Note) |
+| **(9) Cerebral Palsy** | - | Checkbox | - (Note) |
+| **(10) Others** | - | Checkbox + **Text** | - (Note) |
+
+### (3) Endocrine System (內分泌系統)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) DM (糖尿病)** | OAD / Insulin | Checkbox | `DM Yes` |
+| | Others | Checkbox + **Text** | - (Note: DM) |
+| **(2) Thyroid disease** | Hyper / Hypo-thyroidism | Checkbox | - (Note) |
+| | Others | Checkbox + **Text** | - (Note) |
+| **(3) Others** | - | Checkbox + **Text** | - (Note) |
+
+### (4) Respiratory System (呼吸系統)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) Asthma (氣喘)** | Inhalational control/steroid | Checkbox | `Asthma Yes` |
+| | Oral steroid / Recent exacerbation | Checkbox | - (Note: Asthma) |
+| | Classification | Intermittent, Persistent (Checkbox) | - (Note: Asthma) |
+| **(2) COPD** | - | Checkbox | `COPD Yes` |
+| **(3) Smoking (抽菸)** | Quit | Checkbox + **Text (多久)** | `Smoking Yes` (Note: Smoking) |
+| | Persistent | Checkbox + **Text (PPD)** | `Smoking Yes` (Note: Smoking) |
+| **(4) Airborne infection** | - | Checkbox + **Text** | - (Note) |
+| **(5) Others** | - | Checkbox + **Text** | - (Note) |
+
+### (5) Airway (呼吸道評估)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) Mallampati score**| 1, 2, 3, 4 | **Radio** | (227~323, 278) 分級勾選 |
+| **(2) Neck ROM** | Limited / Free / 不適用 | Checkbox | - (Note) |
+| | AS, Surgery, Trauma, Symptoms | Checkbox | - (Note) |
+| **(3) Mouth opening** | >=2 FB, 1-2 FB, <1 FB, 不適用 | Checkbox | - (Note) |
+| **(4) Intubated (已插管)** | Yes | Checkbox | - (Note) |
+| **(5) Tracheostomy (氣切)**| Yes | Checkbox | - (Note) |
+| **(6) Head/Neck Cancer** | Surgery / RT / Others | Checkbox | - (Note) |
+| **(7) OSA** | Yes | Checkbox | - (Note) |
+| **(8) Dentition (牙齒)** | Normal, Loose, 活動/鬆動假牙 | Checkbox | - (Note) |
+| | Others | Checkbox | - (Note) |
+| **(9) difficult airway** | Expected difficult airway | Checkbox | - (Note) |
+| **(10) Others** | - | Checkbox + **Text** | - (Note) |
+
+### (6) Renal System (腎臟系統)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) ESRD (末期腎病)** | HD / PD | Checkbox | `Renal Disease Yes` |
+| | Others | Checkbox + **Text (備註)** | - (Note: Renal) |
+| **(2) Acute Kidney Injury** | - | Checkbox | `Renal Disease Yes` |
+| **(3) Chronic Renal** | - | Checkbox | `Renal Disease Yes` |
+| **(4) Obstructive lesion** | - | Checkbox | - (Note) |
+| **(5) Electrolyte** | - | Checkbox | - (Note) |
+| **(6) Others** | - | Checkbox + **Text** | - (Note) |
+
+### (7) Hematologic System (血液系統)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) Anemia (貧血)** | - | Checkbox | - (Note) |
+| **(2) Leukocytosis** | - | Checkbox | - (Note) |
+| **(3) Leukocyte D/C** | Abnormality | Checkbox | - (Note) |
+| **(4) 凝血功能評估** | Decreased Platelet / Abnormal PT | Checkbox | `Bleeding disorder Yes` |
+| | Anticoagulants | Checkbox | - (Note) |
+| | 麻醉醫師評估 | **Text** | - (Note) |
+| | 藥物史 | **Text** | - (Note) |
+| **(5) Others** | - | Checkbox + **Text** | - (Note) |
+
+### (8) Digestive System (消化系統)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) Carrier of** | HBV / HCV | Checkbox | `Hepatitis Yes` |
+| **(2) Cirrhosis (肝硬化)** | - | Checkbox | `Hepatitis Yes` |
+| **(3) Jaundice (黃疸)** | - | Checkbox | - (Note) |
+| **(4) HCC (肝癌)** | - | Checkbox | - (Note) |
+| **(5) Ileus (腸阻塞)** | - | Checkbox | - (Note) |
+| **(6) Peptic Ulcer** | - | Checkbox | - (Note) |
+| **(7) GERD** | - | Checkbox | - (Note) |
+| **(8) GI Bleeding** | - | Checkbox | - (Note) |
+| **(9) Others** | - | Checkbox + **Text** | - (Note) |
+
+### (9) Drug/Food/Transfusion Reaction (過敏史)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) Allergy** | - | Checkbox + **Text** | `Allergy Yes` |
+| **(2) Other Adverse** | - | Checkbox + **Text** | - |
+
+### (10) History of Surgery & Anesthesia (手術麻醉史)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) History** | - | Checkbox + **Text** | `Major operations Yes` |
+| **(2) Events** | PONV, Airway/RA Injury | Checkbox | - (Note) |
+| | Others | Checkbox + **Text** | - (Note) |
+
+### (11) ASA & Miscellaneous (風險評估與其他)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) ASA Class** | 1, 2, 3, 4, 5, 6 | Checkbox | (158~323, 314) |
+| **(2) Emergency (緊急)** | E | Checkbox | `E` (361, 314) |
+| **(3) Obesity (肥胖)** | Yes | Checkbox | - (Note) |
+| **(4) Pregnancy (懷孕)** | Yes | Checkbox | - (Note) |
+| **(5) HIV carrier** | Yes | Checkbox | - (Note) |
+| **(6) C/S indication** | Prev C/S, Prolonged labor, etc. | Checkbox | - (Note) |
+| **(7) Glaucoma (青光眼)** | Yes | Checkbox | - (Note) |
+| **(8) Hypnotics use** | Yes | Checkbox | - (Note) |
+| **(9) Gene Abnormality** | Yes | Checkbox | - (Note) |
+| **(10) Malignant Hyper** | Yes | Checkbox | - (Note) |
+
+---
+
+## 2. 麻醉計畫詳細內容 (Anesthesia Plan)
+
+### (1) General Anesthesia (全身麻醉)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) Endotracheal Tube**| - | Checkbox | `ETGA` (190, 206) |
+| **(2) LMA** | - | Checkbox | `LMA` (243, 206) |
+| **(3) Mask/IVGA** | - | Checkbox | `Mask` (293, 206) / `IVGA` (344, 206) |
+| **(4) TCI** | Propofol / Remifentanil / Precedex | Checkbox | `TCI` (234, 152) |
+| | Remi dose (50, 25, 12.5) | Checkbox | - |
+| | Others | Checkbox + **Text** | - |
+| **(5) Medication** | Zofran, Etomidate, Sugammadex ... | Checkbox | - |
+
+### (2) Regional Anesthesia/ Analgesia (區域麻醉/止痛)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) SA (脊隨麻醉)** | 27G, 26G, 23G | Checkbox | `SA` (398, 206) |
+| **(2) EA (硬脊膜外麻醉)**| Lumbar, Thoracic, Caudal, Cervical | Checkbox | `EA` (437, 206) |
+| **(3) SA/EA Medication** | Bupivacaine, Lidocaine, etc. | Checkbox | - |
+| **(4) Peripheral Block** | Scalp, Cervical, Sciatic, Ankle ... | Checkbox | `Nerve block` (478, 206) |
+| **(5) PNB Medication** | Ropivacaine, Lidocaine ... | Checkbox | - |
+| | Others | Checkbox + **Text** | - |
+| **(6) Nerve Stimulator** | - | Checkbox | - |
+| **(7) Sedation / GA** | - | Checkbox | - |
+
+### (3) CV monitors And IV access (監測與管路)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) ABP (動脈血壓)** | Awake A-line, Pressure Kit | Checkbox | `動脈導管` (165, 188) |
+| | FloTrac, ProAQT, EV1000 | Checkbox | - |
+| **(2) CVC (中心靜脈)** | Coated, Non-coated, Cook ... | Checkbox | `CVC` (229, 188) |
+| **(3) PAC** | Yes | Checkbox | - |
+| **(4) PICCO** | Yes | Checkbox | - |
+| **(5) Large-bore IV** | Yes (>=16G) | Checkbox | - |
+| **(6) TEE** | Yes | Checkbox | `TEE` (277, 188) |
+| **(7) LIDCO** | Yes | Checkbox | - |
+| **(8) Five leads ECG** | Yes | Checkbox | - |
+
+### (4) Airway management (呼吸道處置)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) ET tube** | Oral / Nasal (一般, RAE, Reinf) | Checkbox | - |
+| | Laser, Others | Checkbox | - |
+| **(2) LMA** | Yes | Checkbox | `LMA` (243, 206) |
+| **(3) DLT** | 35L, 37L, 32L, Others(Text) | Checkbox | `Lung sep.`, `Endobronchial` |
+| **(4) Blocker** | Yes | Checkbox | `Lung sep.`, `Bronchial blocker` |
+| **(5) RSI** | Yes | Checkbox | - |
+| **(6) 特殊工具/醫材** | GlideScope, MAC, AWS, OdBLADE | Checkbox | - |
+| | Bronchoscope (Awake / Not Awake) | Checkbox | `Fiberscopic` (108, 152) |
+| | Trachway, Bougie, Tube Exchanger | Checkbox | - |
+| | Optiflow THRIVE / HFNC | Checkbox | - |
+| | AirKeeper, Others | Checkbox | - |
+
+### (5) Neurologic/NM monitors (神經監測)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) TOF** | - | Checkbox | - |
+| **(2) OMT(自費)** | - | Checkbox (id=chk_omt) | 對應自費項目摘要 |
+| **(3) 麻醉深度監測** | BIS, Entrophy, Sedline | Checkbox | - |
+| **(4) Cerebral oximetry**| ForeSight, O3, INVOS | Checkbox | - |
+
+### (6) ICU & Miscellaneous (其他處置)
+| 項目 | 子項目 | 輸入類型 | PDF 勾選 / 註解位置 |
+| :--- | :--- | :--- | :--- |
+| **(1) ICU admission** | Yes | Checkbox | `預計術後轉送ICU` (271, 152) |
+| **(2) 術後止痛** | 完成PCA評估解釋 | Checkbox (id=chk_pca) | `急性疼痛小組` (199, 134) |
+| | 病房一般止痛 | Checkbox | `一般病房疼痛處理流程` (199, 116) |
+| **(3) 眼睛保護貼片** | Yes | Checkbox | 對應自費項目摘要 |
+| **(4) 暖空氣保溫套** | Yes | Checkbox (id=chk_warm_blanket)| 對應自費項目摘要 |
+| **(5) Mepilex貼片** | Yes | Checkbox (id=chk_mepilex)| 對應自費項目摘要 |
+
+---
+
+## 3. 其他資訊 (Miscellaneous)
+
+### (1) NPO (禁食)
+- 具體時數描述 (Checkbox)
+- Others (**Text**)
+
+### (2) POR (恢復室)
+- 一般照護醫令 (Checkbox)
+
+---
+> [!IMPORTANT]
+> - **Note**: 標註為 "(Note)" 的項目，其勾選狀態或輸入內容會被收集並渲染到 PDF 右側的 `Assessment Summary` 或 `Plan Summary` 區域。
+> - **自費**: 部分 ID 為 `chk_...` 的項目會特別列印在 PDF 右下角的醒目位置。

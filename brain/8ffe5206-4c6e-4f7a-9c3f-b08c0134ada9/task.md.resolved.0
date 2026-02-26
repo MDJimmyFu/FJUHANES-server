@@ -1,0 +1,7 @@
+# Task: Fix HBV printing bug in legacy_schedule.html
+
+- [/] Research the cause of the bug in `legacy_schedule.html`
+- [ ] Create an implementation plan to fix the issue
+- [ ] Implement the fix
+- [ ] Verify the fix
+- [ ] Create a walkthrough of the changes

@@ -1,0 +1,5 @@
+{
+  "artifactType": "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary": "Implementation plan for adding a \"Self-Pay Items\" category to the anesthesia history details view. \nThis involves:\n1. Updating the backend (`app.py`) to categorize items starting with `551N` as `self_pay`.\n2. Updating the frontend (`legacy_schedule.html`) to display the `self_pay` category if it exists.",
+  "updatedAt": "2026-02-18T13:48:48.656874Z"
+}

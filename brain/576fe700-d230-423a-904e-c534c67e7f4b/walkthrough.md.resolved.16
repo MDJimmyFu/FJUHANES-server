@@ -1,0 +1,27 @@
+# Surgery Schedule Restoration Walkthrough
+
+The Surgery Schedule application has been restored to its original design ([surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html)) while integrating the modern backend to ensure robust data access without altering the familiar interface.
+
+## Restoration Highlights
+
+### 1. Legacy UI Preservation
+- **Original Template**: The frontend uses the exact HTML/CSS structure of [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) to maintain user familiarity.
+- **Server-Side Rendering (SSR)**: The schedule list is now rendered server-side for instant load times, eliminating client-side API calls.
+- **Consolidated API**: Patient details are fetched via a single optimized endpoint `/patient_detail/<ordseq>`, replacing multiple legacy proxy calls.
+- **Seamless Integration**: Date filters, room selection, and patient details work exactly as before, but powered by the new, optimized backend.
+
+### 2. Data Connectivity
+- **Optimized Performance**: The shift to SSR and consolidated API calls significantly reduces network overhead.
+- **Full Data Mapping**: Vitals, Labs, Hx, and Meds are correctly mapped from the [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#9-273) to the format expected by the legacy frontend.
+
+## Project Structure
+- [/app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py): Flask backend with legacy proxy.
+- [/templates/legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html): The active frontend template (served at `/`).
+- [/his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py): Core HIS interaction logic.
+
+## How to Verify
+1.  Run `python app.py` and open `http://localhost:5000`.
+2.  Search for today's surgery list.
+3.  Click a surgery card to see the slide-over detail view.
+4.  Fill out some evaluation form sections (they will auto-save).
+5.  Click "產生評估單" to generate the professional PDF report.

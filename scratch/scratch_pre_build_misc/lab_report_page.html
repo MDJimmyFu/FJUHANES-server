@@ -1,0 +1,1127 @@
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <script src="Scripts/jquery.js"></script>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta http-equiv="pragma" content="no-cache" /><meta http-equiv="Cache-Control" content="no-cache, must-revalidate" /><meta http-equiv="expires" content="0" /><title>
+	報告查詢畫面
+</title>
+
+    <!--此為報告查詢畫面
+            架構如下:
+            1.用table將網頁分作三個區域，上方查詢,左側為清單,右方區域透過iframe連結新的頁面
+            2.左側清單透過 AjaxContainer  作分頁
+            3.運用CoolGrid製作報告清單,醫囑清單-->
+
+
+
+    <script type='text/javascript'>
+
+        var paramA = 'original';
+
+        function load_page(url) {
+            var ifrmae = document.getElementById('iframe');
+            window.frames['iframe'].location = url;
+
+
+        };
+
+        function load_page2(url2) {
+            // var ifrmae = document.getElementById('EKG');
+            //  window.frames['EKG'].location = url2;
+            window.open(url2, "_blank");
+
+        };
+
+        function load_page3(url) {
+            // var ifrmae = document.getElementById('EKG');
+            //  window.frames['EKG'].location = url2;
+            window.open(url, "_blank");
+
+        };
+
+        function load_page4(url) {
+            document.getElementById("myDialog").showModal();
+
+        };
+
+        function changeLabel(url) {
+
+        };
+
+        function Check(url) {
+            var win = window.open(url);
+        };
+
+        function load_pageaa(url) {
+            var ifrmae = document.getElementById('iframe');
+            window.frames['iframe'].location = url;
+            document.body.style.cursor = "default";
+        }
+
+        function setHourglass() {
+            document.body.style.cursor = "wait";
+        };
+
+        /*索引欄位長度不夠補0至10位數 */
+        function Changed(textControl) {
+            var text = textControl.value;
+            var str = '' + text.toUpperCase();
+            while (str.length < 10) {
+                str = '0' + str;
+            }
+            textControl.value = str;
+        };
+
+        var oldColor;//紀錄原本顏色
+        function SetNewColor(row) {//Gridview變色效果
+
+            oldColor = row.style.backgroundColor;
+            alert(oldColor);
+            // row.style.backgroundColor = '#EEFE96';  //這是要變化的顏色
+
+            if (row.style.backgroundColor = oldColor) {
+                row.style.backgroundColor = '#EEFE96';
+                alert(row.style.backgroundColor);
+            } else {
+                row.style.backgroundColor = '#F0F0F0';
+                alert(row.style.backgroundColor);
+            }
+
+        }
+
+        function SetOldColor(row) {
+
+        }
+
+    </script>
+    
+    <script type="text/javascript">
+        $(function () {
+            $("[id*=OpdOrderReport] td").bind("click", function () {
+                var row = $(this).parent();
+                $("[id*=OpdOrderReport] tr").each(function () {
+                    if ($(this)[0] != row[0]) {
+                        $("td", this).removeClass("selected_row");
+                    }
+                });
+                $("td", row).each(function () {
+                    if (!$(this).hasClass("selected_row")) {
+                        $(this).addClass("selected_row");
+                    } else {
+                        $(this).removeClass("selected_row");
+                    }
+                });
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        $(function () {
+            $("[id*=OPDReport] td").bind("click", function () {
+                var row = $(this).parent();
+                $("[id*=OPDReport] tr").each(function () {
+                    if ($(this)[0] != row[0]) {
+                        $("td", this).removeClass("selected_row");
+                    }
+                });
+                $("td", row).each(function () {
+                    if (!$(this).hasClass("selected_row")) {
+                        $(this).addClass("selected_row");
+                    } else {
+                        $(this).removeClass("selected_row");
+                    }
+                });
+            });
+        });
+    </script>
+    <style>
+     .selected_row
+    {
+        background-color: #B1CBE2;
+    }
+     
+
+    body {
+        margin-top: 0px;
+    }
+
+    table {
+        width: 100%;
+    }
+
+    #ajaxContainer {
+         width: 100%; 
+		/*width: 630px;*/
+          height: 725px; 
+    }
+
+    #iframeContainer {
+        width: 100%;
+        background-color: #F0F0F0;;
+		 float:left;
+        height: 650px;
+    }
+
+    #QueryForm {
+        width: 100%;
+        height: 30px;
+        background-image: url(img/QueryForm_bg.jpg);
+        padding: 5px;
+        cursor: default; /*滑鼠游標圖案*/
+    }
+
+    .TabStyle .ajax__tab_header {
+        /*整體按鈕底*/
+        background-color: #F0F0F0;
+        font-size: 16px;
+        height: 30px;
+        font-family: PMingLiU;
+        border-bottom: 1px solid #666666;
+        color: #000000;
+        cursor: default; /*滑鼠游標圖案*/
+    }
+
+    .TabStyle .ajax__tab_body {
+        /*資料區*/
+        border: 0px solid #800000; /*邊框*/
+        padding: 1px; /*文字與邊框間隔*/
+        background-color: #ADADAD; /*#ADADAD;/*背景顏色:淡灰色*/
+         Height: 500px; 
+    }
+
+    .TabStyle .ajax__tab_active .ajax__tab_tab {
+        /*使用中*/
+        border: 1px solid;
+        border-color: #bebebe #bebebe #e1e1e1 #bebebe; /*邊框顏色*/
+        background-color: #F0F0F0;
+        padding: 5px; /*padding 內距的設定，可以控制區域如 DIV 或 span 的內部距離*/
+        border-bottom: none;
+        color: #000000;
+        cursor: default; /*滑鼠游標圖案*/
+    }
+
+        .TabStyle .ajax__tab_active .ajax__tab_tab:hover {
+            /*控制tab選單-->被選取後,再度選取這個按鈕的格式*/
+            cursor: default;
+            font-family: PMingLiU;
+            border: 1px solid;
+            border-color: #bebebe #bebebe #e1e1e1 #F0F0F0;
+            background-color: #F0F0F0;
+            padding: 5px;
+            border-bottom: none;
+            color: #000000;
+        }
+
+    .TabStyle .ajax__tab_tab:hover {
+        /*控制tab選單-->滑鼠移過去的按鈕格式*/
+        cursor: default;
+        font-family: PMingLiU;
+        border: 1px solid;
+        border-color: #bebebe #bebebe #e1e1e1 #bebebe;
+        background-color: #e1e1e1;
+        padding: 3px;
+        border-bottom: none;
+        color: #000000;
+    }
+
+    .TabStyle .ajax__tab_tab {
+        /*控制tab選單-->按鈕預設的格式*/
+        cursor: default;
+        padding: 2px;
+        border: 1px solid;
+        border-color: #bebebe #bebebe #e1e1e1 #bebebe;
+        background-color: #e1e1e1;
+    }
+
+    .TabStyle .ajax__tab_header .ajax__tab_tab {
+        /*控制tab選單-->按鈕彼此之間的距離*/
+        margin: 0px 0px 0px 0px;
+    }
+
+    .GridViewHeaderStyle {
+        text-align: left;
+        font-family: PMingLiU;
+        font-size: 16px;
+        text-decoration: none;
+        background-color: #F0F0F0;
+        padding-bottom: 2px;
+        padding-left: 2px;
+        padding-right: 2px;
+        padding-top: 1px; /*padding 內距的設定，可以控制區域如 DIV 或 span 的內部距離*/
+        border-bottom: none;
+        color: #000000;
+    }
+
+        .GridViewHeaderStyle th {
+            text-align: left;
+            font-family: PMingLiU;
+            font-size: 16px;
+            font-weight: normal;
+            background-color: #F0F0F0;
+            padding-bottom: 2px;
+            padding-left: 2px;
+            padding-right: 2px;
+            padding-top: 1px; /*padding 內距的設定，可以控制區域如 DIV 或 span 的內部距離*/
+            border-bottom: none;
+            color: #000000;
+            text-decoration: none;
+        }
+
+    .GridViewHeadertyle td {
+        text-align: left;
+        font-family: PMingLiU;
+        font-size: 16px;
+        color: #000000;
+        font-weight: normal;
+        background-color: #FFFFFF;
+        padding-bottom: 2px;
+        padding-left: 2px;
+        padding-right: 2px;
+        padding-top: 1px; /*padding 內距的設定，可以控制區域如 DIV 或 span 的內部距離*/
+        border-bottom: none;
+        border-color: #DDDDDD;
+        text-decoration: none;
+    }
+
+    tr.GridViewHeaderStyle {
+        text-align: left;
+        font-weight: normal;
+        color: Black;
+        text-decoration: none;
+        height: 16px;
+        cursor: default;
+    }
+
+        tr.GridViewHeaderStyle a:visited {
+            text-align: left;
+            font-weight: normal;
+            color: Black;
+            text-decoration: none;
+            cursor: default;
+        }
+
+        tr.GridViewHeaderStyle a:link {
+            text-align: left;
+            font-weight: normal;
+            color: Black;
+            text-decoration: none;
+            cursor: default;
+        }
+
+    .button {
+        font-family: PMingLiU;
+        text-align: center;
+        width: 100px;
+        height: 25px;
+        font-size: 16px;
+    }
+
+    .auto-style1 {
+        width: 100%;
+        height: 729px;
+    }
+
+    #TreeView {
+        width: 0% !important;
+        height: 650px;
+        background-color: #FFFFFF !important;
+    }
+
+    .Grid {
+        padding-bottom: 2px;
+        padding-left: 4px;
+        padding-right: 0px;
+        padding-top: 1px;
+        word-break: break-all;
+    }
+
+    #TabContainer1_third {
+        background-color: #FFFFFF !important;
+        height: 780px;
+    }
+    .auto-style2 {
+		width:10px;
+        height: 729px;
+		background-color: #FFFFFF;
+    }
+	.reportList{
+
+	Width:45%; 
+	float:left;
+	height:400px;
+	}
+	
+	.reportContent{
+	Width:55%; 
+   float:left;
+	/* width:600px; */
+	}
+
+    .tableCSS
+     {
+         table-layout: fixed;
+     }
+     .content
+     {
+         width:100%;
+         white-space:nowrap;
+         overflow:hidden;
+         text-overflow:ellipsis;
+     }
+
+    .hiddencol
+    {
+        display:none;
+    }
+    .viscol
+    {
+        display:block;
+    }
+</style>
+
+
+    </style>
+   
+<link href="/ReportOrder/WebResource.axd?d=L__oBBdEiZsgM1YC1VhJUUv1SHFEXVrqJeHjqa4IiFpLAa9EZ0MgK9NVM_ssk47wdKd8bkcfzClKo0DTc7L5vDByqriG-XOj3D6m8zLtkBBYIAZpTKrB9Tu4AC0tVeaXd2g2jQ2&amp;t=633804058340000000" type="text/css" rel="stylesheet" /></head>
+<!--<body  bgcolor="#F0F0F0" onbeforeunload="setHourglass();" onunload="setHourglass();">-->
+<body bgcolor="#F0F0F0" onbeforeunload="setHourglass();" onunload="setHourglass();">
+
+    <form name="form1" method="post" action="OpoQ0R1Form.aspx?sUSERID=A03772&amp;patientId=003003641A&amp;sOPDSection=&amp;sOPDCaseNo=" id="form1">
+<input type="hidden" name="ToolkitScriptManager1_HiddenField" id="ToolkitScriptManager1_HiddenField" value="" />
+<input type="hidden" name="TabContainer1_ClientState" id="TabContainer1_ClientState" value="{&quot;ActiveTabIndex&quot;:0,&quot;TabState&quot;:[true,true,true,true,true,true,true]}" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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b3JtLmFzcHg/c0hISVNOdW09MDAzMDAzNjQxQSZpRGF5UmFuZ2U9LTkwJnNIUkRBVEUxPTIwMjYwMjIwJnNIUkRBVEUzPTIwMjUxMTIyJlVTRVJJRD1BMDM3NzImc0VOQz1PUEQmc3R5cGU9MTQnKR4IRXhwYW5kZWRnZBQrAAIWBB8KBY8BamF2YXNjcmlwdDpsb2FkX3BhZ2VhYSgnT3BvUTBSMkZvcm0uYXNweD9zSEhJU051bT0wMDMwMDM2NDFBJmlEYXlSYW5nZT0tOTAmc0hSREFURTE9MjAyNjAyMjAmc0hSREFURTM9MjAyNTExMjImVVNFUklEPUEwMzc3MiZzRU5DPU9QRCZzdHlwZT0yJykfC2dkFCsAAhYEHwoFjwFqYXZhc2NyaXB0OmxvYWRfcGFnZWFhKCdPcG9RMFIyRm9ybS5hc3B4P3NISElTTnVtPTAwMzAwMzY0MUEmaURheVJhbmdlPS05MCZzSFJEQVRFMT0yMDI2MDIyMCZzSFJEQVRFMz0yMDI1MTEyMiZVU0VSSUQ9QTAzNzcyJnNFTkM9T1BEJnN0eXBlPTQnKR8LZ2QUKwACFgQfCgWQAWphdmFzY3JpcHQ6bG9hZF9wYWdlYWEoJ09wb1EwUjJGb3JtLmFzcHg/c0hISVNOdW09MDAzMDAzNjQxQSZpRGF5UmFuZ2U9LTkwJnNIUkRBVEUxPTIwMjYwMjIwJnNIUkRBVEUzPTIwMjUxMTIyJlVTRVJJRD1BMDM3NzImc0VOQz1PUEQmc3R5cGU9MTYnKR8LZ2QUKwACFgQfCgWRAWphdmFzY3JpcHQ6bG9hZF9wYWdlYWEoJ09wb1EwUjJGb3JtLmFzcHg/c0hISVNOdW09MDAzMDAzNjQxQSZpRGF5UmFuZ2U9LTkwJnNIUkRBVEUxPTIwMjYwMjIwJnNIUkRBVEUzPTIwMjUxMTIyJlVTRVJJRD1BMDM3NzImc0VOQz1PUEQmc3R5cGU9NTAwJykfC2dkFCsAAhYEHwoFkQFqYXZhc2NyaXB0OmxvYWRfcGFnZWFhKCdPcG9RMFIyRm9ybS5hc3B4P3NISElTTnVtPTAwMzAwMzY0MUEmaURheVJhbmdlPS05MCZzSFJEQVRFMT0yMDI2MDIyMCZzSFJEQVRFMz0yMDI1MTEyMiZVU0VSSUQ9QTAzNzcyJnNFTkM9T1BEJnN0eXBlPTUwMScpHwtnZBQrAAIWBB8KBZEBamF2YXNjcmlwdDpsb2FkX3BhZ2VhYSgnT3BvUTBSMkZvcm0uYXNweD9zSEhJU051bT0wMDMwMDM2NDFBJmlEYXlSYW5nZT0tOTAmc0hSREFURTE9MjAyNjAyMjAmc0hSREFURTM9MjAyNTExMjImVVNFUklEPUEwMzc3MiZzRU5DPU9QRCZzdHlwZT01MDInKR8LZ2QUKwACFgQfCgWRAWphdmFzY3JpcHQ6bG9hZF9wYWdlYWEoJ09wb1EwUjJGb3JtLmFzcHg/c0hISVNOdW09MDAzMDAzNjQxQSZpRGF5UmFuZ2U9LTkwJnNIUkRBVEUxPTIwMjYwMjIwJnNIUkRBVEUzPTIwMjUxMTIyJlVTRVJJRD1BMDM3NzImc0VOQz1PUEQmc3R5cGU9NTAzJykfC2dkFCsAAhYEHwoFkQFqYXZhc2NyaXB0OmxvYWRfcGFnZWFhKCdPcG9RMFIyRm9ybS5hc3B4P3NISElTTnVtPTAwMzAwMzY0MUEmaURheVJhbmdlPS05MCZzSFJEQVRFMT0yMDI2MDIyMCZzSFJEQVRFMz0yMDI1MTEyMiZVU0VSSUQ9QTAzNzcyJnNFTkM9T1BEJnN0eXBlPTUwNCcpHwtnZBQrAAIWBB8KBZEBamF2YXNjcmlwdDpsb2FkX3BhZ2VhYSgnT3BvUTBSMkZvcm0uYXNweD9zSEhJU051bT0wMDMwMDM2NDFBJmlEYXlSYW5nZT0tOTAmc0hSREFURTE9MjAyNjAyMjAmc0hSREFURTM9MjAyNTExMjImVVNFUklEPUEwMzc3MiZzRU5DPU9QRCZzdHlwZT01MDUnKR8LZ2QUKwACFgQfCgWRAWphdmFzY3JpcHQ6bG9hZF9wYWdlYWEoJ09wb1EwUjJGb3JtLmFzcHg/c0hISVNOdW09MDAzMDAzNjQxQSZpRGF5UmFuZ2U9LTkwJnNIUkRBVEUxPTIwMjYwMjIwJnNIUkRBVEUzPTIwMjUxMTIyJlVTRVJJRD1BMDM3NzImc0VOQz1PUEQmc3R5cGU9NTA2JykfC2dkFCsAAhYEHwoFkQFqYXZhc2NyaXB0OmxvYWRfcGFnZWFhKCdPcG9RMFIyRm9ybS5hc3B4P3NISElTTnVtPTAwMzAwMzY0MUEmaURheVJhbmdlPS05MCZzSFJEQVRFMT0yMDI2MDIyMCZzSFJEQVRFMz0yMDI1MTEyMiZVU0VSSUQ9QTAzNzcyJnNFTkM9T1BEJnN0eXBlPTUwNycpHwtnZBQrAAIWBB8KBZEBamF2YXNjcmlwdDpsb2FkX3BhZ2VhYSgnT3BvUTBSMkZvcm0uYXNweD9zSEhJU051bT0wMDMwMDM2NDFBJmlEYXlSYW5nZT0tOTAmc0hSREFURTE9MjAyNjAyMjAmc0hSREFURTM9MjAyNTExMjImVVNFUklEPUEwMzc3MiZzRU5DPU9QRCZzdHlwZT01MDgnKR8LZ2QUKwACFgQfCgWRAWphdmFzY3JpcHQ6bG9hZF9wYWdlYWEoJ09wb1EwUjJGb3JtLmFzcHg/c0hISVNOdW09MDAzMDAzNjQxQSZpRGF5UmFuZ2U9LTkwJnNIUkRBVEUxPTIwMjYwMjIwJnNIUkRBVEUzPTIwMjUxMTIyJlVTRVJJRD1BMDM3NzImc0VOQz1PUEQmc3R5cGU9NTA5JykfC2dkFCsAAhYEHwoFkQFqYXZhc2NyaXB0OmxvYWRfcGFnZWFhKCdPcG9RMFIyRm9ybS5hc3B4P3NISElTTnVtPTAwMzAwMzY0MUEmaURheVJhbmdlPS05MCZzSFJEQVRFMT0yMDI2MDIyMCZzSFJEQVRFMz0yMDI1MTEyMiZVU0VSSUQ9QTAzNzcyJnNFTkM9T1BEJnN0eXBlPTUxMCcpHwtnZBQrAAIWBB8KBZEBamF2YXNjcmlwdDpsb2FkX3BhZ2VhYSgnT3BvUTBSMkZvcm0uYXNweD9zSEhJU051bT0wMDMwMDM2NDFBJmlEYXlSYW5nZT0tOTAmc0hSREFURTE9MjAyNjAyMjAmc0hSREFURTM9MjAyNTExMjImVVNFUklEPUEwMzc3MiZzRU5DPU9QRCZzdHlwZT01MTEnKR8LZ2QUKwACFgQfCgWRAWphdmFzY3JpcHQ6bG9hZF9wYWdlYWEoJ09wb1EwUjJGb3JtLmFzcHg/c0hISVNOdW09MDAzMDAzNjQxQSZpRGF5UmFuZ2U9LTkwJnNIUkRBVEUxPTIwMjYwMjIwJnNIUkRBVEUzPTIwMjUxMTIyJlVTRVJJRD1BMDM3NzImc0VOQz1PUEQmc3R5cGU9NTEyJykfC2dkFCsAAhYEHwoFkQFqYXZhc2NyaXB0OmxvYWRfcGFnZWFhKCdPcG9RMFIyRm9ybS5hc3B4P3NISElTTnVtPTAwMzAwMzY0MUEmaURheVJhbmdlPS05MCZzSFJEQVRFMT0yMDI2MDIyMCZzSFJEQVRFMz0yMDI1MTEyMiZVU0VSSUQ9QTAzNzcyJnNFTkM9T1BEJnN0eXBlPTUxMycpHwtnZBQrAAIWBB8KBZEBamF2YXNjcmlwdDpsb2FkX3BhZ2VhYSgnT3BvUTBSMkZvcm0uYXNweD9zSEhJU051bT0wMDMwMDM2NDFBJmlEYXlSYW5nZT0tOTAmc0hSREFURTE9MjAyNjAyMjAmc0hSREFURTM9MjAyNTExMjImVVNFUklEPUEwMzc3MiZzRU5DPU9QRCZzdHlwZT01MTknKR8LZ2QUKwACFgQfCgWRAWphdmFzY3JpcHQ6bG9hZF9wYWdlYWEoJ09wb1EwUjJGb3JtLmFzcHg/c0hISVNOdW09MDAzMDAzNjQxQSZpRGF5UmFuZ2U9LTkwJnNIUkRBVEUxPTIwMjYwMjIwJnNIUkRBVEUzPTIwMjUxMTIyJlVTRVJJRD1BMDM3NzImc0VOQz1PUEQmc3R5cGU9NTE0JykfC2cUKwAFZBQrAAIWBB8KBZEBamF2YXNjcmlwdDpsb2FkX3BhZ2VhYSgnT3BvUTBSMkZvcm0uYXNweD9zSEhJU051bT0wMDMwMDM2NDFBJmlEYXlSYW5nZT0tOTAmc0hSREFURTE9MjAyNjAyMjAmc0hSREFURTM9MjAyNTExMjImVVNFUklEPUEwMzc3MiZzRU5DPU9QRCZzdHlwZT01MTUnKR8LZ2QUKwACFgQfCgWRAWphdmFzY3JpcHQ6bG9hZF9wYWdlYWEoJ09wb1EwUjJGb3JtLmFzcHg/c0hISVNOdW09MDAzMDAzNjQxQSZpRGF5UmFuZ2U9LTkwJnNIUkRBVEUxPTIwMjYwMjIwJnNIUkRBVEUzPTIwMjUxMTIyJlVTRVJJRD1BMDM3NzImc0VOQz1PUEQmc3R5cGU9NTE2JykfC2dkFCsAAhYEHwoFkQFqYXZhc2NyaXB0OmxvYWRfcGFnZWFhKCdPcG9RMFIyRm9ybS5hc3B4P3NISElTTnVtPTAwMzAwMzY0MUEmaURheVJhbmdlPS05MCZzSFJEQVRFMT0yMDI2MDIyMCZzSFJEQVRFMz0yMDI1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U0VSSUQ9QTAzNzcyJnNFTkM9JnNFTkNyeXB0SUQ9Jyk7FgwCAQ8PFgIfBgULTmEgKFNvZGl1bSlkZAICDw8WAh8GBQVCbG9vZGRkAgMPDxYCHwYFDzY0X+ato+W8j+WgseWRimRkAgQPDxYCHwYFCDIwMjYwMjIwZGQCBQ8PFgIfBgUQTEFCX+aqoumpl+aqouafpWRkAgYPDxYCHwYFCDQwNDk2NzQzZGQCDQ8PZBYCHwUFe2NoYW5nZUxhYmVsKCk7bG9hZF9wYWdlKCdodHRwOi8vMTAuMTAuMjQ2LjczL1F1ZXJ5UmVwb3J0L09QRFJlcG9ydC5hc3B4P09yZEFwTm89NDA0OTY3NDImVVNFUklEPUEwMzc3MiZzRU5DPSZzRU5DcnlwdElEPScpOxYMAgEPDxYCHwYFEEdsdWNvc2UgKHJhbmRvbSlkZAICDw8WAh8GBQVCbG9vZGRkAgMPDxYCHwYFDzY0X+ato+W8j+WgseWRimRkAgQPDxYCHwYFCDIwMjYwMjIwZGQCBQ8PFgIfBgUQTEFCX+aqoumpl+aqouafpWRkAgYPDxYCHwYFCDQwNDk2NzQyZGQCDg8PZBYCHwUFe2NoYW5nZUxhYmVsKCk7bG9hZF9wYWdlKCdodHRwOi8vMTAuMTAuMjQ2LjczL1F1ZXJ5UmVwb3J0L09QRFJlcG9ydC5hc3B4P09yZEFwTm89NDA0OTY3NDcmVVNFUklEPUEwMzc3MiZzRU5DPSZzRU5DcnlwdElEPScpOxYMAgEPDxYCHwYFKUMuUi5QIChDLXJlYWN0aXZlIHByb3RlaW4p77yNTmVwaGVsb21ldHJ5ZGQCAg8PFgIfBgUFQmxvb2RkZAIDDw8WAh8GBQ82NF/mraPlvI/loLHlkYpkZAIEDw8WAh8GBQgyMDI2MDIyMGRkAgUPDxYCHwYFEExBQl/mqqLpqZfmqqLmn6VkZAIGDw8WAh8GBQg0MDQ5Njc0N2RkAg8PDxYCHwhoZGQYCAUzVGFiQ29udGFpbmVyMSRPcGRPcmRlclJlcG9ydCRPcGRPcmRlclJlcG9ydEdyaWRWaWV3DzwrAAoCA2YIAgFkBQ1UYWJDb250YWluZXIxDw9kZmQFOVRhYkNvbnRhaW5lcjEkT3BkT3JkZXJSZXBvcnRQQVQkT3BkT3JkZXJSZXBvcnRQQVRHcmlkVmlldw88KwAKAgNmCAIBZAU5VGFiQ29udGFpbmVyMSRPcGRPcmRlclJlcG9ydExBQiRPcGRPcmRlclJlcG9ydExBQkdyaWRWaWV3DzwrAAoCA2YIAgFkBR5fX0NvbnRyb2xzUmVxdWlyZVBvc3RCYWNrS2V5X18WAgUNVGFiQ29udGFpbmVyMQUdVGFiQ29udGFpbmVyMSR0aGlyZCRUcmVlVmlldzEFKVRhYkNvbnRhaW5lcjEkT1BEUmVwb3J0JE9QRFJlcG9ydEdyaWRWaWV3DzwrAAoCA2YIAgFkBTlUYWJDb250YWluZXIxJE9wZE9yZGVyUmVwb3J0RVhBJE9wZE9yZGVyUmVwb3J0RVhBR3JpZFZpZXcPPCsACgIDZggCAWQFMVRhYkNvbnRhaW5lcjEkVGFiUGFuZWwxJE9wZE9yZGVyUmVwb3J0SE1DR3JpZFZpZXcPPCsACgIDZggCAWQvGsFi+9vpxGHUbBkiufDInHgAzg==" />
+
+
+<script src="/ReportOrder/WebResource.axd?d=xVg2ZNk1KI8rKkz6enUFwV9XmAvZg8JkDrfQ_YyV2pBR_zJXjqdqaK8VXlgmBoCp9XY9pkkbry-a_SxgMprdYLlf7gyDFc_QGubnRCG2ALwSzBcOYr2M1eG2j0yiZSRTmt424W7tbEuYNA1lIf4RnhwMVxU1&amp;t=636244029940000000" type="text/javascript"></script>
+<script src="/ReportOrder/WebResource.axd?d=XfJwLWbP4aSUtxrzsyQtKQIdto2-nhBSp2ZL0ikoCLT51bQdhaLsv4cfyoLXhSdDxsCMdB3ogf6FNoF9BgIIZddthmmZFzqrz1TnO1_bSeIB2a_TWa50W6KkTgG4ZlAbmm3N37owFHwrTLaVOM5XIYBDSxY1&amp;t=636244029940000000" type="text/javascript"></script><style>
+    .CoolGridViewTable TR TD, .CoolGridViewTable TR TH, .CoolGridViewTable TR TH SPAN, .CoolGridViewTable TR TD SPAN
+    {
+        overflow: hidden;
+        text-overflow : ellipsis;
+    }
+    .CoolGridViewTable TR TH SPAN, .CoolGridViewTable TR TD SPAN
+    {
+        margin : 0 0 0 0;
+        padding : 0 0 0 0;
+    }
+</style>
+<script src="/ReportOrder/ScriptResource.axd?d=cRDcxsY8Ihwz-7d-mMb7NjXDw6YRBqAuYcQqyntTZVh19Pt6KPFwX9hx3JTm7mYFflQ1PdTrPNUHmm9xLPk9WbIgovrWND-QKZVG68Pe9XDfNRw_1E8UzORxjuqstrv6o_GNwU9qdPCorAn7FaJ_KPr-dEW1m2T9GHguqHiiKc6Z0nK90&amp;t=ffffffffbcb9b94a" type="text/javascript"></script>
+<script src="/ReportOrder/OpoQ0R1Form.aspx?_TSM_HiddenField_=ToolkitScriptManager1_HiddenField&amp;_TSM_CombinedScripts_=%3b%3bAjaxControlToolkit%2c+Version%3d3.0.30512.20315%2c+Culture%3dneutral%2c+PublicKeyToken%3d28f01b0e84b6d53e%3azh-TW%3a2a404968-beb9-41c5-98fb-26019e941d81%3ae2e86ef9%3a1df13a87%3aee0a475d%3ac4c00916" type="text/javascript"></script>
+<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEWfAK/2ffYBgLX1ZKgCQLX1YbNAQLX1br6CwLX1a6HAgLX1eK0BALX1dbRDALX1YrPBgLX1f7rDQLX1fLKDALX1eaXCwKq1LjeBgLV17jeBgKo1LjeBgKr1LjeBgLLqq3ZAwKz3/u2AQK9+p3FDAL9qcDvCAL4mvCuBQKRkokxAqK1zPECAuqGsoUPAq+Fv5oKAqDT7+gMApW1jPECAuPXpJcIAqfTr5ADAuLz3sULAuLzpsQLAvbX2PEBAqih7e4HAv+p8O8IAvXX6PEBAtWswYQEAriFs5oKArne1+4CAveGwt4GAvTXoJcIAuTX9JQIAt3B3dsMAqC16PECAqS1mPECAqS1/PECApu1xPECAqXgpMcFArCFr5oKAtGssYcEArjIoNsBAsqfmJgFAqC18PECAqS18PECAqC1+PECAtGsgYcEAtSAr7MKArzIuNsBArHeoa4HApe5xJAHAp2FivIPAqzBqbIOAon4i0cCsOqY2QUCifijRwKr85rCCgL6v4C6BQKAp+rKBAKWxtDsDgKEp9P6AgK7q7GGCALWlM+bAgLo3pCDCQKu06/hDwKQnprnAQKot7jUBQLg4/rPCQLxmMzWAQLR0qfpAgLNsaK5CwKLvJ3bDQK18ajdAwKN2IruBwLFjMj1CwLU9/7sAwL0vZVTArj9n+4NAv7woIwLAsC9lYoFAviUt7kBArDA9aINAqG7w7sFAoHxqIQGAvHw0MYEArf976QCAomw2qIMArGZ+JEIAvnNuooEAui2jJMMAsj856wPAquN9toGAt7m08YGAujpz98GAtHmsusPApmr0YUFAsrO9eUOAuugk9oIAq2trLgOApPgmT4Cq8m7jQQC0pvNpQsC0qyksAMC19WSoAkC19WGzQEC19W6+gsC19WuhwIC19XitAQC19XW0QwC19WKzwYC19X+6w0C19XyygwC19XmlwsCqtS43gYC1de43gYCqNS43gYCq9S43gZKLAMMXfWBBd8f95EmQfJatVxTyg==" />
+        <table>
+            <tr>
+                <!--主畫面查詢功能-->
+                <td colspan="2">
+                    
+                    <div id="QueryForm">
+                        <font color="#800000">請輸入索引號</font>&nbsp;&nbsp;  
+                         <input name="HHISNumText" type="text" value="003003641A" maxlength="10" id="HHISNumText" onchange="javascript: Changed( this );" style="margin-bottom: 0px; font-size: medium;" />
+                        <font color="#800000">查詢醫囑科別</font>&nbsp;&nbsp;
+                          <select name="OPDSectionDownList" id="OPDSectionDownList" style="font-size: medium">
+	<option selected="selected" value="ALLOPDSection">ALL_全部</option>
+	<option value="LAB">LAB_檢驗部</option>
+	<option value="RAD">RAD_影像醫學科</option>
+	<option value="BBK">BBK_血庫</option>
+	<option value="ICU">ICU_加護中心</option>
+	<option value="ER">ER_急診部</option>
+	<option value="NME">NME_核醫科</option>
+	<option value="PAT">PAT_病理部</option>
+	<option value="BACT">BACT_細菌室</option>
+	<option value="TB">TB_結核菌室</option>
+	<option value="VIRO">VIRO_病毒室</option>
+	<option value="MYCL">MYCL_黴菌室</option>
+	<option value="CEL">CEL_急診檢驗室</option>
+	<option value="COL">COL_一般檢驗室</option>
+	<option value="AIR">AIR_免疫風濕科</option>
+	<option value="CON">CON_會診</option>
+	<option value="PED">PED_小兒部</option>
+	<option value="DER">DER_皮膚科</option>
+	<option value="OBS">OBS_婦產科</option>
+	<option value="ENT">ENT_耳鼻喉科</option>
+	<option value="REH">REH_復健科</option>
+	<option value="CHEM">CHEM_生化室</option>
+	<option value="CHRO">CHRO_生心遺傳</option>
+	<option value="SERO">SERO_血清室</option>
+	<option value="SOW">SOW_社工室</option>
+	<option value="GI">GI_腸胃科</option>
+	<option value="CM">CM_胸腔內科</option>
+	<option value="CV">CV_心臟內科</option>
+	<option value="NP">NP_神經內科</option>
+	<option value="NEP">NEP_腎臟病科</option>
+	<option value="MET">MET_新陳代謝科</option>
+	<option value="CVS">CVS_血管外科</option>
+	<option value="HEM">HEM_血液腫瘤</option>
+	<option value="INF">INF_感染科</option>
+	<option value="GS">GS_一般外科</option>
+	<option value="CS">CS_胸腔外科</option>
+	<option value="GU">GU_泌尿外科</option>
+	<option value="CRS">CRS_大直腸外科</option>
+	<option value="PSY">PSY_精神科</option>
+	<option value="TCM">TCM_中醫科</option>
+
+</select>&nbsp;&nbsp;
+                       
+                         <font color="#800000">查詢</font>&nbsp;&nbsp; 
+                         <select name="DayRangeSectionDownList" id="DayRangeSectionDownList" style="font-size: medium">
+	<option value="-36500">全部</option>
+	<option value="-7">一星期內</option>
+	<option value="-14">兩星期內</option>
+	<option value="-21">三星期內</option>
+	<option value="-30">三十天內</option>
+	<option value="-45">四十五天內</option>
+	<option selected="selected" value="-90">三個月內</option>
+	<option value="-365">一年內</option>
+	<option value="-730">兩年內</option>
+
+</select>&nbsp;&nbsp; &nbsp;&nbsp;之報告 &nbsp;&nbsp; 
+                         
+                        <input type="submit" name="QueryButton" value="查詢" id="QueryButton" style="font-size: medium" />
+                        &nbsp;&nbsp; 
+                       &nbsp;&nbsp; 項目關鍵字&nbsp;&nbsp;
+                         <input name="SearchText" type="text" id="SearchText" style="margin-bottom: 0px; font-size: medium" />&nbsp;
+                         <input type="submit" name="SearchKeyword" value="搜尋" id="SearchKeyword" style="font-size: medium" />
+                        <span id="Label1" style="display: none"></span>
+                        &nbsp;
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <input type="submit" name="Button2" value="查EKG影像" id="Button2" style="font-size: medium" />
+        <input type="submit" name="Button3" value="職業健檢報告" id="Button3" style="font-size: medium" />
+        <DIV class = "reportList"><div  id="ajaxContainer" overflow:"hidden">  
+        <div id="TabContainer1" class="TabStyle"><font face="新細明體">
+	<div id="TabContainer1_header">
+		<span id="TabContainer1_OpdOrderReport_tab"><span class="ajax__tab_outer"><span class="ajax__tab_inner"><span class="ajax__tab_tab" id="__tab_TabContainer1_OpdOrderReport">報告清單</span></span></span></span><span id="TabContainer1_OpdOrderReportLAB_tab"><span class="ajax__tab_outer"><span class="ajax__tab_inner"><span class="ajax__tab_tab" id="__tab_TabContainer1_OpdOrderReportLAB">報告清單(檢驗)</span></span></span></span><span id="TabContainer1_OpdOrderReportPAT_tab"><span class="ajax__tab_outer"><span class="ajax__tab_inner"><span class="ajax__tab_tab" id="__tab_TabContainer1_OpdOrderReportPAT">報告清單(病理)</span></span></span></span><span id="TabContainer1_OpdOrderReportEXA_tab"><span class="ajax__tab_outer"><span class="ajax__tab_inner"><span class="ajax__tab_tab" id="__tab_TabContainer1_OpdOrderReportEXA">報告清單(檢查)</span></span></span></span><span id="TabContainer1_TabPanel1_tab"><span class="ajax__tab_outer"><span class="ajax__tab_inner"><span class="ajax__tab_tab" id="__tab_TabContainer1_TabPanel1">聖路加健檢</span></span></span></span><span id="TabContainer1_third_tab"><span class="ajax__tab_outer"><span class="ajax__tab_inner"><span class="ajax__tab_tab" id="__tab_TabContainer1_third">累積報告</span></span></span></span><span id="TabContainer1_OPDReport_tab"><span class="ajax__tab_outer"><span class="ajax__tab_inner"><span class="ajax__tab_tab" id="__tab_TabContainer1_OPDReport">醫囑清單</span></span></span></span>
+	</div><div id="TabContainer1_body">
+		<div id="TabContainer1_OpdOrderReport" class="ajax__tab_panel">
+			
+                    <div id="TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_mainDiv">
+				<div id="TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_headerDiv">
+					<div>
+						<table border="1" class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" width="0" width="0" style="display:inline-table;">
+							<colgroup>
+								<col width="10"  /><col width="180"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  />
+							</colgroup><tr class="GridViewHeaderStyle">
+								<th scope="col" width="10">&nbsp;</th><th scope="col" width="180"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReport$OpdOrderReportGridView','Sort$ORDPROCED')">項目</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReport$OpdOrderReportGridView','Sort$ORSPCNM')">檢體</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReport$OpdOrderReportGridView','Sort$ORDSTATUSSelection')">狀態</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReport$OpdOrderReportGridView','Sort$ORDDTTM')">開立日期</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReport$OpdOrderReportGridView','Sort$ORDSIGNDTTM')">執行日期</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReport$OpdOrderReportGridView','Sort$RESDTTM')">報告日期</a></th><th scope="col" width="42%"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReport$OpdOrderReportGridView','Sort$ORDAPNO')">申請序號</a></th>
+							</tr>
+						</table>
+					</div>
+				</div><div id="TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_tableDiv">
+					<table class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" border="1" id="TabContainer1_OpdOrderReport_OpdOrderReportGridView" width="0" style="table-layout:fixed;display:table;border-collapse:collapse;">
+						<colgroup>
+							<col width="10"  /><col width="180"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  />
+						</colgroup><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40498906,40498679,40498681,40496749,40496750,40496748,40496741,40496746,40496745,40496744,40496743,40496742,40496747&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><b></b></td><td><b>20260220所有報告</b></td><td><b>&nbsp;</b></td><td><b>&nbsp;</b></td><td><b>20260220</b></td><td><b>&nbsp;</b></td><td><b>&nbsp;</b></td><td class="content" width="42%"><b>40498906,40498679,40498681,40496749,40496750,40496748,40496741,40496746,40496745,40496744,40496743,40496742,40496747</b></td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40498906&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>EKG(心電圖)</td><td>&nbsp;</td><td>38_已簽收</td><td>20260220</td><td>20260220</td><td>&nbsp;</td><td class="content" width="42%">40498906</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40498679&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>APTT (activated partial thromboplastin time)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40498679</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40498681&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>Prothrombin time</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40498681</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496749&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>Chest PA view</td><td>&nbsp;</td><td>68_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496749</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496750&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>BUN</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496750</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496748&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>CT, Stomach / Intestine (With/Without Contrast)</td><td>&nbsp;</td><td>68_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496748</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496741&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="Pink">
+							<td></td><td>CBC + DC</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496741</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496746&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>Creatinine</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496746</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496745&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>GPT/ALT</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496745</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496744&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>K (Potassium)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496744</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496743&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="Pink">
+							<td></td><td>Na (Sodium)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496743</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496742&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>Glucose (random)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496742</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496747&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="Pink">
+							<td></td><td>C.R.P (C-reactive protein)－Nephelometry</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496747</td>
+						</tr>
+					</table>
+				</div>
+			</div><input type="hidden" id="TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_data" name="TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_data" value="" /><script type="text/javascript" language="javascript">
+//<![CDATA[
+if (typeof varTabContainer1_OpdOrderReport_OpdOrderReportGridView =='undefined' || varTabContainer1_OpdOrderReport_OpdOrderReportGridView == null)
+    var varTabContainer1_OpdOrderReport_OpdOrderReportGridView = new CoolGridView({GridContainerID: "TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_mainDiv",HeaderContainerID: "TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_headerDiv",TableContainerID: "TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_tableDiv",GridID: "TabContainer1_OpdOrderReport_OpdOrderReportGridView",FooterContainerID: "TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_footerDiv",PagerContainerID: "TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_pagerDiv",HiddenFieldDataID: "TabContainer1_OpdOrderReport_OpdOrderReportGridViewjEsCoOl_data",FormID:"form1", AllowResizeColumn : true});
+varTabContainer1_OpdOrderReport_OpdOrderReportGridView.Initialize();
+//]]>
+</script>
+                    
+                
+		</div><div id="TabContainer1_OpdOrderReportLAB" class="ajax__tab_panel" style="display:none;">
+			
+                    <div id="TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_mainDiv">
+				<div id="TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_headerDiv">
+					<div>
+						<table border="1" class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" width="0" width="0" style="display:inline-table;">
+							<colgroup>
+								<col width="10"  /><col width="180"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  />
+							</colgroup><tr class="GridViewHeaderStyle">
+								<th scope="col" width="10">&nbsp;</th><th scope="col" width="180"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportLAB$OpdOrderReportLABGridView','Sort$ORDPROCED')">項目</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportLAB$OpdOrderReportLABGridView','Sort$ORSPCNM')">檢體</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportLAB$OpdOrderReportLABGridView','Sort$ORDSTATUSSelection')">狀態</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportLAB$OpdOrderReportLABGridView','Sort$ORDDTTM')">開立日期</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportLAB$OpdOrderReportLABGridView','Sort$ORDSIGNDTTM')">執行日期</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportLAB$OpdOrderReportLABGridView','Sort$RESDTTM')">報告日期</a></th><th scope="col" width="42%"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportLAB$OpdOrderReportLABGridView','Sort$ORDAPNO')">申請序號</a></th>
+							</tr>
+						</table>
+					</div>
+				</div><div id="TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_tableDiv">
+					<table class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" border="1" id="TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridView" width="0" style="table-layout:fixed;display:table;border-collapse:collapse;">
+						<colgroup>
+							<col width="10"  /><col width="180"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  />
+						</colgroup><tr class="Grid" onclick="changeLabel();load_page('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;stype=LabTodayTotal&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20260220&amp;USERID=A03772&amp;sOPDSection=&amp;sOPDCaseNo=&amp;sENC=OPD');" bgcolor="White">
+							<td><b></b></td><td bgcolor="GreenYellow"><b>20260220檢驗所有報告</b></td><td><b>&nbsp;</b></td><td><b>&nbsp;</b></td><td><b>20260220</b></td><td><b>&nbsp;</b></td><td><b>&nbsp;</b></td><td class="content" width="42%"><b>LAB</b></td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40498679&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>APTT (activated partial thromboplastin time)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40498679</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40498681&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>Prothrombin time</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40498681</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496750&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>BUN</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496750</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496741&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="Pink">
+							<td></td><td>CBC + DC</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496741</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496746&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>Creatinine</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496746</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496745&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>GPT/ALT</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496745</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496744&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>K (Potassium)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496744</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496743&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="Pink">
+							<td></td><td>Na (Sodium)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496743</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496742&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>Glucose (random)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496742</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496747&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="Pink">
+							<td></td><td>C.R.P (C-reactive protein)－Nephelometry</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496747</td>
+						</tr>
+					</table>
+				</div>
+			</div><input type="hidden" id="TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_data" name="TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_data" value="" /><script type="text/javascript" language="javascript">
+//<![CDATA[
+if (typeof varTabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridView =='undefined' || varTabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridView == null)
+    var varTabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridView = new CoolGridView({GridContainerID: "TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_mainDiv",HeaderContainerID: "TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_headerDiv",TableContainerID: "TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_tableDiv",GridID: "TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridView",FooterContainerID: "TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_footerDiv",PagerContainerID: "TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_pagerDiv",HiddenFieldDataID: "TabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridViewjEsCoOl_data",FormID:"form1", AllowResizeColumn : true});
+varTabContainer1_OpdOrderReportLAB_OpdOrderReportLABGridView.Initialize();
+//]]>
+</script>
+                    
+                
+		</div><div id="TabContainer1_OpdOrderReportPAT" class="ajax__tab_panel" style="display:none;">
+			
+                                <div id="TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_mainDiv">
+				<div id="TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_headerDiv">
+					<div>
+						<table border="1" class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" width="0" width="0" style="display:inline-table;">
+							<colgroup>
+								<col width="10"  /><col width="180"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  />
+							</colgroup><tr class="GridViewHeaderStyle">
+								<th scope="col" width="10">&nbsp;</th><th scope="col" width="180"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportPAT$OpdOrderReportPATGridView','Sort$ORDPROCED')">項目</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportPAT$OpdOrderReportPATGridView','Sort$ORSPCNM')">檢體</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportPAT$OpdOrderReportPATGridView','Sort$ORDSTATUSSelection')">狀態</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportPAT$OpdOrderReportPATGridView','Sort$ORDDTTM')">開立日期</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportPAT$OpdOrderReportPATGridView','Sort$ORDSIGNDTTM')">執行日期</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportPAT$OpdOrderReportPATGridView','Sort$RESDTTM')">報告日期</a></th><th scope="col" width="42%"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportPAT$OpdOrderReportPATGridView','Sort$ORDAPNO')">申請序號</a></th>
+							</tr>
+						</table>
+					</div>
+				</div><div id="TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_tableDiv">
+					<table class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" border="1" id="TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridView" width="0" style="table-layout:fixed;display:table;border-collapse:collapse;">
+						<colgroup>
+							<col width="10"  /><col width="180"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  />
+						</colgroup><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=&amp;nbsp;&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td class="content" width="42%">&nbsp;</td>
+						</tr>
+					</table>
+				</div>
+			</div><input type="hidden" id="TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_data" name="TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_data" value="" /><script type="text/javascript" language="javascript">
+//<![CDATA[
+if (typeof varTabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridView =='undefined' || varTabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridView == null)
+    var varTabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridView = new CoolGridView({GridContainerID: "TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_mainDiv",HeaderContainerID: "TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_headerDiv",TableContainerID: "TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_tableDiv",GridID: "TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridView",FooterContainerID: "TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_footerDiv",PagerContainerID: "TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_pagerDiv",HiddenFieldDataID: "TabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridViewjEsCoOl_data",FormID:"form1", AllowResizeColumn : true});
+varTabContainer1_OpdOrderReportPAT_OpdOrderReportPATGridView.Initialize();
+//]]>
+</script>
+                                
+                            
+		</div><div id="TabContainer1_OpdOrderReportEXA" class="ajax__tab_panel" style="display:none;">
+			
+                                <div id="TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_mainDiv">
+				<div id="TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_headerDiv">
+					<div>
+						<table border="1" class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" width="0" width="0" style="display:inline-table;">
+							<colgroup>
+								<col width="10"  /><col width="180"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  />
+							</colgroup><tr class="GridViewHeaderStyle">
+								<th scope="col" width="10">&nbsp;</th><th scope="col" width="180"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportEXA$OpdOrderReportEXAGridView','Sort$ORDPROCED')">項目</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportEXA$OpdOrderReportEXAGridView','Sort$ORSPCNM')">檢體</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportEXA$OpdOrderReportEXAGridView','Sort$ORDSTATUSSelection')">狀態</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportEXA$OpdOrderReportEXAGridView','Sort$ORDDTTM')">開立日期</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportEXA$OpdOrderReportEXAGridView','Sort$ORDSIGNDTTM')">執行日期</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportEXA$OpdOrderReportEXAGridView','Sort$RESDTTM')">報告日期</a></th><th scope="col" width="42%"><a href="javascript:__doPostBack('TabContainer1$OpdOrderReportEXA$OpdOrderReportEXAGridView','Sort$ORDAPNO')">申請序號</a></th>
+							</tr>
+						</table>
+					</div>
+				</div><div id="TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_tableDiv">
+					<table class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" border="1" id="TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridView" width="0" style="table-layout:fixed;display:table;border-collapse:collapse;">
+						<colgroup>
+							<col width="10"  /><col width="180"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="100"  />
+						</colgroup><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40498906&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>EKG(心電圖)</td><td>&nbsp;</td><td>38_已簽收</td><td>20260220</td><td>20260220</td><td>&nbsp;</td><td class="content" width="42%">40498906</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496749&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>Chest PA view</td><td>&nbsp;</td><td>68_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496749</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OpdOrderReport.aspx?OrdApNo=40496748&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td>&nbsp;</td><td>CT, Stomach / Intestine (With/Without Contrast)</td><td>&nbsp;</td><td>68_正式報告</td><td>20260220</td><td>20260220</td><td>20260220</td><td class="content" width="42%">40496748</td>
+						</tr>
+					</table>
+				</div>
+			</div><input type="hidden" id="TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_data" name="TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_data" value="" /><script type="text/javascript" language="javascript">
+//<![CDATA[
+if (typeof varTabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridView =='undefined' || varTabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridView == null)
+    var varTabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridView = new CoolGridView({GridContainerID: "TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_mainDiv",HeaderContainerID: "TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_headerDiv",TableContainerID: "TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_tableDiv",GridID: "TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridView",FooterContainerID: "TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_footerDiv",PagerContainerID: "TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_pagerDiv",HiddenFieldDataID: "TabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridViewjEsCoOl_data",FormID:"form1", AllowResizeColumn : true});
+varTabContainer1_OpdOrderReportEXA_OpdOrderReportEXAGridView.Initialize();
+//]]>
+</script>
+                                
+                            
+		</div><div id="TabContainer1_TabPanel1" class="ajax__tab_panel" style="display:none;">
+			
+                                <div id="TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_mainDiv">
+				<div id="TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_headerDiv">
+					<div>
+						<table border="1" class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" width="0" width="0" style="display:inline-table;">
+							<colgroup>
+								<col width="100"  /><col width="100"  /><col width="100" class="hiddencol" /><col width="100"  /><col width="100"  />
+							</colgroup><tr class="GridViewHeaderStyle">
+								<th scope="col">&nbsp;</th><th scope="col">健檢套餐</th><th class="hiddencol" scope="col"><a href="javascript:__doPostBack('TabContainer1$TabPanel1$OpdOrderReportHMCGridView','Sort$Regid')"></a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$TabPanel1$OpdOrderReportHMCGridView','Sort$DoctorName')">主治醫師</a></th><th scope="col" width="42%"><a href="javascript:__doPostBack('TabContainer1$TabPanel1$OpdOrderReportHMCGridView','Sort$ExamDate')">健檢日期</a></th>
+							</tr>
+						</table>
+					</div>
+				</div><div id="TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_tableDiv">
+					<table class="CoolGridViewTable tableCSS" cellspacing="0" rules="all" border="1" id="TabContainer1_TabPanel1_OpdOrderReportHMCGridView" width="0" style="table-layout:fixed;display:table;border-collapse:collapse;">
+						<colgroup>
+							<col width="100"  /><col width="100"  /><col width="100" class="hiddencol" /><col width="100"  /><col width="100"  />
+						</colgroup><tr class="Grid" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$TabPanel1$OpdOrderReportHMCGridView','Select$0')">選取</a></td><td>&nbsp;</td><td class="hiddencol">&nbsp;</td><td>&nbsp;</td><td class="content" width="42%">&nbsp;</td>
+						</tr>
+					</table>
+				</div>
+			</div><input type="hidden" id="TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_data" name="TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_data" value="" /><script type="text/javascript" language="javascript">
+//<![CDATA[
+if (typeof varTabContainer1_TabPanel1_OpdOrderReportHMCGridView =='undefined' || varTabContainer1_TabPanel1_OpdOrderReportHMCGridView == null)
+    var varTabContainer1_TabPanel1_OpdOrderReportHMCGridView = new CoolGridView({GridContainerID: "TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_mainDiv",HeaderContainerID: "TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_headerDiv",TableContainerID: "TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_tableDiv",GridID: "TabContainer1_TabPanel1_OpdOrderReportHMCGridView",FooterContainerID: "TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_footerDiv",PagerContainerID: "TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_pagerDiv",HiddenFieldDataID: "TabContainer1_TabPanel1_OpdOrderReportHMCGridViewjEsCoOl_data",FormID:"form1", AllowResizeColumn : true});
+varTabContainer1_TabPanel1_OpdOrderReportHMCGridView.Initialize();
+//]]>
+</script>
+                                
+                            
+		</div><div id="TabContainer1_third" class="ajax__tab_panel" style="display:none;">
+			
+                    <div id="TreeView">
+                        <a href="#TabContainer1_third_TreeView1_SkipLink"><img alt="略過巡覽連結。" src="/ReportOrder/WebResource.axd?d=r5WgGxxvqRwWrUlVUXrFw5BokcQMhDDUsoBKYQPvKE4Sy_Y__C1R5yFP42UOo7m4JrbA63gsSb4DjapSBMEzRpMQvQU1&amp;t=636284921597151108" width="0" height="0" border="0" /></a><div id="TabContainer1_third_TreeView1">
+				<table cellpadding="0" cellspacing="0">
+					<tr>
+						<td><a href="javascript:__doPostBack('TabContainer1$third$TreeView1','t0')"><img src="/ReportOrder/WebResource.axd?d=QKLnEXtU7-V-RjbXj68_5p2T9dwDxq4KfEsyKgBAyKE7qSeLt8cgPJAW65AXqV2wck10JDsnNHCX7HrJTM_ySh6OMb7_D6A4bwd9nGFzcD1aBBz70&amp;t=636284921597151108" alt="摺疊 項目" border="0" /></a></td><td><img id="TabContainer1_third_TreeView1t0i" src="/ReportOrder/WebResource.axd?d=JqK5vs0klgk1fPpUQ_2g12ZCNQmuw31vwawglTfNLlAtQJhXXiSt1WU2GS6JsP7wCMk1pVIKtbkoBSelUQNC1KiPOqlOcox6B1ObqvHn4Wib_njk0&amp;t=636284921597151108" alt="" border="0" /></td><td nowrap="nowrap"><span id="TabContainer1_third_TreeView1t0"><font face="Tahoma" color="Black" size="1">項目</font></span></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=14')" id="TabContainer1_third_TreeView1t1i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=14')" id="TabContainer1_third_TreeView1t1"><font face="Tahoma" color="Black" size="1">SMA</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=2')" id="TabContainer1_third_TreeView1t2i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=2')" id="TabContainer1_third_TreeView1t2"><font face="Tahoma" color="Black" size="1">Blood Routine</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=4')" id="TabContainer1_third_TreeView1t3i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=4')" id="TabContainer1_third_TreeView1t3"><font face="Tahoma" color="Black" size="1">Glucose</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=16')" id="TabContainer1_third_TreeView1t4i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=16')" id="TabContainer1_third_TreeView1t4"><font face="Tahoma" color="Black" size="1">Urine Analysis</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=500')" id="TabContainer1_third_TreeView1t5i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=500')" id="TabContainer1_third_TreeView1t5"><font face="Tahoma" color="Black" size="1">PT INR</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=501')" id="TabContainer1_third_TreeView1t6i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=501')" id="TabContainer1_third_TreeView1t6"><font face="Tahoma" color="Black" size="1"> 甲狀腺/副甲狀腺功能</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=502')" id="TabContainer1_third_TreeView1t7i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=502')" id="TabContainer1_third_TreeView1t7"><font face="Tahoma" color="Black" size="1">Hepatitis Marker</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=503')" id="TabContainer1_third_TreeView1t8i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=503')" id="TabContainer1_third_TreeView1t8"><font face="Tahoma" color="Black" size="1">Tumor Marker</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=504')" id="TabContainer1_third_TreeView1t9i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=504')" id="TabContainer1_third_TreeView1t9"><font face="Tahoma" color="Black" size="1">TDM</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=505')" id="TabContainer1_third_TreeView1t10i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=505')" id="TabContainer1_third_TreeView1t10"><font face="Tahoma" color="Black" size="1">Electrolyte & Renal Function</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=506')" id="TabContainer1_third_TreeView1t11i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=506')" id="TabContainer1_third_TreeView1t11"><font face="Tahoma" color="Black" size="1">Liver & Pancreas Function</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=507')" id="TabContainer1_third_TreeView1t12i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=507')" id="TabContainer1_third_TreeView1t12"><font face="Tahoma" color="Black" size="1">Infection Index</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=508')" id="TabContainer1_third_TreeView1t13i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=508')" id="TabContainer1_third_TreeView1t13"><font face="Tahoma" color="Black" size="1">Metabolic & Nutrition Index</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=509')" id="TabContainer1_third_TreeView1t14i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=509')" id="TabContainer1_third_TreeView1t14"><font face="Tahoma" color="Black" size="1">Blood Sugar</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=510')" id="TabContainer1_third_TreeView1t15i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=510')" id="TabContainer1_third_TreeView1t15"><font face="Tahoma" color="Black" size="1">Osmoliality Survey</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=511')" id="TabContainer1_third_TreeView1t16i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=511')" id="TabContainer1_third_TreeView1t16"><font face="Tahoma" color="Black" size="1">Cardiac enzyme & BNP</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=512')" id="TabContainer1_third_TreeView1t17i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=512')" id="TabContainer1_third_TreeView1t17"><font face="Tahoma" color="Black" size="1">一般免疫</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=513')" id="TabContainer1_third_TreeView1t18i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=513')" id="TabContainer1_third_TreeView1t18"><font face="Tahoma" color="Black" size="1">Blood gas</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=519')" id="TabContainer1_third_TreeView1t19i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=519')" id="TabContainer1_third_TreeView1t19"><font face="Tahoma" color="Black" size="1">Sex Steroid Hermone</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><a href="javascript:__doPostBack('TabContainer1$third$TreeView1','t0\\514')"><img src="/ReportOrder/WebResource.axd?d=QKLnEXtU7-V-RjbXj68_5p2T9dwDxq4KfEsyKgBAyKE7qSeLt8cgPJAW65AXqV2wck10JDsnNHCX7HrJTM_ySh6OMb7_D6A4bwd9nGFzcD1aBBz70&amp;t=636284921597151108" alt="摺疊 Body fluids analysis" border="0" /></a></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=514')" id="TabContainer1_third_TreeView1t20i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=A3QGbEpmKfaqLrkxJZBdtCS4yddRur7H-FNrsLGCXSZsL5vdDTetrYmrNFfY7W_ka0gwyl-9F2_3HyFXUmxiLBAv_k9eUfw8PAGRPOumem7dfXbJ0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=514')" id="TabContainer1_third_TreeView1t20"><font face="Tahoma" color="Black" size="1">Body fluids analysis</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=515')" id="TabContainer1_third_TreeView1t21i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=515')" id="TabContainer1_third_TreeView1t21"><font face="Tahoma" color="Black" size="1">Ascitic fluid analysis</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=516')" id="TabContainer1_third_TreeView1t22i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=516')" id="TabContainer1_third_TreeView1t22"><font face="Tahoma" color="Black" size="1">Pleural fluid analysis</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=517')" id="TabContainer1_third_TreeView1t23i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=517')" id="TabContainer1_third_TreeView1t23"><font face="Tahoma" color="Black" size="1">Synovial fluid analysis</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table><table cellpadding="0" cellspacing="0">
+					<tr>
+						<td></td>
+					</tr><tr>
+						<td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><table width="15">
+							<tr>
+								<td></td>
+							</tr>
+						</table></td><td><img src="/ReportOrder/WebResource.axd?d=h28HDbaCh__7AVXQQkCTMD-6vsGZqSTi9vO8NcRWYGPxjIPu_AkMVzQ92t6SZgRN6UZbocLbx-Eo-yyIxKDhMJ6Fzo2srsmLPVqlhhhSlqTbq1uJ0&amp;t=636284921597151108" alt="" /></td><td><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=518')" id="TabContainer1_third_TreeView1t24i" tabindex="-1"><img src="/ReportOrder/WebResource.axd?d=zEt_ePDQmxhRq9a0ux608E1-KUbw0SzN0zCbe7EX01kC94kSltn_MhwPKw6yZJbvmEhFR1VM6QN0l1JDD24fdHBrwWN5XdPDFX6wCKYcLTIa4Fs_0&amp;t=636284921597151108" alt="" border="0" /></a></td><td nowrap="nowrap"><a href="javascript:load_pageaa('OpoQ0R2Form.aspx?sHHISNum=003003641A&amp;iDayRange=-90&amp;sHRDATE1=20260220&amp;sHRDATE3=20251122&amp;USERID=A03772&amp;sENC=OPD&amp;stype=518')" id="TabContainer1_third_TreeView1t24"><font face="Tahoma" color="Black" size="1">CSF analysis</font></a></td>
+					</tr><tr>
+						<td></td>
+					</tr>
+				</table>
+			</div><a id="TabContainer1_third_TreeView1_SkipLink"></a>
+                    </div>
+
+                
+		</div><div id="TabContainer1_OPDReport" class="ajax__tab_panel" style="display:none;">
+			
+                    <div id="TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_mainDiv">
+				<div id="TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_headerDiv">
+					<div>
+						<table border="1" class="CoolGridViewTable" cellspacing="0" rules="all" width="0" width="0" style="display:inline-table;">
+							<colgroup>
+								<col width="20"  /><col width="250"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="150"  /><col width="100"  />
+							</colgroup><tr class="GridViewHeaderStyle">
+								<th scope="col" width="20"> </th><th scope="col" width="250"><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Sort$ORDPROCED')">項目</a></th><th scope="col" width="100"><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Sort$ORSPCNM')">檢體</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Sort$ORDSTATUSSelection')">狀態</a></th><th scope="col"><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Sort$ORDDTTM')">開立日期</a></th><th scope="col" width="150"><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Sort$ORDTYPENMS')">種類</a></th><th scope="col" width="42%"><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Sort$ORDAPNO')">申請序號</a></th>
+							</tr>
+						</table>
+					</div>
+				</div><div id="TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_tableDiv">
+					<table class="CoolGridViewTable" cellspacing="0" rules="all" border="1" id="TabContainer1_OPDReport_OPDReportGridView" width="0" style="table-layout:fixed;display:table;border-collapse:collapse;">
+						<colgroup>
+							<col width="20"  /><col width="250"  /><col width="100"  /><col width="100"  /><col width="100"  /><col width="150"  /><col width="100"  />
+						</colgroup><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40498906,40498679,40498681,40496749,40496750,40496748,40496741,40496746,40496745,40496744,40496743,40496742,40496747&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$0')">           </a></td><td>20260220所有報告</td><td>&nbsp;</td><td>&nbsp;</td><td>20260220</td><td>&nbsp;</td><td class="content" width="42%">40498906,40498679,40498681,40496749,40496750,40496748,40496741,40496746,40496745,40496744,40496743,40496742,40496747</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40498906&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$1')">           </a></td><td>EKG(心電圖)</td><td>&nbsp;</td><td>38_已簽收</td><td>20260220</td><td>ER_急診部</td><td class="content" width="42%">40498906</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40498679&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$2')">           </a></td><td>APTT (activated partial thromboplastin time)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40498679</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40498681&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$3')">           </a></td><td>Prothrombin time</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40498681</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496749&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$4')">           </a></td><td>Chest PA view</td><td>&nbsp;</td><td>68_正式報告</td><td>20260220</td><td>RAD_影像醫學科</td><td class="content" width="42%">40496749</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496750&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$5')">           </a></td><td>BUN</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40496750</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496748&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$6')">           </a></td><td>CT, Stomach / Intestine (With/Without Contrast)</td><td>&nbsp;</td><td>68_正式報告</td><td>20260220</td><td>RAD_影像醫學科</td><td class="content" width="42%">40496748</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496741&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$7')">           </a></td><td>CBC + DC</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40496741</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496746&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$8')">           </a></td><td>Creatinine</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40496746</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496745&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$9')">           </a></td><td>GPT/ALT</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40496745</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496744&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$10')">           </a></td><td>K (Potassium)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40496744</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496743&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$11')">           </a></td><td>Na (Sodium)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40496743</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496742&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$12')">           </a></td><td>Glucose (random)</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40496742</td>
+						</tr><tr class="Grid" onclick="changeLabel();load_page('http://10.10.246.73/QueryReport/OPDReport.aspx?OrdApNo=40496747&amp;USERID=A03772&amp;sENC=&amp;sENCryptID=');" bgcolor="White">
+							<td><a href="javascript:__doPostBack('TabContainer1$OPDReport$OPDReportGridView','Select$13')">           </a></td><td>C.R.P (C-reactive protein)－Nephelometry</td><td>Blood</td><td>64_正式報告</td><td>20260220</td><td>LAB_檢驗檢查</td><td class="content" width="42%">40496747</td>
+						</tr>
+					</table>
+				</div>
+			</div><input type="hidden" id="TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_data" name="TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_data" value="" /><script type="text/javascript" language="javascript">
+//<![CDATA[
+if (typeof varTabContainer1_OPDReport_OPDReportGridView =='undefined' || varTabContainer1_OPDReport_OPDReportGridView == null)
+    var varTabContainer1_OPDReport_OPDReportGridView = new CoolGridView({GridContainerID: "TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_mainDiv",HeaderContainerID: "TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_headerDiv",TableContainerID: "TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_tableDiv",GridID: "TabContainer1_OPDReport_OPDReportGridView",FooterContainerID: "TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_footerDiv",PagerContainerID: "TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_pagerDiv",HiddenFieldDataID: "TabContainer1_OPDReport_OPDReportGridViewjEsCoOl_data",FormID:"form1", AllowResizeColumn : true});
+varTabContainer1_OPDReport_OPDReportGridView.Initialize();
+//]]>
+</script>
+
+                
+		</div>
+	</div>
+</font></div>
+
+        </div></DIV>
+					
+        <div class="reportContent">
+            <div id="iframeContainer">
+                <!--顯示右側報告-->
+                <iframe id="ReportIFrame" name="iframe" width="100%" height="600px" frameborder="0"></iframe>
+                </iframe>                     
+            </div>
+        </div>
+
+    
+<div id="lLKAopspo28lOANcaju9182ia92u" style="display:none;border:solid 1px gray; background-color:#E5E5E5; width:100px; height:100px; top:0px; left:0px; position:absolute;" ></div>
+<script type="text/javascript">
+//<![CDATA[
+Sys.Application.initialize();
+Sys.Application.add_init(function() {
+    $create(AjaxControlToolkit.TabPanel, {"headerTab":$get("__tab_TabContainer1_OpdOrderReport"),"ownerID":"TabContainer1"}, null, {"owner":"TabContainer1"}, $get("TabContainer1_OpdOrderReport"));
+});
+Sys.Application.add_init(function() {
+    $create(AjaxControlToolkit.TabPanel, {"headerTab":$get("__tab_TabContainer1_OpdOrderReportLAB"),"ownerID":"TabContainer1"}, null, {"owner":"TabContainer1"}, $get("TabContainer1_OpdOrderReportLAB"));
+});
+Sys.Application.add_init(function() {
+    $create(AjaxControlToolkit.TabPanel, {"headerTab":$get("__tab_TabContainer1_OpdOrderReportPAT"),"ownerID":"TabContainer1"}, null, {"owner":"TabContainer1"}, $get("TabContainer1_OpdOrderReportPAT"));
+});
+Sys.Application.add_init(function() {
+    $create(AjaxControlToolkit.TabPanel, {"headerTab":$get("__tab_TabContainer1_OpdOrderReportEXA"),"ownerID":"TabContainer1"}, null, {"owner":"TabContainer1"}, $get("TabContainer1_OpdOrderReportEXA"));
+});
+Sys.Application.add_init(function() {
+    $create(AjaxControlToolkit.TabPanel, {"headerTab":$get("__tab_TabContainer1_TabPanel1"),"ownerID":"TabContainer1"}, null, {"owner":"TabContainer1"}, $get("TabContainer1_TabPanel1"));
+});
+Sys.Application.add_init(function() {
+    $create(AjaxControlToolkit.TabPanel, {"headerTab":$get("__tab_TabContainer1_third"),"ownerID":"TabContainer1","scrollBars":2}, null, {"owner":"TabContainer1"}, $get("TabContainer1_third"));
+});
+Sys.Application.add_init(function() {
+    $create(AjaxControlToolkit.TabPanel, {"headerTab":$get("__tab_TabContainer1_OPDReport"),"ownerID":"TabContainer1"}, null, {"owner":"TabContainer1"}, $get("TabContainer1_OPDReport"));
+});
+Sys.Application.add_init(function() {
+    $create(AjaxControlToolkit.TabContainer, {"activeTabIndex":0,"clientStateField":$get("TabContainer1_ClientState"),"scrollBars":3}, null, null, $get("TabContainer1"));
+});
+//]]>
+</script>
+</form>
+</body>
+</html>

@@ -1,0 +1,177 @@
+# 麻醉評估表單欄位與 PDF 對應表 (Anesthesia Evaluation Form Mapping)
+
+此文件詳細列出「麻醉前評估與計畫表單」中所有的輸入項（Checkbox 與 Text Input），及其在產生 PDF 時對應的座標位置。
+
+---
+
+## 1. 基本資料與生命徵象 (Basic Info & Vitals)
+
+| 顯示文字 | 類型 | HTML ID / 來源 | PDF 座標 (X, Y) |
+| :--- | :--- | :--- | :--- |
+| 病歷號 (Chart No) | Text | `d-hhis-num` | 121.24, 741.65 |
+| 姓名 (Name) | Text | `d-patient-name` | 235.52, 741.65 |
+| 生日 (Birth Date) | Text | `basic.BIRTHDT` | 337.72, 741.65 |
+| 床號 (Bed No) | Text | `basic.HBED` | 433.0, 741.33 |
+| 身分證字號 (ID No) | Text | `d-id-no` | 496.92, 741.14 |
+| 年齡 / 性別 / 血型 | Text | `AGE` / `HSEXE` / `BLOODTYPE` | 114.5, 724.63 等 |
+| 身高 / 體重 | Text | `vitals.HEIGHT` / `WEIGHT` | 396.97 / 495.29 |
+| 體溫 / 心跳 / 呼吸 / 血壓 / SPO2 | Text | `vitals` 各項 | 709.0 橫線處 |
+
+---
+
+## 2. 評估紀錄 (Pre-anesthetic Assessment)
+*此部分勾選後，主項會對應 PDF 左側 Yes/No 框，細項則串接顯示於筆記區。*
+
+### A. 心血管系統 (Cardiovascular System)
+- **(1) Hypertension (高血壓)**: `chk_cv_htn`, `chk_cv_htn_reg`, `chk_cv_htn_poor`
+- **(2) CAD (冠狀動脈疾病)**: `chk_cv_cad`, `chk_cv_cad_poba`, `chk_cv_cad_cabg`, `chk_cv_cad_oth`, `txt_cv_cad_oth`
+- **(3) Valvular disease**: `chk_cv_valve`, `txt_cv_valve_note`
+- **(4) Arrhythmia (心律不整)**: `chk_cv_arr`, `chk_cv_arr_pm`, `chk_cv_arr_af` (Paroxysmal/Persistent), `chk_cv_arr_avb` (1/M1/M2/Complete), `chk_cv_arr_stt`, `chk_cv_arr_abl`, `chk_cv_arr_oth`, `txt_cv_arr_oth_note`
+- **(5) Heart failure (心衰竭)**: `chk_cv_hf`, `sel_cv_hf_nyha`, `chk_cv_hf_pef`, `chk_cv_hf_ref`
+- (6) Dyslipidemia: `chk_cv_lipid`, `chk_cv_lipid_med`
+- (7) PAOD: `chk_cv_paod`
+- (8) Vascular disease: `chk_cv_vasc`, `chk_cv_vasc_aneur`, `chk_cv_vasc_diss`, `chk_cv_vasc_oth`, `txt_cv_vasc_oth`
+- (9) Congenital Heart Disease: `chk_cv_congen`
+- (10) Pulmonary Hypertension: `chk_cv_ph`
+- (11) Others: `chk_cv_oth`, `txt_cv_oth`
+
+### B. 神經精神系統 (Neurologic & Psychiatric)
+- (1) CVA: `chk_neu_cva` (Ischemic/Hemorrhagic/Hemiparesis R&L), `chk_neu_cva_oth`, `txt_neu_cva_oth`
+- (2) TBI: `chk_neu_tbi`
+- (3) Parkinson: `chk_neu_park`
+- (4) Seizure: `chk_neu_seiz`, `chk_neu_seiz_reg`
+- (5) Aneurysm/AVM: `chk_neu_avm`, `chk_neu_avm_med`, `chk_neu_avm_surg`
+- (6) Dementia: `chk_neu_dem`
+- (7) Psychiatric Problem: `chk_neu_psych` (Schiz/Bipolar/Depression/Personality), `chk_neu_psych_oth`, `txt_neu_psych_oth`
+- (8) GCS: `chk_neu_gcs`, `sel_neu_gcs_e`, `sel_neu_gcs_v`, `sel_neu_gcs_m`
+- (9) Cerebral Palsy: `chk_neu_cp`
+- (10) Others: `chk_neu_oth`, `txt_neu_oth`
+
+### C. 內分泌系統 (Endocrine System)
+- (1) DM: `chk_end_dm`, `chk_end_dm_oad`, `chk_end_dm_ins`, `chk_end_dm_oth`, `txt_end_dm_oth`
+- (2) Thyroid: `chk_end_thy`, `chk_end_thy_hyper`, `chk_end_thy_hypo`, `chk_end_thy_oth`, `txt_end_thy_oth`
+- (3) Others: `chk_end_oth`, `txt_end_oth`
+
+### D. 呼吸系統 (Respiratory System)
+- (1) Asthma: `chk_res_asth`, `chk_res_asth_inh`, `chk_res_asth_inh_st`, `chk_res_asth_oral_st`, `chk_res_asth_ex`, `chk_res_asth_cls` (Int/Mild/Mod/Sev)
+- (2) COPD: `chk_res_copd`
+- (3) Smoking: `chk_res_smok`, `chk_res_smok_quit`, `txt_res_smok_quit_dur`, `chk_res_smok_per`, `txt_res_smok_per_ppd`
+- (4) Infection: `chk_res_inf`, `txt_res_inf_note`
+- (5) Others: `chk_res_oth`, `txt_res_oth`
+
+### E. 呼吸道評估 (Airway)
+- (1) Mallampati score: `rad_aw_mal_1` ~ `4` (PDF: 227.85-323.66, 278.44)
+- (2) Neck ROM: `chk_aw_neck_lim`, `chk_aw_neck_free`, `chk_aw_neck_na`, `chk_aw_neck_as`, `chk_aw_neck_surg`, `chk_aw_neck_trauma`, `chk_aw_neck_sym`
+- (3) Mouth opening: `chk_aw_mouth_2fb`, `chk_aw_mouth_1fb`, `chk_aw_mouth_minfb`, `chk_aw_mouth_na`
+- (4) Intubated: `chk_aw_intub_yes`
+- (5) Tracheostomy: `chk_aw_trach_yes`
+- (6) Head/Neck Cancer: `chk_aw_hnc_surg`, `chk_aw_hnc_rt`, `chk_aw_hnc_oth`
+- (7) OSA: `chk_aw_osa_yes`
+- (8) Dentition: `chk_aw_dent_norm`, `chk_aw_dent_loose`, `chk_aw_dent_remov`, `chk_aw_dent_loose_remov`, `chk_aw_dent_oth`
+- (9) Expected difficult airway: `chk_aw_diff_yes`
+- (10) Others: `txt_aw_oth_note`
+
+### F. 腎臟系統 (Renal System)
+- (1) ESRD: `chk_ren_esrd`, `chk_ren_esrd_hd`, `chk_ren_esrd_pd`, `chk_ren_esrd_oth`, `txt_ren_esrd_oth_note`
+- (2) AKI: `chk_ren_aki`
+- (3) CKD: `chk_ren_ckd`
+- (4) Obstructive lesion: `chk_ren_obs`
+- (5) Electrolyte Imbalance: `chk_ren_elec`
+- (6) Others: `chk_ren_oth`, `txt_ren_oth`
+
+### G. 血液系統 (Hematologic System)
+- (1) Anemia: `chk_hem_anemia`
+- (2) Leukocytosis: `chk_hem_leuko`
+- (3) Leukocyte D/C: `chk_hem_leuko_dc`
+- (4) 凝血功能: `chk_hem_coag`, `chk_hem_coag_plt`, `chk_hem_coag_pt`, `chk_hem_coag_drug`, `txt_hem_coag_eval`, `txt_hem_coag_his`
+- (5) Others: `chk_hem_oth`, `txt_hem_oth`
+
+### H. 消化系統 (Digestive System)
+- (1) Carrier of: `chk_dig_carrier`, `chk_dig_carrier_hbv`, `chk_dig_carrier_hcv`
+- (2) Cirrhosis: `chk_dig_cirrh`
+- (3) Jaundice: `chk_dig_jaund`
+- (4) HCC: `chk_dig_hcc`
+- (5) Ileus: `chk_dig_ileus`
+- (6) Peptic Ulcer: `chk_dig_pud`
+- (7) GERD: `chk_dig_gerd`
+- (8) GI Bleeding: `chk_dig_gib`
+- (9) Others: `chk_dig_oth`, `txt_dig_oth`
+
+### I. 其他 (Allergy / History / ASA)
+- **過敏史**: `chk_alg_yes`, `txt_alg_note`, `chk_alg_adv_yes`, `txt_alg_adv_note`
+- **手麻史**: `chk_his_surg_yes`, `txt_his_surg_note`, `chk_his_anes_yes`, `txt_his_anes_note`, `chk_his_anes_ponv`, `chk_his_anes_aw`, `chk_his_anes_ra`, `chk_his_anes_oth`, `txt_his_anes_oth_note`
+- **ASA & Misc**: `chk_asa_1`~`6`, `chk_asa_e` (PDF: 158.64-361.21, 314.26), `chk_asa_obese`, `chk_asa_preg`, `chk_asa_hiv`, `chk_asa_cs` (Prev/Labor/Multi/Plac/Fetal/Oth), `chk_asa_glau`, `chk_asa_hyp`, `chk_asa_gene`, `chk_asa_mh`
+- **Others**: `chk_misc_oth`, `txt_misc_oth_note`
+
+---
+
+## 3. 麻醉計畫 (Anesthesia Plan)
+
+### A. 全身麻醉 (General Anesthesia)
+- (1) GA with ETT: `chk_ga_ett` (PDF: 190.96, 206.39)
+- (2) GA with LMA: `chk_ga_lma` (PDF: 243.1, 206.39)
+- (3) Face Mask/IVGA: `chk_face_mask_ivga` (PDF: 293.84, 206.39)
+- (4) TCI: `chk_ga_tci`, `chk_ga_tci_prop`, `chk_ga_tci_remi` (50/25/12.5/Oth), `txt_ga_tci_remi_oth_note`, `chk_ga_tci_prec`
+- (5) Medication: `chk_ga_spec_ond`~`oth`
+
+### B. 區域麻醉 (Regional Anesthesia)
+- (1) SA: `chk_ra_sa` (PDF: 398.19, 206.39), `chk_ra_sa_27g/26g/23g`
+- (2) EA: `chk_ra_ea` (PDF: 437.94, 206.39), `chk_ra_ea_lum/tho/cau/cer`
+- (3) Medication: `chk_ra_med_bupi`~`oth`
+- (4) PNB: `chk_pnb`, `chk_pnb_scalp`~`oth`
+- (5) PNB Medication: `chk_pnb_med_ropi`~`oth`, `txt_pnb_med_oth_note`
+- (6) Nerve Stimulator: `chk_pnb_ns`
+- (7) Sedation / GA: `chk_pnb_sed`
+
+### C. 監測與處置 (Monitors & Procedures)
+- (1) ABP: `chk_mon_abp` (PDF: 165.96, 188.3), `chk_mon_abp_awake`, `chk_mon_abp_kit` (1/2/3-Dome), `chk_mon_abp_with` (Flo/Pro/EV), `chk_mon_abp_oth`
+- (2) CVC: `chk_mon_cvc` (PDF: 229.27, 188.3), `chk_mon_cvc_c14`~`oth`
+- (3) PAC: `chk_mon_pac`
+- (4) PICCO: `chk_mon_picco`
+- (5) Large-bore IV: `chk_mon_lbiv`
+- (6) TEE: `chk_mon_tee`
+- (7) LIDCO: `chk_mon_lidco`
+- (8) Five leads ECG: `chk_mon_ecg5`
+- (9) Airway Mgmt: `chk_ap_ett` (Oral/Nasal), `chk_ap_lma_yes`, `chk_ap_dlt_yes`, `chk_ap_blocker_yes`, `chk_ap_rsi_yes`, `chk_ap_spec_yes` (Glide/MAC/AWS/Storz/Broncho/Trach/Bougie/Tex/Optiflow/AirKeeper)
+- (10) Neurologic: `chk_mon_tof`, `chk_omt`, `chk_bis`, `chk_mon_depth_ent/sed`, `chk_mon_ox_fore/o3/invos`
+- (11) ICU & Misc: `chk_misc_icu`, `chk_pca`, `chk_misc_anes_gen`, `chk_misc_eye`, `chk_warm_blanket`, `chk_mepilex`
+- (12) NPO: `chk_npo_std`, `chk_npo_oth`, `txt_npo_oth_note`
+- (13) POR: `chk_por_std`
+
+---
+
+## 4. 修改範例 (How to Modify)
+
+如果您想要增加新的欄位，請依照以下步驟修改並告知我：
+
+### 範例 A：增加一個簡單的 Checkbox (例如：在其他處置增加「自費項目」)
+
+1.  **在 Markdown 中列出需求：**
+    ```markdown
+    #### [ADD] Checkbox
+    - 位置：ICU & Miscellaneous 區塊
+    - 顯示文字：自費止吐藥
+    - HTML ID：pk_self_anti_emetic
+    - PDF 座標：(X=350, Y=100)
+    ```
+
+2.  **我將會執行的修改：**
+    - 在 [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) 的 HTML 中 `chk_mepilex` 後方增加。
+    - 在 [drawEvalPdfContent](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4283-4891) 函數中增加代碼：
+      `if (isChecked("pk_self_anti_emetic")) check(350, 100);`
+
+### 範例 B：增加一個主項並自動映射到系統筆記區
+
+1.  **在 Markdown 中列出需求：**
+    ```markdown
+    #### [ADD] Section Item
+    - 位置：Cardiovascular System 區塊
+    - 顯示文字：(12) Heart Tumor (心臟腫瘤)
+    - HTML ID：chk_cv_tumor
+    - PDF Yes 座標：(227.14, 440) / No 座標：(195.19, 440)
+    ```
+
+2.  **我將會執行的修改：**
+    - 增加 HTML 結構。
+    - 在 `LEFT_SIDE_CHECKBOXES` 定義座標。
+    - 系統會自動根據 [extractSectionDetails](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3863-3946) 邏輯將其納入 Summary 區與 Yes/No 判斷。

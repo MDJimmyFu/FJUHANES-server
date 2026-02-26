@@ -1,0 +1,13 @@
+# Task: Debugging Missing Data Flow
+
+- [x] Analyze discrepancy between current [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#9-753) and backup
+- [/] Restore missing data retrieval methods
+    - [/] Restore [get_vitals_from_exm](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#243-313) with full mapping
+    - [/] Restore [get_lab_data](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#706-753) with comprehensive mapping
+    - [ ] Restore clinical notes ([get_opd_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#450-466), [get_emg_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#660-701))
+    - [ ] Update [get_visit_details](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#420-449) to include clinical notes
+- [x] Integrate authentication with data access
+- [x] Update [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#9-753) to use dynamic user IDs from session
+- [x] Update Inpatient links to use authenticated user details (UID and Login Password)
+- [ ] Verify fix with compilation and manual check
+- [ ] Update documentation (walkthrough)

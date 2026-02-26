@@ -1,0 +1,48 @@
+# Data Access Workflow Design
+
+## Goal Description
+Design a technical process to retrieve data programmatically or directly from the source, bypassing the standard HIS (Hospital Information System) user interface. This is typically done for analytics, interoperability, or custom application integration.
+
+## User Review Required
+> [!IMPORTANT]
+> **Security & Compliance**: Accessing medical data outside the standard HIS UI requires strict adherence to data privacy regulations (e.g., GDPR, HIPAA, local laws). Ensure you have authorized administrative or developer access to the underlying systems.
+
+- **Data Source**: What specific database (SQL Server, Oracle, MySQL) or interface (HL7, FHIR) is available?
+- **Authentication**: How will the external process authenticate?
+- **Read/Write**: Is this purely for reading data, or is write-back required?
+
+## Proposed Workflows
+
+### Hybrid Extraction Strategy (Desktop + Web)
+Since your workflow spans both a Desktop App (.exe) and Web Pages, we will use a **Modular Python Automation** approach.
+
+#### 1. The "Orchestrator" (Main Controller)
+A central Python script that manages the workflow:
+-   Step 1: Get Patient ID from user input.
+-   Step 2: Trigger **Desktop Bot** to fetch data from the .exe.
+-   Step 3: Trigger **Web Bot** to fetch data from the browser.
+-   Step 4: Combine data -> Run Assessment Logic -> Show Dashboard.
+
+#### 2. Component A: Desktop Bot (PyAutoGUI / PyWinAuto)
+-   **Function**: Simulates keyboard/mouse to copy data from the .exe.
+-   **Mechanism**:
+    -   Focuses the HIS window.
+    -   Sends keystrokes (e.g., `Ctrl+C`, `Tab`) to navigate and copy text.
+    -   *Challenge*: Requires precise timing and window focus.
+    -   *Solution*: We will build a "Coordinate Recorder" helper so you can easily set up where the bot should click.
+
+#### 3. Component B: Web Bot (Selenium / Playwright)
+-   **Function**: Automates the browser parts.
+-   **Mechanism**:
+    -   Logs into the web portal.
+    -   Navigates to the specific patient URL.
+    -   Scrapes the HTML content directly (fast and accurate).
+
+## Patient Assessment Tool Design
+-   **Tech Stack**: Python + Streamlit (for the UI).
+-   **Why Streamlit?**: It creates a beautiful, interactive web app from simple Python scripts. Perfect for displaying data tables, risk scores, and generating text summaries.
+
+## Next Steps
+1.  **Environment Setup**: I will guide you to install Python and necessary libraries.
+2.  **Create "Coordinate Recorder"**: A small tool for you to map out the buttons/fields in your Desktop HIS.
+3.  **Develop the Prototype**: We will build the "Orchestrator" together.

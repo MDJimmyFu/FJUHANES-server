@@ -1,0 +1,19 @@
+# Adding PCEA Prescription Functionality
+
+## Overview
+Added the ability to prescribe PCEA directly from the AutoPrescribe frontend, integrating seamlessly alongside the existing PCA and Painless Labor features.
+
+## Changes Made
+- **Network Analysis:** Analyzed the `pcea.pcapng` network capture to identify PCEA-specific parameters for `IpoC11GSave`.
+- **Backend ([his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py))**: 
+  - Updated [prescribe_package](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py#81-246) to support the `PCEA` package mode.
+  - Set Fentanyl dose to `0.5` mg and Route to `PCE`.
+  - Set Frequency to `ASORDER`.
+  - Set drug control code mapping to `ANES_TEST2`.
+  - Excluded Ropivacaine per user instruction.
+- **Frontend ([templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/templates/index.html))**: 
+  - Added a new `🟣 Prescribe PCEA` button.
+
+## Validation Strategy
+- Python syntax successfully validated.
+- **Manual User Review**: Please launch the application (`python app.py`) and perform a test PCEA prescription to ensure the HIS API successfully processes the payload and generates the `Controlled_Drug_Sheet_P022.pdf`.

@@ -1,0 +1,41 @@
+# Add PCEA Prescription Functionality
+
+This plan details the changes required to parse PCEA network requests and implement the opening of PCEA prescriptions in the API and UI.
+
+## User Review Required
+
+> [!IMPORTANT]
+> Based on the `pcea.pcapng` file, I have identified the following parameters for PCEA:
+> - Route: `PCE`
+> - Drug Code (`setDrgCode` & `OSTCode`): `ANES_TEST2`
+>
+> **Questions for User:**
+> 1. Should the PCEA package include **Ropivacaine (ROP01)**, or only **Fentanyl (FEN02)** like PCA? (My analysis of the pcap did not find `ROP01`, so I plan to exclude it, similar to PCA).
+> 2. What should the **Dose** be for Fentanyl in PCEA? (For PCA it's 1.0, for Painless it's 0.5. I plan to use 1.0 unless you specify otherwise).
+
+## Proposed Changes
+
+### Backend ([his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py))
+#### [MODIFY] his_client.py(file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py)
+Update the [prescribe_package](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py#81-222) function to handle `package_type == "PCEA"`:
+- Remove Ropivacaine (`ROP01`) if not needed (based on user feedback).
+- Set `Route` to `"PCE"`.
+- Set `OSTCode` to `"ANES_TEST2"`.
+- Set `sKey` to use `"ANES_TEST2"`.
+- Set `UDOGivRoute` to `"PCE"`.
+- Set `setDrgCode` to `"ANES_TEST2"`.
+- Set `Dose` to 1.0 (or what user specifies).
+
+### Frontend UI ([templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/templates/index.html))
+#### [MODIFY] index.html(file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/templates/index.html)
+- Add a new button in the UI: `<button onclick="prescribe('PCEA')">開立 PCEA</button>`.
+- Make sure it displays nicely next to the PCA and PAINLESS buttons.
+
+## Verification Plan
+
+### Manual Verification
+1. Open the UI `http://localhost:3000`.
+2. Select a patient.
+3. Click the new "開立 PCEA" button.
+4. Verify that the system successfully returns `Flow complete` and offers the `Controlled_Drug_Sheet_P022.pdf` for download.
+5. Check backend logs to ensure HTTP 200 is returned from `IpoC11GSave` without errors.

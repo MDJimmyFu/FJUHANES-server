@@ -1,0 +1,25 @@
+# Task: Add Settings Menu to Surgery Schedule
+
+- [x] Planning & Design
+    - [x] Research existing CSS and refresh logic in [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+    - [x] Design the UI for the floating settings button and menu
+- [x] Implementation
+    - [x] Create [implementation_plan.md](file:///C:/Users/A03772/.gemini/antigravity/brain/9070e1fe-6c8c-4975-9669-70fa5e482a27/implementation_plan.md)
+    - [x] Add CSS for settings menu and theme support (Dark/Light)
+    - [x] Add HTML structure for the floating settings menu
+    - [x] Implement JavaScript logic for 5-minute auto-update
+    - [x] Implement JavaScript logic for theme switching (Day/Night/System)
+- [x] Verification
+    - [x] Verify auto-update functionality
+    - [x] Verify theme switching response
+    - [x] Create [walkthrough.md](file:///C:/Users/A03772/.gemini/antigravity/brain/9070e1fe-6c8c-4975-9669-70fa5e482a27/walkthrough.md)
+- [x] Dark Mode Refinement
+    - [x] Audit all sub-pages (Assessment, Details) for dark mode
+    - [x] Enhance surgery card borders in dark mode
+    - [x] Update walkthrough
+- [x] Dynamic Data Dark Mode
+    - [x] Audit physiological data, lab reports, imaging reports for dark mode
+    - [x] Replace hardcoded colors in JS rendering logic with CSS variables
+    - [x] Update walkthrough
+- [x] Final Build
+    - [x] Rebuild executable using [build_combined.py](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/build_combined.py)

@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary":  "Walkthrough of the PDF mapping logic refinements. Demonstrates the fix for cardiac IDs, the new parent-only checkbox triggers, and the history-based automation for the 'Major Surgery' field.",
+  "updatedAt":  "2026-02-26T03:29:23.833163200Z"
+}

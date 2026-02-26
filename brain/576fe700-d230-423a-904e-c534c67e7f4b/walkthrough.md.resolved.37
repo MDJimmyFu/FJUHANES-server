@@ -1,0 +1,44 @@
+# Walkthrough: Authentication System Implementation
+
+I have successfully implemented a secure authentication system for the Hospital Surgery Schedule application. This ensures that only authorized medical staff can access patient data and use the integrated HIS deep links.
+
+## Changes Made
+
+### 1. Backend Authentication Logic
+- **[NEW] [auth_handler.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/auth_handler.py)**: A new module that interfaces with the hospital's `/HISLogin/CheckUserByID` API to verify credentials and retrieve user metadata.
+- **[MODIFY] [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)**:
+    - Integrated `flask.session` for secure user state management.
+    - Added `/login` and `/logout` routes.
+    - Implemented a `@login_required` decorator to protect all sensitive pages and API endpoints.
+
+### 2. Frontend Security & UI
+- **[NEW] [login.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/login.html)**: A premium, modern login page with professional hospital branding and feedback for invalid credentials.
+- [x] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html):
+    - Added a personalized header displaying the logged-in user's name.
+    - Added a functional logout button.
+    - **UPDATED**: Inpatient links now dynamically use the actual **login password** provided by the user for seamless single-sign-on (SSO) to the hospital system.
+    - **NEW**: Added a "Query Report" button to the Laboratory Data section.
+    - **NEW**: Integrated direct fetching of **Status 68 (Official Reports)**. These reports now appear automatically in the patient detail view with direct links, saving time by eliminating the need to manually search in the external system.
+
+### 3. Dynamic Data Isolation & Restoration
+- **[MODIFY] [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)**: 
+    - Refactored the [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#9-520) class to remove hardcoded user IDs.
+    - **RESTORED**: Re-implemented the complex parsing logic for laboratory results (HB, PLT, etc.), vital signs (BP, SpO2, Pulse), and clinical notes (SOAP) from the backup to ensure feature parity with the previous version.
+
+## Verification Results
+
+### Data Retrieval & Security
+1.  **Unauthorized Access**: Navigating to `/` or any `/api/` route without logging in now redirects to the new `/login` page.
+2.  **Login Verification**: Tested with hospital credentials. Successful login grants access to the surgery schedule.
+3.  **Data Consistency**: Verified that the detail view now correctly displays:
+    - **Laboratory Data**: HB, WBC, PLT, PT, PTT, etc.
+    - **Vitals**: Accurate BP, Pulse, SpO2, and Weight/Height from EXM.
+    - **Clinical History**: SOAP notes and admission history are visible for both OPD and EMG visits.
+4.  **Logout**: Clicking "登出" clears the session and returns the user to the login screen.
+
+### Personalization & Linking
+- The main table header now correctly identifies the logged-in doctor/staff.
+- **Inpatient Links**: Verified that clicking "Inpatient Record" correctly generates an authenticated URL using the active session's `UserID` and `UserPassword` (CreateID), ensuring a seamless transition to the external HIS system.
+
+> [!IMPORTANT]
+> A full backup of the previous version was created in `backup_20260220_1140` before any changes were applied.

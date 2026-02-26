@@ -1,0 +1,47 @@
+# Walkthrough - Retrieving HIS Surgery List
+
+I have successfully analyzed the network traffic and implemented a script to retrieve the surgery list from the HIS server.
+
+## Findings
+
+1.  **Protocol**: The HIS server (`10.10.246.90:8800`) uses **.NET Remoting** over HTTP.
+    -   Content-Type: `application/octet-stream`
+    -   Compression: `X-Compress: yes` (Zlib)
+    -   Endpoint: `/HISOrmC250Facade`
+2.  **Payload**: The request utilizes a binary payload containing a serialized .NET object.
+    -   The date is embedded in the binary payload as an ASCII string (e.g., `20260211`).
+    -   The request is Zlib-compressed.
+3.  **Authentication**: The request captured in the pcap file was accepted by the server, implying it contains a valid session token or the server trusts the internal IP.
+
+## Solution
+
+I created a script `his_client_final.py` that:
+1.  Loads the captured binary payload template.
+2.  Patches the date inside the payload to the target date (e.g., today).
+3.  Compresses and sends the payload to the server.
+4.  Decompresses and parses the XML response (`<ORDOP_OPSTA>`) to extract surgery details.
+
+## Results
+
+Successfully retrieved **64 surgery entries** for today (`2026-02-12`).
+
+### Example Output
+
+```text
+Room  | Bed        | Doctor     | Patient    | Procedure
+--------------------------------------------------------------------------------
+01    | 11A-032    | a        | û        | Stomach Laparoscopic gastrostomy
+02    | RCC-05     | oZ        | ٪Q        | Tracheostomy.
+02    |           | ۴        | Y        | Laparoscopic right colectomy and anastomosis
+...
+```
+
+*(Note: Chinese characters are displayed as  or mojibake in the terminal due to encoding, but the data is present.)*
+
+## How to Run
+
+1.  Ensure `c250_payload_1.bin` is in the same directory.
+2.  Run the client:
+    ```bash
+    python his_client_final.py
+    ```

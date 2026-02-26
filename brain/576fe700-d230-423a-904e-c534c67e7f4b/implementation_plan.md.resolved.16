@@ -1,0 +1,23 @@
+# Goal: Categorize Lab Reports by Status
+
+The objective is to separate lab reports into two categories: "Status 68 (Official)" and "Status 64 (Working)", and display them in a tabbed interface where status 64 is hidden by default.
+
+## Proposed Changes
+
+### [HIS Client](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+
+#### [MODIFY] [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+- Update [get_vitals_from_exm](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#245-315) to prioritize `BP.ABP` (Arterial Blood Pressure) over `BP.NBP` (Non-invasive Blood Pressure).
+- Ensure that the most recent blood pressure data is captured, especially for ICU patients.
+
+## Verification Plan
+
+### Automated Tests
+- Run `python -m py_compile app.py his_client_final.py` to ensure no syntax errors.
+- Run `python debug_vitals.py` and verify the output includes the prioritized BP data.
+
+### Manual Verification
+- Log in and view a patient with both status 64 and 68 reports.
+- Verify that only status 68 reports are visible by default.
+- Click the "Working Reports" tab or toggle to reveal status 64 reports.
+- Verify that clicking reports in either tab opens the correct URL.

@@ -1,0 +1,39 @@
+# Add Intubation Prescription Functionality
+
+This plan details the changes required to implement the opening of Intubation procedures (regular and infection) in the HIS system.
+
+## Proposed Changes
+
+### Backend (`his_client.py`)
+#### [MODIFY] his_client.py(file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py)
+- Implement a new method `prescribe_intubation(patient_data, infection=False)`:
+  - Select `TRTCode` and `PFCode` based on `infection`:
+    - Regular: `TR001210`
+    - Infection: `TR001209`
+  - Prepare the `ipoc151ViewJson` structure containing the procedure details.
+  - Prepare the `ipoc151View` companion object.
+  - Send a POST request to `/IpoC151/Save`.
+  - No PDF download logic is needed for this feature.
+
+### Backend (`app.py`)
+#### [MODIFY] app.py(file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/app.py)
+- Update the `/api/prescribe` route to handle `INTUBATION` and `INTUBATION_INF` package types.
+- Call the new `client.prescribe_intubation` method accordingly.
+
+### Frontend UI (`templates/index.html`)
+#### [MODIFY] index.html(file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/templates/index.html)
+- Add two new buttons:
+  - `📝 Prescribe Intubation`
+  - `🦠 Prescribe Intubation (Infection)`
+- Update the `prescribe` JS function to handle these new types.
+
+## Verification Plan
+
+### Manual Verification
+1. Open the UI.
+2. Select a patient.
+3. Click "Prescribe Intubation".
+4. Verify success message from backend.
+5. Click "Prescribe Intubation (Infection)".
+6. Verify success message.
+7. Confirm that NO PDF download is triggered.

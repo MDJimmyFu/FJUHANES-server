@@ -1,0 +1,51 @@
+# Network Analysis & Client Update Walkthrough
+
+I have analyzed the network traffic from the desktop client and updated `his_api_client.py`.
+
+## Findings
+
+### 1. Authentication (`Login`)
+*   **Protocol**: Standard HTTP POST (ASMX Web Service).
+*   **URL**: `http://auth.fjcuh.org.tw/UOF/cds/ws/SSOWS.asmx/VerifyUser`
+*   **Credentials**: The application sends `cry1` (Username) and `cry2` (Password).
+*   **Status**: **Successfully Reverse-Engineered**. I have implemented this in the Python script.
+
+### 2. Patient Data API
+*   **Protocol**: **.NET Remoting** over HTTP.
+*   **URL**: `http://10.10.246.90:8800/HISBASUSERFacade` (and others).
+*   **Payload Format**: **Binary Serialization** with **Zlib Compression**.
+*   **Status**: **Partially Analyzed but Not Implemented**.
+    *   The request and response bodies use a complex proprietary binary format (`application/octet-stream`).
+    *   While I could decode the *response* (it contains an XML DataSet), constructing valid *requests* requires matching the exact binary object structure expected by the server. This is extremely difficult to do in Python without the original .NET libraries.
+
+## Implementation (`his_api_client.py`)
+
+I have updated the script to:
+1.  **Log in** to the real authentication server (`auth.fjcuh.org.tw`).
+2.  **Verify credentials** (returns "true" on success).
+3.  **Warn** about the binary protocol when attempting to fetch patient data.
+
+## Verification
+
+I have installed Python 3.12 and the required `requests` library in your environment.
+
+I verified the client script by running:
+```powershell
+C:\Python312\python.exe his_api_client.py
+```
+
+**Result:**
+```
+[*] Logging in as A03772...
+[+] Login successful!
+...
+[!] Implementation halted at this step due to protocol complexity.
+```
+
+The client successfully authenticates with the server. You can run this script anytime using the installed Python.
+
+## Next Steps
+
+To fully automate the patient data retrieval, you have two options:
+1.  **Use GUI Automation**: Since the API is complex, automating the Desktop Client UI (e.g., using `pyautogui` or `AutoIt`) might be easier than reverse-engineering the binary protocol.
+2.  **Use .NET**: Develop a C# client that references the HIS libraries to communicate natively with the server.

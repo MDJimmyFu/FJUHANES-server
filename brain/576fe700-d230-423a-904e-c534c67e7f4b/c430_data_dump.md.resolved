@@ -1,0 +1,328 @@
+# HISOrmC430Facade Data Dump
+
+This document contains a complete listing of all data parsed from the `HISOrmC430Facade` (Pre-Anesthesia Evaluation) endpoint for patients `003617083J` and `003509917D` on 2026-02-18.
+
+> [!NOTE]
+> This data represents the raw key-value pairs returned by the HIS system. No fields have been filtered or ignored.
+
+## Patient: 003617083J (ORDSEQ: A75176986OR0041)
+
+### Table: [PAT_ADM_DRMEMO] (2 rows)
+
+**Row 0**
+- `HHISNUM`: 003617083J
+- `HCASENO`: 75176986
+- `CREATEDT`: 2026-02-17T08:02:07+08:00
+- `STATUS`: R
+- `DRMID`: 20260217080207
+- `CLASS`: R
+- `LABEL`: NP_PGY_R_術前評估
+- `RESP_ID`: A130703177
+- `RESP_NM`: 林怡萱
+- `RESP_DT`: 2026-02-17T08:02:07+08:00
+- `RESP_CONTENT`: 評估完
+- `CANCELYN`: N
+- `PAT_STATUS`: 1
+
+**Row 1**
+- `HHISNUM`: 003617083J
+- `HCASENO`: 75176986
+- `CREATEDT`: 2026-02-15T19:43:09+08:00
+- `CONTEXT`: 003617083J 陳苡恩 18y 49kg girl ER入院 fever , cough, sore throat, vomiting, no stool passage for 3 days
+主述：Acute tonsilitis;
+診斷：Acute gastritis;
+病史摘要：
+現病史,just discharge from ER last night
+abdominal pain and vomit for 5 time after discharge, no bile, no blood-tinged
+fever up to 38.7'C at triage
+Dx: 1.acute exudative tonsillitis 2.bilateral ovarian cyst
+2/15 WBC=12760, S/L=86.5/8.8,  CRP=17.86, RSV/Adeno/influ (-)
+2/18 cbc /crp____
+2/15 CT: bilateral adnexal cystic lesion from ovaries. -Bowel loop: no evidence of free air. no definite abnormal bowel loop pattern.
+2/17 CT: Borderline dilatation of appendix about 6.6 mm, suggest clinical correlation.
+Cefin 2g QD, Metronidazole 500mg*3  miya1*3, promeran iv 1#q8h, T2(80)
+2/17:2/18 禁食npo 今早 consult 外科需開刀切除
+- `STATUS`: S
+- `OPID`: F129348478
+- `OPNM`: 許家豪
+- `OPSID`: 05319
+- `DRMID`: 20260218011135
+- `CLASS`: R
+- `LABEL`: 病情摘要
+- `CANCELYN`: N
+- `OP_DT`: 2026-02-15T19:43:09+08:00
+- `PAT_STATUS`: 1
+- `INVASIVE_DISPOE`: null
+
+### Table: [ORRANER] (1 rows)
+
+**Row 0**
+- `ORDSEQ`: A75176986OR0041
+- `ANEDOCID`: A125135130
+- `ANEDOCNMC`: 楊凱
+- `ANEASA`: 1
+- `ANEEMG`: Y
+- `ANEPTCAS`: 5
+- `ANENM`: GE
+- `ANEMET`: GE
+- `ANEPRCLASS`: 1
+- `ANEBGNDTTM`: 2026-02-18T09:25:21+08:00
+- `ANEENDDTTM`: 2026-02-18T09:25:21+08:00
+- `CANCELYN`: N
+- `PROCDATETIME`: 20260218092521
+- `PROCID`: A125135130
+- `PROCNMC`: 楊凱
+- `CREATEDATETIME`: 20260218092521
+- `CREATEID`: A125135130
+- `CREATENMC`: 楊凱
+- `HCASENO`: 75176986
+- `ANEROOM`: 11
+- `ANE_DOC_DR_NO`: 04039
+
+### Table: [PAT_ADM_CASE] (1 rows)
+
+**Row 0**
+- `HHISNUM`: 003617083J
+- `HCASENO`: 75176986
+- `HINPTYPE`: E
+- `HPATSTAT`: A
+- `HADMDT`: 20260215
+- `HADMTM`: 1756
+- `HFINANCL`: 7
+- `HVMDNO`: 04039
+- `HVDOCNM`: 蔡煥文
+- `HNURSTA`: 7A
+- `HBED`: 031
+- `HCURSVCL`: PEDS
+- `HPRENHI1`: N
+- `HPRECIVC`: N
+- `ADMHIMAN`: N
+- `HCARDIC`: 0006
+- `HBABYDW`: N
+- `HREADMIT`: N
+- `HEXTDAYS`: 0
+- `HADMINJFG`: N
+- `LAST_UPDATE_TIME`: 2026-02-18T08:52:12+08:00
+- `NEWBORN_YN`: N
+- `ICCARDMSG`: 0
+- `INSUREDCODE`: 3
+- `IN_CASENO`: 46806581
+- `CANCELYN`: N
+- `PROCDATETIME`: 20260218085215
+- `PROCID`: 69201
+- `PROCNMC`: 林淑芳
+- `CREATEDATETIME`: 20260215175644
+- `CREATEID`: T0188
+- `CREATENMC`: 吳姿萱
+- `SECRETYN`: N
+- `ACCUMEMGDAYS`: 0
+- `ACCUMCRODAYS`: 0
+- `ADMITSTATUS`: N
+- `BELONGSWITCH`: 0
+- `OPDCASENO`: 75176986
+
+### Table: [ORDOP] (1 rows)
+
+**Row 0**
+- `UDOCASORSEQ`: A75176986OR0041
+- `ORCATGY`: PEDS
+- `ORKIND`: 2
+- `ORACCD`: N
+- `ORMOPFG`: 1234
+- `OPRSECT`: 6
+- `OROPROOM`: 11
+- `OROPRB`: 0
+- `ORCUTDEG`: 1
+- `OROPBX`: N
+- `OROPBCT`: N
+- `ORANENM`: GE
+- `ORDOCID`: A125135130
+- `ORDOCNO`: 04039
+- `ORDOCNM`: 蔡煥文
+- `ORANSHR`: 2
+- `OROPMIN`: 60
+- `ORDIAG`: Peritonitis, r/o ruptured app
+- `ORMRGY`: B
+- `ORBYB`: 0
+- `ORBYG`: 0
+- `OPANTI`: 1
+- `OPEHBP`: N
+- `OPEHURI`: N
+- `OP_DATE`: 2026-02-18T00:00:00+08:00
+- `OP_TIME`: TF
+- `SELF_FLAG`: N
+- `ORBYU`: 0
+- `OPEMGTYPE`: Y
+- `CRITICAL_FLAG`: N
+- `ORIGINAL_ORDSEQ`: A75176986OR0041
+- `SELFORMAIN_P_FLAG`: N
+- `OROPROOMSEQ_OPSTA`: 2
+- `CALLPATDTTM`: 2026-02-18T09:29:56+08:00
+- `WAITAREADTTM`: 2026-02-18T09:55:37+08:00
+- `MANUFSUPYN`: N
+- `HFINANCL`: 7
+- `SECT`: PED 7A-031
+
+---
+
+## Patient: 003509917D (ORDSEQ: A75177038OR0007)
+
+### Table: [OR_ORDER] (8 rows)
+
+**Row 0**
+- `ORDSEQ`: A75177038OR0005
+- `OPDCASENO`: 75177038
+- `HHISNUM`: 003509917D
+- `ORDERNO`: 0
+- `TRACKNO`: 0
+- `OLDORDERNO`: 0
+- `PARENTORDERNO`: 0
+- `MIXGROUPID`: 0
+- `PFKEY`: 80003593
+- `PFNM`: Open reduction for fr. , femur, trochanter type III, IV
+- `DOSE`: 0
+- `DAYS`: 1
+- `APPLYTOTAL`: 0
+- `BACKAPPLYTOTAL`: 0
+- `DSPQTY`: 0
+- `BACKDSPQTY`: 0
+- `UDOPESTLE`: N
+- `BEGINDATETIME`: 20260218
+- `ENDDATETIME`: 99991231235959
+- `USEDATETIME`: 20260218
+- `SPECIALORDERYN`: N
+- `CHRONICRXYN`: N
+- `COURSEYN`: N
+- `ORTYPE`: OR
+- `ORDEPT`: ORTH
+- `ORCATGY`: ORTH
+- `ORSCHFG`: Y
+- `CHARGEFLAG`: Y
+- `SYSTEMID`: IPOPRJ
+- `CREATETYPE`: L000
+- `ORDERFROM`: SE
+- `ROWSTATECODE`: A
+- `PHRPRINTYN`: N
+- `PHARMOUTYN`: N
+- `EXMORDERKIND`: N
+- `CANCELTYPE`: 0
+- `CANCELYN`: N
+- `PROCDATETIME`: 20260217222402
+- `PROCID`: J122215077
+- `PROCNMC`: 張建炳
+- `CREATEDATETIME`: 20260217222402
+- `CREATEID`: J122215077
+- `CREATENMC`: 張建炳
+- `ORKIND`: 2
+- `ORACCD`: N
+- `DISPLAYSORT`: 9999
+- `LASTBILLDATETIME`: 0001-01-01T00:00:00+08:00
+- `ORDSYSID`: OR
+- `HBEDNO`: 091
+- `HNURSTA`: 10B
+
+*(Rows 1-7 omitted for brevity - contain medication and supply orders)*
+
+### Table: [ORRANER] (1 rows)
+
+**Row 0**
+- `ORDSEQ`: A75177038OR0007
+- `ANEDOCID`: J122215077
+- `ANEDOCNMC`: 張建炳
+- `ANEASA`: 1
+- `ANEEMG`: N
+- `ANEPTCAS`: 5
+- `ANENM`: GE
+- `ANEPRCLASS`: S
+- `ANEBGNDTTM`: 2026-02-18T00:04:09+08:00
+- `ANEENDDTTM`: 2026-02-18T00:04:09+08:00
+- `CANCELYN`: N
+- `PROCDATETIME`: 20260218000409
+- `PROCID`: J122215077
+- `PROCNMC`: 張建炳
+- `CREATEDATETIME`: 20260218000409
+- `CREATEID`: J122215077
+- `CREATENMC`: 張建炳
+- `HCASENO`: 75177038
+- `ANEROOM`: 11
+- `ANE_DOC_DR_NO`: 00415
+
+### Table: [PAT_ADM_CASE] (1 rows)
+
+**Row 0**
+- `HHISNUM`: 003509917D
+- `HCASENO`: 75177038
+- `HINPTYPE`: E
+- `HPATSTAT`: A
+- `HADMDT`: 20260217
+- `HADMTM`: 2022
+- `HFINANCL`: 7
+- `HVMDNO`: 00415
+- `HVDOCNM`: 張建炳
+- `HNURSTA`: 10B
+- `HBED`: 091
+- `HCURSVCL`: ORTH
+- `HPRENHI1`: N
+- `HPRECIVC`: N
+- `ADMHIMAN`: N
+- `HCARDIC`: 0006
+- `HBABYDW`: N
+- `HREADMIT`: N
+- `HEXTDAYS`: 0
+- `HADMINJFG`: N
+- `LAST_UPDATE_TIME`: 2026-02-17T20:23:12+08:00
+- `NEWBORN_YN`: N
+- `ICCARDMSG`: 0
+- `INSUREDCODE`: 3
+- `IN_CASENO`: 46807133
+- `CANCELYN`: N
+- `PROCDATETIME`: 20260217202355
+- `PROCID`: F127818413
+- `PROCNMC`: 林伯文
+- `CREATEDATETIME`: 20260217202312
+- `CREATEID`: F127818413
+- `CREATENMC`: 林伯文
+- `SECRETYN`: N
+- `ACCUMEMGDAYS`: 0
+- `ACCUMCRODAYS`: 0
+- `ADMITSTATUS`: N
+- `BELONGSWITCH`: 0
+- `OPDCASENO`: 75177038
+
+### Table: [ORDOP] (1 rows)
+
+**Row 0**
+- `UDOCASORSEQ`: A75177038OR0007
+- `ORCATGY`: ORTH
+- `ORKIND`: 2
+- `ORACCD`: N
+- `ORMOPFG`: 1234
+- `OPRSECT`: 6
+- `OROPROOM`: 11
+- `OROPRB`: 0
+- `ORCUTDEG`: 1
+- `OROPBX`: N
+- `OROPBCT`: N
+- `ORANENM`: GE
+- `ORDOCID`: J122215077
+- `ORDOCNO`: 00415
+- `ORDOCNM`: 張建炳
+- `ORANSHR`: 2
+- `OROPMIN`: 90
+- `ORDIAG`: Fx. It. trochanter
+- `ORMRGY`: B
+- `ORBYB`: 0
+- `ORBYG`: 0
+- `OPANTI`: 1
+- `OPEHBP`: N
+- `OPEHURI`: N
+- `OP_DATE`: 2026-02-18T00:00:00+08:00
+- `OP_TIME`: TF
+- `SELF_FLAG`: N
+- `ORBYU`: 0
+- `OPEMGTYPE`: Y
+- `CRITICAL_FLAG`: N
+- `SELFORMAIN_P_FLAG`: N
+- `OROPROOMSEQ_OPSTA`: 2
+- `MANUFSUPYN`: N
+- `HFINANCL`: 7

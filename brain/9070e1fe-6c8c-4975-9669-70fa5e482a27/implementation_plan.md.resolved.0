@@ -1,0 +1,44 @@
+# Anesthesia Form PDF Logic Refinement Plan
+
+This plan addresses several issues in the PDF generation logic:
+1.  **Cardiac ID Sync**: Fixing the mismatch between HTML IDs (`chk_cv_...`) and script IDs (`chk_car_...`).
+2.  **Parent-Only Logic**: Ensuring that checking a parent item (like CAD) correctly triggers a "Yes" on the PDF even if no sub-items are selected.
+3.  **Major Surgery Trigger**: Automatically checking "Major Surgery Yes" if anesthesia history exists (local data, checkbox, or note).
+
+## Proposed Changes
+
+### [Component] Anesthesia Evaluation Form (HTML/JS)
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+
+- **Update `heartItems` array** in [drawEvalPdfContent](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4283-4891) to match HTML IDs:
+    - `chk_car_cad` -> `chk_cv_cad`
+    - `chk_car_vh_yes` -> `chk_cv_valve`
+    - `chk_car_arr_yes` -> `chk_cv_arr`
+    - `chk_car_chf_yes` -> `chk_cv_hf`
+- **Enhance [checkPhItem](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4597-4606) for "Cardiac disease"**: Add explicit checks for all cardiac parent checkboxes to the `hasContent` condition.
+- **Update "Major operations" logic**:
+    - Incorporate check for [isChecked("chk_his_surg_yes")](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3947-3971).
+    - Incorporate check for non-empty `txt_his_surg_note`.
+    - Incorporate check for `window.currentDetailData.aneHist.length > 0`.
+- **Refine other [checkPhItem](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4597-4606) calls**: Use explicit IDs instead of keyword matches where possible for better reliability.
+
+## Verification Plan
+
+### Automated Tests
+- I will create a small JavaScript snippet that can be run in the browser console to verify the [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3947-3971) and [extractSectionDetails](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3863-3946) functions return the expected values for various form states (e.g., parent checked only).
+
+### Manual Verification
+- **Test Case 1: CAD Only**:
+    1. Open the evaluation form.
+    2. Check "(2) CAD (冠狀動脈疾病)" but do NOT check any sub-items (POBA, CABG, etc.).
+    3. Generate PDF.
+    4. Verify "Cardiac disease Yes" is checked.
+- **Test Case 2: Anesthesia History**:
+    1. Check "(1) History" in "History of Surgery & Anesthesia" OR enter text in its note.
+    2. Generate PDF.
+    3. Verify "Major operations Yes" is checked.
+- **Test Case 3: Historical Data**:
+    1. Ensure the patient has anesthesia history in the detail view.
+    2. Open form and generate PDF.
+    3. Verify "Major operations Yes" is checked even if the form's history checkboxes are empty.

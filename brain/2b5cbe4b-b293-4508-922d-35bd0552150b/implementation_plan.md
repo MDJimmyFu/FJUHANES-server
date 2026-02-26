@@ -1,0 +1,24 @@
+# Fix Anesthesia History Detail Bug
+
+The user reported that anesthesia history details are identical for all records. Investigation revealed that the `template_hhistnum` and `template_ordseq` used in `his_client_final.py` for the `Q050` (Charging Detail) query do not match the actual values in the binary template file `q050_payload_0.bin`. As a result, the patching logic fails, and the same historical record is always requested.
+
+## Proposed Changes
+
+### [SurgerySchedule] Correcting Binary Patching Templates
+
+#### [MODIFY] [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/his_client_final.py)
+
+- Update `get_anesthesia_charging_data` in [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/his_client_final.py) with correct template values:
+    - `template_hhistnum`: `b"003162935D"`
+    - `template_ordseq`: `b"A75072943OR0001"`
+- Update `activate_patient` in [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/his_client_final.py) with correct `ordseq` template:
+    - `template_ordseq`: `b"A129523047"`
+
+## Verification Plan
+
+### Automated Tests
+- I will use a verification script to confirm that the `replace()` calls in `his_client_final.py` succeed against the actual binary files.
+- I will simulate the API calls with the patched payloads to ensure they are well-formed (at least length-wise).
+
+### Manual Verification
+- The user can verify by opening different anesthesia history records; they should now show different content (asa, method, doctor, start/end times, and procedures/materials).

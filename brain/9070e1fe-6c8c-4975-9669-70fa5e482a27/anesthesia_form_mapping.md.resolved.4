@@ -1,0 +1,125 @@
+# 麻醉評估表單完整欄位對應表 (100% 全面審核版)
+
+此文件包含「麻醉前評估與計畫表單」中 **每一個** 選項的詳細對應。
+
+## 🔘 階層與映射說明
+- **階層**: 第1階 (主項)、第2階 (子項)、第3階 (細項)。
+- **映射類型**:
+    - **固定座標**: 直接在 PDF 特定 (x, y) 畫 "V" 或填寫文字。
+    - **Yes/No 框**: 對應 PDF 左側的勾選框。
+    - **Summary 區**: 勾選後文字會自動彙整顯示於 PDF 的 Assessment 或 Plan 備註區。
+    - **高亮區**: 勾選後文字會以大字體顯示於 PDF 右下角。
+
+---
+
+## 1. 麻醉前評估紀錄 (Pre-anesthetic Assessment)
+
+### A. 心血管系統 (Cardiovascular System)
+| 階層 | 顯示名稱 | HTML ID | PDF 映射詳細資料 |
+| :--- | :--- | :--- | :--- |
+| 第1階 | (1) Hypertension (高血壓) | `chk_cv_htn` | Yes: 227.14, 613.78 / No: 195.19, 613.78 |
+| 第2階 | 　└ Regular control | `chk_cv_htn_reg` | Summary 區文字串接 |
+| 第2階 | 　└ Poor control | `chk_cv_htn_poor` | Summary 區文字串接 |
+| 第1階 | (2) CAD (冠狀動脈疾病) | `chk_cv_cad` | Yes: 227.14, 599.57 / No: 195.19, 599.57 |
+| 第2階 | 　└ POBA/POBAS | `chk_cv_cad_poba` | Summary 區文字串接 |
+| 第2階 | 　└ CABG | `chk_cv_cad_cabg` | Summary 區文字串接 |
+| 第2階 | 　└ Others | `chk_cv_cad_oth` | Summary 區文字串接 |
+| 第3階 | 　　└ [Others 文字輸入] | `txt_cv_cad_oth` | 顯示於心血管橫線處 (Y:586.88) |
+| 第1階 | (3) Valvular disease (瓣膜疾病) | `chk_cv_valve` | 納入 Cardiac Yes/No 判斷 (Y:599.57) |
+| 第2階 | 　└ [補充說明文字] | `txt_cv_valve_note` | 顯示於心血管橫線處 (Y:586.88) |
+| 第1階 | (4) Arrhythmia & ECG Abnormality (心律不整) | `chk_cv_arr` | 納入 Cardiac Yes/No 判斷 (Y:599.57) |
+| 第2階 | 　└ Pacemaker | `chk_cv_arr_pm` | Summary 區文字串接 |
+| 第2階 | 　└ Atrial fibrillation | `chk_cv_arr_af` | Summary 區文字串接 |
+| 第3階 | 　　└ Paroxysmal | `chk_cv_arr_af_par` | Summary 區文字串接 |
+| 第3階 | 　　└ Persistent | `chk_cv_arr_af_per` | Summary 區文字串接 |
+| 第2階 | 　└ AV Block | `chk_cv_arr_avb` | Summary 區文字串接 |
+| 第3階 | 　　└ First degree / Mobitz I/II / Complete | `chk_cv_arr_avb_1/m1/m2/3` | Summary 區文字串接 |
+| 第1階 | (5) Heart failure (心衰竭) | `chk_cv_hf` | 納入 Cardiac Yes/No 判斷 (Y:599.57) |
+| 第2階 | 　└ NYHA Class [下拉選單] | `sel_cv_hf_nyha` | 顯示於心血管橫線處 (Y:586.88) |
+| 第2階 | 　└ HFpEF / HFrEF | `chk_cv_hf_pef/ref` | Summary 區文字串接 |
+| 第1階 | (6) Dyslipidemia (血脂異常) | `chk_cv_lipid` | Summary 區文字串接 |
+| 第1階 | (7) PAOD (周邊動脈阻塞疾病) | `chk_cv_paod` | Summary 區文字串接 |
+| 第1階 | (11) Others | `chk_cv_oth` | (內嵌文字 `txt_cv_oth` 顯示於橫線) |
+
+### B. 神經精神系統 (Neurologic & Psychiatric)
+| 階層 | 顯示名稱 | HTML ID | PDF 映射詳細資料 |
+| :--- | :--- | :--- | :--- |
+| 第1階 | (1) CVA (腦中風) | `chk_neu_cva` | Yes: 227.14, 627.61 / No: 195.19, 627.61 |
+| 第2階 | 　└ Ischemic / Hemorrhagic / Hemiparesis | `chk_neu_cva_isc/hem/hemi` | Summary 區文字串接 |
+| 第3階 | 　　└ Right / Left | `chk_neu_cva_hemi_r/l` | Summary 區文字串接 |
+| 第1階 | (2) Traumatic Brain Injury (創傷性腦損傷) | `chk_neu_tbi` | Summary 區文字串接 |
+| 第1階 | (3) Parkinson disease (帕金森氏症) | `chk_neu_park` | Summary 區文字串接 |
+| 第1階 | (4) Seizure (癲癇) | `chk_neu_seiz` | Summary 區文字串接 |
+| 第1階 | (8) GCS (昏迷指數) | `chk_neu_gcs` | 組合 E/V/M 數值顯示於 Summary 區 |
+
+### C. 呼吸系統 (Respiratory System)
+| 階層 | 顯示名稱 | HTML ID | PDF 映射詳細資料 |
+| :--- | :--- | :--- | :--- |
+| 第1階 | (1) Asthma (氣喘) | `chk_res_asth` | Yes: 227.14, 585.73 / No: 195.19, 585.73 |
+| 第2階 | 　└ Inhalational control / steroid / Oral steroid | `chk_res_asth_inh/inh_st/oral_st` | Summary 區文字串接 |
+| 第1階 | (2) COPD (慢性阻塞性肺病) | `chk_res_copd` | Yes: 227.14, 571.53 / No: 195.19, 571.53 |
+| 第1階 | (3) Smoking (抽菸) | `chk_res_smok` | Yes: 227.14, 501.32 / No: 195.19, 501.32 |
+| 第2階 | 　└ Quit / Persistent [時間/PPD] | `txt_res_smok_quit_dur/per_ppd` | 顯示於吸菸備註橫線處 (Y:488.94) |
+
+### D. 呼吸道評估 (Airway)
+| 階層 | 顯示名稱 | HTML ID | PDF 映射詳細資料 |
+| :--- | :--- | :--- | :--- |
+| 第1階 | (1) Mallampati score | - | 1: 227.85 / 2: 255.87 / 3: 287.81 / 4: 323.66 (Y:278.44) |
+| 第1階 | (2) Neck ROM (頸部活動度) | - | Limited 勾選 -> 觸發 Airway Abnormal (245.58, 260.32) |
+| 第1階 | (4) Intubated (已插管) | `chk_aw_intub_yes` | Summary 區文字串接 |
+| 第1階 | (7) OSA (睡眠呼吸中止症) | `chk_aw_osa_yes` | Summary 區文字串接 |
+| 第1階 | (8) Dentition (牙齒狀況) | - | Loose/Remov 勾選 -> 觸發 Airway Abnormal |
+
+### E. 腎臟/血液/消化/過敏 (Renal / Hematologic / Digestive / Allergy)
+*   **Renal**: `chk_ren_esrd` (Yes/No Y:543.5), `chk_ren_aki`, `chk_ren_ckd`, `chk_ren_elec`.
+*   **Hematologic**: `chk_hem_anemia`, `chk_hem_leuko`, `chk_hem_coag` (Yes/No Y:529.36).
+*   **Digestive**: `chk_dig_carrier` (Yes/No Y:557.7), `chk_dig_cirrh`, `chk_dig_jaund`, `chk_dig_hcc`, `chk_dig_gerd`.
+*   **Allergy**: `chk_alg_yes` (Yes/No Y:515.17), `txt_alg_note`.
+
+### F. ASA 分級 (ASA Physical Status)
+| 階層 | 顯示名稱 | HTML ID | PDF 映射詳細資料 (pdflib_x, pdflib_y) |
+| :--- | :--- | :--- | :--- |
+| 第1階 | 1 / 2 / 3 / 4 / 5 / 6 | `chk_asa_1`~`6` | X: [158, 186, 218, 254, 291, 323], Y: 314.26 |
+| 第1階 | Emergency (緊急手術) E | `chk_asa_e` | 361.21, 314.26 |
+
+---
+
+## 2. 麻醉計畫 (Anesthesia Plan)
+
+### A. 全身麻醉與監測
+| 階層 | 顯示名稱 | HTML ID | PDF 映射詳細資料 |
+| :--- | :--- | :--- | :--- |
+| 第1階 | (1) GA with Endotracheal Tube (插管) | `chk_ga_ett` | **固定座標 (190.96, 206.39)** |
+| 第1階 | (2) GA with Supraglottic Device (LMA) | `chk_ga_lma` | **固定座標 (243.1, 206.39)** |
+| 第1階 | (3) Face Mask/IVGA | `chk_face_mask_ivga` | **固定座標 (293.84, 206.39)** |
+| 第1階 | (1) ABP (動脈血壓) | `chk_mon_abp` | **固定座標 (165.96, 188.3)** |
+| 第1階 | (2) CVC (中心靜脈導管) | `chk_mon_cvc` | **固定座標 (229.27, 188.3)** |
+| 第2階 | 　└ [CVC 各種規格] | `chk_mon_cvc_c14`... | Plan Summary 文字串接 |
+| 第1階 | (6) TEE | `chk_mon_tee` | **固定座標 (277.88, 188.3)** |
+| 第1階 | (1) TOF | `chk_mon_tof` | Plan Summary 文字串接 |
+| 第1階 | (2) OMT(自費) | `chk_omt` | **高亮顯示 (右下角紅字)** |
+| 第1階 | (3) 麻醉深度監測 - BIS | `chk_bis` | **高亮顯示 (右下角紅字)** |
+
+### B. 呼吸道處置 (Airway Management)
+| 階層 | 顯示名稱 | HTML ID | PDF 映射詳細資料 |
+| :--- | :--- | :--- | :--- |
+| 第1階 | (1) ET tube - Yes | `chk_ap_ett` | 與 GA ETGA 同位 (190.96, 206.39) |
+| 第1階 | (3) DLT - Yes | `chk_ap_dlt_yes` | **Lung separation (109.96, 170.21)** |
+| 第1階 | (4) Blocker - Yes | `chk_ap_blocker_yes` | **Bronchial blocker (209.06, 170.21)** |
+| 第1階 | (6) 特殊工具 - GlideScope | `chk_ap_spec_glide` | Plan Summary 文字串接 |
+| 第2階 | 　└ AWS / Bronchoscope | `chk_aws` / `chk_bronchoscope` | **高亮顯示 (右下角紅字)** |
+
+### C. 其他處置
+| 階層 | 顯示名稱 | HTML ID | PDF 映射詳細資料 |
+| :--- | :--- | :--- | :--- |
+| 第1階 | (1) ICU admission | `chk_misc_icu` | **預計轉送 ICU (271.85, 152.1)** |
+| 第1階 | (4) 暖空氣保溫套(自費) | `chk_warm_blanket` | **高亮顯示 (右下角紅字)** |
+| 第1階 | (5) Mepilex貼片(自費) | `chk_mepilex` | **高亮顯示 (右下角紅字)** |
+
+---
+
+## 3. 修改建議
+若您需新增欄位，請告知：
+1.  **階層** (如：第2階)
+2.  **顯示名稱** (如：自費拋棄式插管工具)
+3.  **PDF 效果** (如：要畫在特定座標、顯示在 Summary 文字區、或是右下角紅字高亮)

@@ -1,0 +1,10 @@
+# Task: Enhancements and Fixes
+
+- [x] Filter unbilled anesthesia records (missing COST_ID)
+- [x] Make anesthesia materials section collapsible and hidden by default
+- [x] Fix PDF checkbox mapping for "Face Mask/IVGA"
+- [x] Update patient header to show "ID Number" (身分證字號)
+- [x] Fix PDF date parsing for "Expected Surgery Date"
+- [x] Add Inpatient Record and Homepage links for IPD/ADM visits
+- [x] Conditionally hide "Inpatient Homepage" link for discharged patients
+- [x] Finalize documentation and walkthrough

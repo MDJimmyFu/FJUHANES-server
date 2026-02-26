@@ -1,0 +1,21 @@
+# Adding PCEA Prescription Functionality
+
+## Overview
+Added the ability to prescribe PCEA directly from the AutoPrescribe frontend, integrating seamlessly alongside the existing PCA and Painless Labor features.
+
+## Changes Made
+- **Intubation Feature**:
+  - Analyzed `intubation.pcapng` and `intubationinfection.pcapng`.
+  - Identified codes: `TR001210` (Regular) and `TR001209` (Infection).
+  - Implemented [prescribe_intubation](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py#247-336) using the `/Ipo/IpoC151/Save` API.
+  - Added specialized buttons to the UI for both regular and infection cases.
+  - Ensured no PDF printing is triggered, as procedures are not medications.
+- **PCEA Feature**:
+  - Analyzed `pcea.pcapng`.
+  - Identified codes: `PCE` route and `ANES_TEST2` drug code.
+  - Implemented Fentanyl-only (0.5mg) ASORDER prescription.
+  - Added a dedicated PCEA button.
+
+## Validation Strategy
+- Python syntax successfully validated.
+- **Manual User Review**: Please launch the application (`python app.py`) and perform a test PCEA prescription to ensure the HIS API successfully processes the payload and generates the `Controlled_Drug_Sheet_P022.pdf`.

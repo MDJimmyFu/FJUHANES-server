@@ -1,0 +1,32 @@
+# Network Analysis and API Client Implementation Plan
+
+## Goal
+Analyze network traffic from the target HIS application to reverse-engineer the API endpoints and authentication mechanism, then update [his_api_client.py](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py) to function correctly.
+
+## User Review Required
+- **Target Application**: Desktop Client.
+- **Capture Method**: We need to decide between `netsh` (built-in) or a third-party tool like Wireshark/Fiddler.
+- **Decryption**: If the traffic is HTTPS, we might need to set up a proxy or use a key log file if the app supports it.
+
+## Proposed Changes
+
+### Analysis Phase
+1.  **Determine Capture Tool**: Check for `tshark` or use `netsh` / Python Proxy.
+2.  **Capture Traffic**: Run capture while performing Login and Patient Search.
+3.  **Analyze Dump**: Extract URL, Method, Headers, and Body.
+
+### Implementation Phase ([his_api_client.py](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py))
+1.  Update [login()](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py#15-46) method with:
+    -   Correct `login_url`.
+    -   Correct payload keys (e.g., `user` vs `username`, `pwd` vs `password`).
+    -   Token extraction logic if necessary.
+2.  Update [get_patient_data()](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py#47-72) method with:
+    -   Correct `endpoint`.
+    -   Correct query parameters or JSON body.
+
+## Verification Plan
+### Automated Tests
+-   Run [his_api_client.py](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py) (updated) and verify it prints "Login successful!".
+
+### Manual Verification
+-   Compare script output with actual browser behavior.

@@ -1,0 +1,13 @@
+# Task: Debugging Missing Lab and Vitals Data
+
+- [x] Analyze discrepancy between current [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#9-753) and backup
+- [/] Restore missing data retrieval methods
+    - [x] Restore [get_vitals_from_exm](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#180-302) with full mapping
+    - [x] Restore [get_lab_data](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#195-226) with comprehensive mapping
+    - [x] Restore clinical notes ([get_opd_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#638-659), [get_emg_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#660-701))
+    - [x] Update [get_visit_details](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#583-637) to include clinical notes
+- [x] Fix data flow bugs
+    - [x] Update [get_pre_anesthesia_data](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#83-119) to use current date by default
+    - [x] Update `/api/details` in [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py) to include [vitals](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#180-302) data
+- [x] Verify fix with compilation and manual check
+- [x] Update documentation (walkthrough)

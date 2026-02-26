@@ -1,0 +1,152 @@
+# 麻醉評估表單欄位與 PDF 對應表 (精細化階層版)
+
+此文件詳細列出「麻醉前評估與計畫表單」中所有的輸入項，並依據 **主項 (Main)** 與 **子項 (Sub)** 階層標明，並包含完整的 **顯示文字** 及 PDF 對應。
+
+---
+
+## 🔘 標記說明
+- **[主項]**: 列表中的一級選項，通常勾選後會判斷 PDF 上的 Yes/No。
+- **(子項)**: 隸屬於主項下的細節選項，勾選後通常會文字串接顯示在 PDF 備註欄。
+- **(內嵌文字)**: 跟隨在 Checkbox 後方的輸入框。
+
+---
+
+## 1. 評估紀錄 (Pre-anesthetic Assessment)
+
+### A. 心血管系統 (Cardiovascular System)
+*   **[主項] (1) Hypertension (高血壓)** `chk_cv_htn` -> **PDF Yes: 227.14, 613.78 / No: 195.19, 613.78**
+    *   (子項) Regular control `chk_cv_htn_reg`
+    *   (子項) Poor control `chk_cv_htn_poor`
+*   **[主項] (2) CAD (冠狀動脈疾病)** `chk_cv_cad` -> **PDF Yes: 227.14, 599.57 / No: 195.19, 599.57**
+    *   (子項) POBA/POBAS `chk_cv_cad_poba`
+    *   (子項) CABG `chk_cv_cad_cabg`
+    *   (子項) Others `chk_cv_cad_oth`
+    *   (內嵌文字) `txt_cv_cad_oth`
+*   **[主項] (3) Valvular disease (瓣膜疾病)** `chk_cv_valve`
+    *   (內嵌文字) 補充說明 `txt_cv_valve_note` -> **PDF 文字區 (X:250.19)**
+*   **[主項] (4) Arrhythmia & ECG Abnormality (心律不整)** `chk_cv_arr`
+    *   (子項) Pacemaker `chk_cv_arr_pm`
+    *   (子項) Atrial fibrillation `chk_cv_arr_af`
+        *   (子項) Paroxysmal `chk_cv_arr_af_par`
+        *   (子項) Persistent `chk_cv_arr_af_per`
+    *   (子項) AV Block `chk_cv_arr_avb`
+        *   (子項) First degree `chk_cv_arr_avb_1`
+        *   (子項) Mobitz I `chk_cv_arr_avb_m1`
+        *   (子項) Mobitz II `chk_cv_arr_avb_m2`
+        *   (子項) Complete `chk_cv_arr_avb_3`
+    *   (子項) ST-T Abnormality `chk_cv_arr_stt`
+    *   (子項) s/p ablation `chk_cv_arr_abl`
+    *   (子項) Others `chk_cv_arr_oth`
+        *   (內嵌文字) `txt_cv_arr_oth_note`
+*   **[主項] (5) Heart failure (心衰竭)** `chk_cv_hf`
+    *   (內嵌選單) NYHA Class `sel_cv_hf_nyha`
+    *   (子項) HFpEF `chk_cv_hf_pef`
+    *   (子項) HFrEF `chk_cv_hf_ref`
+*   **[主項] (6) Dyslipidemia (血脂異常)** `chk_cv_lipid`
+    *   (子項) Medical control `chk_cv_lipid_med`
+*   **[主項] (7) PAOD (周邊動脈阻塞疾病)** `chk_cv_paod`
+*   **[主項] (8) Vascular disease (血管疾病)** `chk_cv_vasc`
+    *   (子項) Aortic Aneurysm `chk_cv_vasc_aneur`
+    *   (子項) Aortic Dissection `chk_cv_vasc_diss`
+    *   (子項) Others `chk_cv_vasc_oth`
+        *   (內嵌文字) `txt_cv_vasc_oth`
+*   **[主項] (9) Congenital Heart Disease (先天性心臟病)** `chk_cv_congen`
+*   **[主項] (10) Pulmonary Hypertension (肺高壓)** `chk_cv_ph`
+*   **[主項] (11) Others** `chk_cv_oth`
+    *   (內嵌文字) `txt_cv_oth`
+
+### B. 神經精神系統 (Neurologic & Psychiatric)
+*   **[主項] (1) CVA (腦中風)** `chk_neu_cva` -> **PDF Yes/No (X:227/195, Y:627.61)**
+    *   (子項) Ischemic (缺血性) `chk_neu_cva_isc`
+    *   (子項) Hemorrhagic (出血性) `chk_neu_cva_hem`
+    *   (子項) Hemiparesis (偏癱) `chk_neu_cva_hemi`
+        *   (子項) Right `chk_neu_cva_hemi_r`
+        *   (子項) Left `chk_neu_cva_hemi_l`
+    *   (子項) Others `chk_neu_cva_oth`
+        *   (內嵌文字) `txt_neu_cva_oth`
+*   **[主項] (2) Traumatic Brain Injury (創傷性腦損傷)** `chk_neu_tbi`
+*   **[主項] (3) Parkinson disease (帕金森氏症)** `chk_neu_park`
+*   **[主項] (4) Seizure (癲癇)** `chk_neu_seiz`
+    *   (子項) Regular control `chk_neu_seiz_reg`
+*   **[主項] (5) Aneurysm/AVM (動脈瘤/動靜脈畸形)** `chk_neu_avm`
+    *   (子項) Medical control `chk_neu_avm_med`
+    *   (子項) Surgery/Intervention `chk_neu_avm_surg`
+*   **[主項] (6) Dementia (失智症)** `chk_neu_dem`
+*   **[主項] (7) Psychiatric Problem (精神疾病)** `chk_neu_psych`
+    *   (子項) Schizophrenia `chk_neu_psych_schiz`
+    *   (子項) Bipolar Disease `chk_neu_psych_bip`
+    *   (子項) Depression `chk_neu_psych_dep`
+    *   (子項) Personality Disorder `chk_neu_psych_pers`
+    *   (子項) Others `chk_neu_psych_oth`
+        *   (內嵌文字) `txt_neu_psych_oth`
+*   **[主項] (8) GCS (昏迷指數)** `chk_neu_gcs`
+    *   (內嵌選單) E `sel_neu_gcs_e` / V `sel_neu_gcs_v` / M `sel_neu_gcs_m`
+*   **[主項] (9) Cerebral Palsy (腦性麻痺)** `chk_neu_cp`
+*   **[主項] (10) Others** `chk_neu_oth`
+    *   (內嵌文字) `txt_neu_oth`
+
+---
+
+## 2. 呼吸道評估 (Airway)
+
+*   **[主項] (1) Mallampati score** (Radio)
+    *   (子項) 1 `rad_aw_mal_1` -> **PDF: 227.85, 278.44**
+    *   (子項) 2 `rad_aw_mal_2` -> **PDF: 255.87, 278.44**
+    *   (子項) 3 `rad_aw_mal_3` -> **PDF: 287.81, 278.44**
+    *   (子項) 4 `rad_aw_mal_4` -> **PDF: 323.66, 278.44**
+*   **[主項] (2) Neck ROM (頸部活動度)**
+    *   (子項) Limited `chk_aw_neck_lim`
+    *   (子項) Free `chk_aw_neck_free`
+    *   (子項) 不適用 `chk_aw_neck_na`
+    *   (子項) 子項詳情: `chk_aw_neck_as` (AS), `chk_aw_neck_surg` (Surg), `chk_aw_neck_trauma` (Trauma), `chk_aw_neck_sym` (Symptoms)
+*   **[主項] (8) Dentition (牙齒狀況)**
+    *   (子項) Normal `chk_aw_dent_norm`
+    *   (子項) Loose Teeth `chk_aw_dent_loose`
+    *   (子項) 活動假牙 `chk_aw_dent_remov`
+    *   (子項) 鬆動假牙 `chk_aw_dent_loose_remov`
+    *   (子項) Others `chk_aw_dent_oth`
+
+---
+
+## 3. 麻醉計畫 (Anesthesia Plan)
+
+### A. 全身麻醉 (General Anesthesia)
+*   **[主項] (1) GA with Endotracheal Tube (插管)** `chk_ga_ett` -> **PDF: 190.96, 206.39**
+*   **[主項] (2) GA with LMA** `chk_ga_lma` -> **PDF: 243.1, 206.39**
+*   **[主項] (3) Face Mask/IVGA** `chk_face_mask_ivga` -> **PDF: 293.84, 206.39**
+*   **[主項] (4) TCI** `chk_ga_tci` -> **PDF: 234.23, 152.1**
+    *   (子項) with Propofol `chk_ga_tci_prop`
+    *   (子項) with Remifentanil `chk_ga_tci_remi` (50 / 25 / 12.5 / Others)
+
+### B. 區域麻醉 (Regional Anesthesia)
+*   **[主項] (1) SA (脊隨麻醉)** `chk_ra_sa` -> **PDF: 398.19, 206.39**
+    *   (子項) 27G `chk_ra_sa_27g` / 26G `chk_ra_sa_26g` / 23G `chk_ra_sa_23g`
+*   **[主項] (4) Peripheral Nerve Block (周邊神經阻斷)** `chk_pnb` -> **PDF: 478.04, 206.39**
+    *   (子項) Scalp / SCP / Transtracheal / Interscalene ... (超過 20 種細項)
+
+---
+
+## 4. 修改範例 (修改方式的範例)
+
+如果您在 markdown 檔案中看到我想增加項目的時候，請以下面格式列出：
+
+### 範例：增加「睡眠呼吸中止症」的細節選項
+
+1.  **您的 Markdown 指示：**
+    > #### [ADD] Sub-checkbox under OSA
+    > - 選項顯示名稱：使用 CPAP 呼吸機
+    > - HTML ID：`chk_aw_osa_cpap`
+    > - 隸屬關係：(7) Obstructive sleep apnea 下方的子項
+    > - PDF 映射：勾選後要在 Plan Summary (右下角備註區) 顯示 "Use CPAP" 字樣。
+
+2.  **我的處理方式 (看懂範例)：**
+    - 我會找到 `chk_aw_osa_yes` 的 HTML 位置。
+    - 在其下方新增一個子層級的 `<ul><li>...` 結構。
+    - 在 [drawEvalPdfContent](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4283-4891) 函數中確保 [collectSectionSummary](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3972-4004) 能抓到這個新 ID。
+
+---
+
+> [!TIP]
+> **主子項原則**：
+> - 修改子項時，請確保提供完整的 **顯示文字** 與 **ID**。
+> - 若該項需要在 PDF 的特定座標畫 "V"，請提供座標。若只需在備註區顯示文字，則註明「顯示於 Summary 區」即可。

@@ -1,0 +1,23 @@
+# Task: Analyze Network Traffic
+
+- [x] Obtain pcap file from user <!-- id: 0 -->
+- [x] Analyze pcap file for HTTP/TCP traffic to `auth.fjcuh.org.tw` or internal HIS IPs <!-- id: 1 -->
+- [x] Extract API endpoints, headers, and payloads <!-- id: 2 -->
+- [x] Update [his_api_client.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py) with findings <!-- id: 3 -->
+- [x] Verify connectivity/logic <!-- id: 4 -->
+- [x] Verify and fix Traditional Chinese character encoding <!-- id: 5 -->
+- [x] Investigate why `ORMC430` returns empty structured data for some patients.
+  - [x] Check if `PAT_ADM_DRMEMO` (memos) are returning correctly (YES).
+  - [x] Check if `PAT_ADM_CASE` (Admission) data is sufficient fallback.
+  - [x] **Research Alternative APIs per user request**: Found `HISExmFacade`.
+  - [x] Implement direct DB query via `HISExmFacade` to retrieve VITALSIGN.
+- [x] **Fix Missing Data**: Integrate `HISExmFacade` fallback into [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py). <!-- id: 8 -->
+- [x] Extract Anesthesia Duration, Anesthesiologist, Procedures, and Material Fees from Q050 <!-- id: 9 -->
+- [x] Create comprehensive data schema/dictionary for all endpoints <!-- id: 10 -->
+- [x] Debug and Extract Full Data for Case 75176750 <!-- id: 11 -->
+
+# Task: Web Interface Implementation
+- [x] Update [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py) to return full dataset <!-- id: 12 -->
+- [x] Create Flask [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py) <!-- id: 13 -->
+- [x] Adapt [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) to [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html) <!-- id: 14 -->
+- [x] Verify local web interface <!-- id: 15 -->

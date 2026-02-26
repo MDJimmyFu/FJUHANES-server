@@ -1,0 +1,45 @@
+# 麻醉評估表單評估項目結構與 PDF 勾選對照表
+
+目前系統中的麻醉評估表單結構與其對應的 PDF 輸出邏輯如下表所示。
+
+> [!NOTE]
+> 部分項目在 UI 上有多個子選項（如心臟病包含 CAD, Arrhythmia 等），在產生 PDF 時會合併判斷，若其中任一子項被勾選，則會在 PDF 對應的「Yes」欄位勾選，並將具體病史標註在備註欄位。
+
+| 階層 1 (類別) | 階層 2 (項目) | 階層 3 (子項目) | PDF 勾選欄位 / 對照座標 |
+| :--- | :--- | :--- | :--- |
+| **Past History (過往病史)** | DM (糖尿病) | - | `DM Yes` |
+| | CVA (腦中風) | Ischemic, Hemorrhagic, Hemiparesis | `CVA Yes` |
+| | Hypertension (高血壓) | Regular / Poor control | `Hypertension Yes` |
+| | Cardiac disease (心臟病) | CAD, Valvular, Arrhythmia, Heart failure | `Cardiac disease Yes` |
+| | Asthma (氣喘) | Inhalational / Oral steroid 等 | `Asthma Yes` |
+| | COPD (慢性阻塞性肺病) | - | `COPD Yes` |
+| | Hepatitis (肝炎) | HBV, HCV, Cirrhosis | `Hepatitis Yes` |
+| | Renal disease (腎臟病) | ESRD, PD, HD, Renal Failure | `Renal Disease Yes` |
+| | Bleeding disorder | - | `Bleeding disorder Yes` |
+| | Allergy (過敏) | - | `Allergy Yes` |
+| | Smoking (抽菸) | Quit / Persistent | `Smoking Yes` |
+| | Major operation | - | `Major operations Yes` |
+| **Assessment (評估)** | ASA Classification | 1, 2, 3, 4, 5, 6 | (158~323, 314) 對應各分級欄位 |
+| | | Emergency (緊急手術) | `E` (361, 314) |
+| | Mallampati score | 1, 2, 3, 4 | (227~323, 278) 對應各分級欄位 |
+| | CV Assessment | Normal / Abnormal | `RHB` (180, 260) / `Abnormal` (245, 260) |
+| | Respiratory Assessment | Normal / Abnormal | `BS clear` (170, 242) / `Abnormal` (231, 242) |
+| **Anesthesia Plan (計畫)**| General Anesthesia | ETGA (插管) | `ETGA` (190, 206) |
+| | | LMA (喉罩) | `LMA` (243, 206) |
+| | | Face Mask / IVGA | `Mask` (293, 206) / `IVGA` (344, 206) |
+| | | TCI (全靜脈靶控進藥) | `TCI` (234, 152) |
+| | Regional Anesthesia | SA (脊髓麻醉) | `SA` (398, 206) |
+| | | EA (硬膜外麻醉) | `EA` (437, 206) |
+| | | Nerve Block (神經阻斷) | `Nerve block` (478, 206) |
+| **Monitors (監測與特殊處置)** | CV Monitors | Arterial Line (ABP) | `動脈導管` (165, 188) |
+| | | CVC (中心靜脈導管) | `CVC` (229, 188) |
+| | | TEE (經食道心臟超音波) | `TEE` (277, 188) |
+| | Airway Management | DLT / Blocker | `Lung separation`, `Endobronchial tube` |
+| | | Bronchoscope (支氣管鏡) | `Fiberscopic intubation` (108, 152) |
+| | Post-Op Disposition | ICU admission | `預計術後轉送ICU` (271, 152) |
+| | Pain Management | PCA (自控止痛) | `急性疼痛小組` (199, 134) |
+| | | Ward Pain (病房止痛) | `一般病房疼痛處理流程` (199, 116) |
+
+---
+> [!TIP]
+> 欄位座標均為系統對應於 PDF 模板中的 PDFLib 座標，單位為點 (points)。

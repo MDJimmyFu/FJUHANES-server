@@ -1,0 +1,16 @@
+# Task: Design Data Access Workflow (Non-HIS UI)
+
+- [ ] **Requirement Analysis** <!-- id: 0 -->
+    - [x] Clarify data types and sources (Database, API, HL7, etc.) <!-- id: 1 -->
+    - [x] Confirm security and compliance requirements (Authorized access) <!-- id: 2 -->
+    - [x] Determine HIS Platform (Hybrid: Desktop .exe + Web) <!-- id: 9 -->
+    - [ ] **Feasibility Check: Network Analysis** <!-- id: 14 -->
+        - [ ] Capture traffic from Web (DevTools) <!-- id: 15 -->
+        - [/] Capture traffic from Desktop (Fiddler/Proxy) <!-- id: 16 -->
+- [ ] **Solution Design: Patient Assessment Assistant** <!-- id: 3 -->
+    - [ ] Design API Client (Python `requests`) <!-- id: 4 -->
+    - [ ] Design Unified Data Model (JSON structure) <!-- id: 12 -->
+    - [ ] Design Assessment Interface (Streamlit) <!-- id: 11 -->
+- [ ] **Implementation Planning** <!-- id: 6 -->
+    - [ ] Analyze captured headers/cookies <!-- id: 17 -->
+    - [ ] Prototype Main Controller Script <!-- id: 8 -->

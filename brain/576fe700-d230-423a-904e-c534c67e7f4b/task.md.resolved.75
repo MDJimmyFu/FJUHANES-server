@@ -1,0 +1,10 @@
+# Task: Implement Authentication System
+
+- [ ] Research existing authentication mechanisms in HIS
+- [ ] Design the login interface and backend authentication flow
+- [ ] Implement backend login endpoint in [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- [ ] Implement authentication logic in [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py) (credential verification, session management)
+- [ ] Create login frontend (page or modal) in [index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html)
+- [ ] Securely store and pass credentials/session for subsequent requests
+- [ ] Update inpatient links to use authenticated user details dynamically
+- [ ] Verify the complete authentication and data access flow

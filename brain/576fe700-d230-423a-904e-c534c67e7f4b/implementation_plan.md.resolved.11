@@ -1,0 +1,19 @@
+# Conditionally Hide Inpatient Homepage Link
+
+The goal is to hide the "Open Inpatient Homepage" button in the patient history details if the patient has already been discharged (i.e., they have a discharge date).
+
+## Proposed Changes
+
+### [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+- Update [loadPatientHistory](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html#2867-2908) iteration to pass a discharge flag (`isDischarged`) to [toggleVisitDetail](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html#2909-3096).
+- Update [toggleVisitDetail](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html#2909-3096) signature to accept `isDischarged`.
+- Update link rendering logic to only show the "Open Inpatient Homepage" link if `isDischarged` is false.
+
+## Verification Plan
+
+### Manual Verification
+1. Open the patient detail page.
+2. Expand an **IPD/ADM** history item for a patient who has **NOT** been discharged (no discharge date showing in the list). Verified that both "Open Inpatient Record" and "Open Inpatient Homepage" links are visible.
+3. Expand an **IPD/ADM** history item for a patient who **HAS** been discharged (has a discharge date). Verify that only "Open Inpatient Record" is visible, and "Open Inpatient Homepage" is hidden.

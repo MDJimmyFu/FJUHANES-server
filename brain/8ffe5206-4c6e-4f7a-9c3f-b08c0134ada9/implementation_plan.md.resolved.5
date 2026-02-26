@@ -1,0 +1,32 @@
+# Refining patient header with accurate duration and physician memo.
+
+The goal is to accurately display surgery duration and physician notes in the patient header, with dynamic logic based on the surgery's completion status.
+
+## Proposed Changes
+
+### [Component Name] Surgery Schedule Frontend
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+- **Update [showDetail](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#2790-3182) Initialization**:
+    - Use `OROPMIN` as the source for estimated duration.
+    - Check if `STATUS` is "完成" (Completed).
+- **Post-Fetch Logic**:
+    - After fetching detailed data (`allData`), locate the main surgery record in `allData.raw_c430.OR_ORDER` using `ORKIND === '2'`.
+    - If found and surgery is completed, calculate the actual duration from `BEGINDATETIME` and `ENDDATETIME`.
+    - **Display Logic**:
+        - If NOT completed: Show `OROPMIN` (e.g., "120") in the duration slot.
+        - If completed: Show `OROPMIN [ActualDuration]` (e.g., "120 [140]").
+    - **Color Coding**:
+        - Apply `color: #d1ffcd` (light green) if `ActualDuration < OROPMIN`.
+        - Apply `color: #ffd1d1` (light red) if `ActualDuration > OROPMIN`.
+        - Use slightly different shades that are readable on the gray background.
+- **Physician Memo**: Continue to pull from `PAT_ADM_DRMEMO`.
+
+## Verification Plan
+
+### Automated Tests
+- None.
+
+### Manual Verification
+- Open a patient with an unfinished surgery; verify only `OROPMIN` is shown.
+- Open a patient with a finished surgery; verify both `OROPMIN` and calculate duration are shown with correct color coding.

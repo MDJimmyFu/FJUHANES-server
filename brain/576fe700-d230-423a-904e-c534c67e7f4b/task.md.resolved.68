@@ -1,0 +1,7 @@
+# Task: Extracting Consultation Links
+
+- [x] Analyze `consult_form.php` content for links.
+- [x] Implement backend logic to extract consultation list (JSON).
+- [x] Implement interactive selection UI in frontend.
+- [x] Implement "Open in New Window" buttons for individual reports.
+- [ ] Research and implement EMG detailed records (Chief Complaint, PE, Progress Notes).

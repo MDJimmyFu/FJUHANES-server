@@ -1,0 +1,31 @@
+# Implementation Plan - Local Web Interface
+
+The goal is to recreate the [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) interface but populated with real data fetched from the HIS server using our existing python client.
+
+## User Review Required
+None. This is a local tool.
+
+## Proposed Changes
+
+### 1. Upgrade [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+-   **Modify [_parse_surgery_list](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#116-135)**: Instead of extracting specific hardcoded fields, parse *all* XML tags within `<ORDOP_OPSTA>` rows into the dictionary. This ensures the frontend receives all available data (like `OROPROOM`, `PREANEASSESFIN`, `EMG`, etc.) which matched the original variable names.
+
+### 2. Create Flask Server `app.py`
+-   **Dependencies**: `flask`, `his_client_final`.
+-   **Routes**:
+    -   `/`: Serves the `index.html`.
+    -   `/api/surgery_list`: Accepts `date` param. Calls `client.get_surgery_list(date)`. Returns JSON list.
+    -   `/api/details`: Accepts `ordseq` and `hhistnum`. Calls `client.get_pre_anesthesia_data` and `client.get_anesthesia_charging_data`. Returns combined JSON.
+
+### 3. Setup Frontend `templates/index.html`
+-   **Base**: Copy [surgery_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html) to `templates/index.html`.
+-   **modifications**:
+    -   Replace [fetchSchedule()](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html#1486-1520) JS function to fetch from `/api/surgery_list` instead of its original target.
+    -   Ensure [renderSchedule()](file:///c:/Users/A03772/.gemini/antigravity/scratch/surgery_schedule.html#1572-1632) works with the data format (it should if we return raw keys).
+    -   Update Detail View logic to fetch from `/api/details`.
+
+## Verification Plan
+1.  Run `app.py`.
+2.  Open browser to `http://localhost:5000`.
+3.  Test fetching today's list (default).
+4.  Test finding a patient (e.g. `75176750`) and opening details.

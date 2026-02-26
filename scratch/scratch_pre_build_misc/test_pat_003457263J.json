@@ -1,0 +1,414 @@
+{
+  "c250": {
+    "ORDSEQ": "A75177033OR0037",
+    "OPRSECT": "6",
+    "OROPROOM": "11",
+    "OROPROOMSEQ_OPSTA": "2",
+    "OP_DATE": "20260220",
+    "OP_TIME": "TF",
+    "HHISTNUM": "003457263J",
+    "HNAMEC": "林富天",
+    "HSEXE": "M",
+    "AGE": "57",
+    "ORCATGY": "GS",
+    "ORDOCNM": "劉書宇",
+    "HBED": "11B-171",
+    "ORDIAG": "Acute appendicitis",
+    "ORDPROCED": "Appendix Laparoscopic appendectomy",
+    "ORANENM": "GE",
+    "MANUFSUPYN": "N",
+    "ORDDTTM": "2026-02-20T09:10:02+08:00",
+    "OPSCHEDULE_OPSTA": "D",
+    "DISVISIBLE_OPSTA": "N",
+    "UDOINSTRUCTION": "Call孫",
+    "STATUS": "完成",
+    "CALLPATDTTM": "09:42",
+    "WAITAREADTTM": "10:02",
+    "PAMS_OPBGNDTTM": "2026-02-20T10:20:00+08:00",
+    "PAMS_OPENDDTTM": "2026-02-20T11:25:00+08:00",
+    "EMG": "C",
+    "OROPROOMSEQ_OPSTA_NUM": "2",
+    "OROPROOMSEQ_DR_NUM": "99",
+    "ORDSTATUS": "62",
+    "ORDDTTM_STR": "20260220091002",
+    "PREANEASSESFIN": "X",
+    "OPRSECTNM": "五樓手術室",
+    "ORDOCNO": "02879",
+    "OROPMIN": "90",
+    "NOTLA": "0",
+    "HBIRTHDT": "1969/02/12",
+    "HNURSTABED": "11B-171",
+    "HIDNO": "T120730131",
+    "HSEX": "男",
+    "NEWOP_DATE": "2026年02月20日",
+    "ANEBGNDTTM": "260220 1006",
+    "ANEENDDTTM": "260220 1125",
+    "OPINTIME": "10:20",
+    "OPERATEDATETIME": "10:45",
+    "WHITEBOARD_SHORTDATE": "11:30",
+    "ENCNTNO": "75177033",
+    "HBIRTHDT_ORMC120": "19690212",
+    "PFLABCD": "74004B",
+    "HFINANCL": "7",
+    "PFCODE": "80001601",
+    "OPNOTE_STATUS": "完成",
+    "ORSDTTM": "2026-02-20T10:35:00+08:00",
+    "OREDTTM": "2026-02-20T11:25:00+08:00",
+    "ORDAPNO": "73479355",
+    "VCRowChecked": "N"
+  },
+  "c430": {
+    "CXR": [
+      {
+        "ORDAPNO": "40487696",
+        "ORDPROCED": "Chest PA view",
+        "ORDSIGNDTTM": "2026-02-17T10:58:12+08:00",
+        "PFTYPE": "CXR"
+      }
+    ],
+    "VITALSIGN_HEIGHT": [
+      {
+        "MEDNO": "003457263J",
+        "IDNO": "T120730131",
+        "VISITDATE": "20260217",
+        "VISITSEQ": "75177033",
+        "HCASENO": "75177033",
+        "MEASUREDATETIME": "20260217142600",
+        "MEASURERECNO": "0000019C6A4B4C6A",
+        "HEIGHT": "175",
+        "CANCELYN": "N",
+        "CREATEID": "B05358"
+      }
+    ],
+    "OPOHOME_PAT_MARKS": [
+      {
+        "HHISNUM": "003457263J",
+        "MARK_ID": "CMBDC",
+        "MARK_SUB_ID": "1",
+        "START_DTM": "2023-03-30T00:00:00+08:00",
+        "END_DTM": "2030-03-28T00:00:00+08:00",
+        "YN_OWNER_DISPLAYONLY": "N",
+        "CREATE_ID": "F130050630",
+        "CREATE_NAME": "高福謙",
+        "CREATE_DTM": "2023-03-30T13:07:18+08:00",
+        "YN_CANCEL": "N",
+        "ENCTYPE": "O"
+      }
+    ],
+    "INSPECTION": [
+      {
+        "TITLE": "ALT",
+        "SYB_VALUE": "16",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "APTT",
+        "SYB_VALUE": "36.1",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "BASO",
+        "SYB_VALUE": "0.1",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "BIL",
+        "SYB_VALUE": "0.54",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "BUN",
+        "SYB_VALUE": "17",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "CK",
+        "SYB_VALUE": "83",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "CKMB",
+        "SYB_VALUE": "1.0",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "CREA",
+        "SYB_VALUE": "1.04",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "CRP",
+        "SYB_VALUE": "16.30",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "EO",
+        "SYB_VALUE": "0.1",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "GLU RANDOM",
+        "SYB_VALUE": "135",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "Glucose (random)",
+        "SYB_VALUE": "135",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "HCT",
+        "SYB_VALUE": "37.2",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "HGB",
+        "SYB_VALUE": "12.8",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "INR",
+        "SYB_VALUE": "1.01",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "K",
+        "SYB_VALUE": "4.3",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "LIP",
+        "SYB_VALUE": "18.9",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "LYM",
+        "SYB_VALUE": "8.8",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "MCH",
+        "SYB_VALUE": "29.1",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "MCHC",
+        "SYB_VALUE": "34.4",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "MCV",
+        "SYB_VALUE": "84.5",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "MONO",
+        "SYB_VALUE": "5.3",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "NA",
+        "SYB_VALUE": "136",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "NRBC",
+        "SYB_VALUE": "0.0",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "PLT",
+        "SYB_VALUE": "171",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "PT",
+        "SYB_VALUE": "10.5",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "RBC",
+        "SYB_VALUE": "4.40",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "RDW",
+        "SYB_VALUE": "11.5",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "SEG",
+        "SYB_VALUE": "85.7",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "Troponin-I",
+        "SYB_VALUE": "0.003",
+        "SIGNDATE": "20260217"
+      },
+      {
+        "TITLE": "WBC",
+        "SYB_VALUE": "9.76",
+        "SIGNDATE": "20260219"
+      },
+      {
+        "TITLE": "eGFR",
+        "SYB_VALUE": "78.24",
+        "SIGNDATE": "20260217"
+      }
+    ],
+    "VITALSIGN_SPO2": [
+      {
+        "SPO2": "99"
+      }
+    ],
+    "VITALSIGN_WEIGHT": [
+      {
+        "MEDNO": "003457263J",
+        "IDNO": "T120730131",
+        "VISITDATE": "20260217",
+        "VISITSEQ": "75177033",
+        "HCASENO": "75177033",
+        "MEASUREDATETIME": "20260217142600",
+        "MEASURERECNO": "0000019C6A4B4CE9",
+        "WEIGHT": "73",
+        "CANCELYN": "N",
+        "CREATEID": "B05358"
+      }
+    ],
+    "VITALSIGN_BTVALUE": [
+      {
+        "MEDNO": "003457263J",
+        "IDNO": "T120730131",
+        "VISITDATE": "20260217",
+        "VISITSEQ": "75177033",
+        "HCASENO": "75177033",
+        "MEASUREDATETIME": "20260220172400",
+        "MEASURERECNO": "9999999995410664",
+        "BTVALUE": "36.6",
+        "BTSITE": "耳溫",
+        "CANCELYN": "N",
+        "CREATEID": "B04777"
+      }
+    ],
+    "PAT_ADM_DRMEMO": [
+      {
+        "HHISNUM": "003457263J",
+        "HCASENO": "75177033",
+        "CREATEDT": "2026-02-17T19:09:48+08:00",
+        "STATUS": "S",
+        "OPID": "A228995863",
+        "OPNM": "楊家穎",
+        "OPSID": "04198",
+        "DRMID": "20260220130451",
+        "CLASS": "NP",
+        "LABEL": "交接班",
+        "CANCELYN": "N",
+        "OP_DT": "2026-02-17T19:09:48+08:00",
+        "PAT_STATUS": "1",
+        "INVASIVE_DISPOE": "null"
+      },
+      {
+        "HHISNUM": "003457263J",
+        "HCASENO": "75177033",
+        "CREATEDT": "2026-02-17T14:47:30+08:00",
+        "STATUS": "R",
+        "DRMID": "20260217144730",
+        "CLASS": "R",
+        "LABEL": "NP_PGY_R_交接班",
+        "RESP_ID": "A126632325",
+        "RESP_NM": "陳振豪",
+        "RESP_DT": "2026-02-17T14:47:30+08:00",
+        "RESP_CONTENT": "接班完成",
+        "CANCELYN": "N",
+        "PAT_STATUS": "1"
+      },
+      {
+        "HHISNUM": "003457263J",
+        "HCASENO": "75177033",
+        "CREATEDT": "2026-02-17T14:18:10+08:00",
+        "STATUS": "R",
+        "OPID": "A126971274",
+        "OPNM": "劉靖之",
+        "OPSID": "00429",
+        "DRMID": "20260217145921",
+        "RESP_ID": "A228995863",
+        "RESP_NM": "楊家穎",
+        "RESP_DT": "2026-02-17T14:59:21+08:00",
+        "RESP_CONTENT": "接班完成",
+        "CANCELYN": "N"
+      }
+    ],
+    "VITALSIGN_SBPDBPVALUE": [
+      {
+        "MEDNO": "003457263J",
+        "IDNO": "T120730131",
+        "VISITDATE": "20260217",
+        "VISITSEQ": "75177033",
+        "HCASENO": "75177033",
+        "MEASUREDATETIME": "20260220172400",
+        "MEASURERECNO": "9999999995410661",
+        "SBPVALUE": "108",
+        "DBPVALUE": "81",
+        "CANCELYN": "N",
+        "CREATEID": "B04777"
+      }
+    ],
+    "VITALSIGN_RESPVALUE": [
+      {
+        "MEDNO": "003457263J",
+        "IDNO": "T120730131",
+        "VISITDATE": "20260217",
+        "VISITSEQ": "75177033",
+        "HCASENO": "75177033",
+        "MEASUREDATETIME": "20260220172400",
+        "MEASURERECNO": "9999999995410662",
+        "RESPVALUE": "15",
+        "CANCELYN": "N",
+        "CREATEID": "B04777"
+      }
+    ],
+    "ORRANER": [
+      {
+        "ORDSEQ": "A75177033OR0037",
+        "ANEDOCID": "03772",
+        "ANEDOCNMC": "傅俊銜",
+        "ANESUPVID": "03772",
+        "ANESUPVNMC": "傅俊銜",
+        "ANEASA": "2",
+        "ANEEMG": "N",
+        "ANEPTCAS": "4",
+        "ANENM": "GE",
+        "ANEPRCLASS": "S",
+        "ANEBGNDTTM": "2026-02-20T10:06:00+08:00",
+        "ANEENDDTTM": "2026-02-20T11:25:00+08:00",
+        "CANCELYN": "N",
+        "PROCDATETIME": "20260220124258",
+        "PROCID": "F220905728",
+        "PROCNMC": "邱穎玲",
+        "CREATEDATETIME": "20260220091003",
+        "CREATEID": "A127001253",
+        "CREATENMC": "賴信宏",
+        "HCASENO": "75177033",
+        "ANEROOM": "11",
+        "ANE_DOC_DR_NO": "02879",
+        "COST_ID": "ANES"
+      }
+    ],
+    "VITALSIGN_PULSEVALUE": [
+      {
+        "MEDNO": "003457263J",
+        "IDNO": "T120730131",
+        "VISITDATE": "20260217",
+        "VISITSEQ": "75177033",
+        "HCASENO": "75177033",
+        "MEASUREDATETIME": "20260220172400",
+        "MEASURERECNO": "9999999995410663",
+        "PULSEVALUE": "78",
+        "PULSESITE": "脈搏",
+        "CANCELYN": "N",
+        "CREATEID": "B04777"
+      }
+    ]
+  }
+}

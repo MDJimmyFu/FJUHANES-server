@@ -1,0 +1,30 @@
+# Add Painless Vital Sign Orders
+
+This plan details the changes required to implement automatic "check vital sign" (CVS) medical orders after a painless labor medication prescription.
+
+## Proposed Changes
+
+### Backend ([his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/his_client.py))
+#### [MODIFY] his_client.py(file:///c:/Users/A03772/AutoPrescribe_ver2/his_client.py)
+- Implement a new method `prescribe_painless_vitals(patient_data)`:
+  - Prescribe two orders:
+    1. `XTR00403` (Check vital signs Q30min...)
+    2. `XTR00024` (@Check vital signs)
+  - Use the two-step IpoC151 process (`ProcessBASOTGP` then `Save`).
+  - Frequency for both: `ASORDER`.
+
+### Backend ([app.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/app.py))
+#### [MODIFY] app.py(file:///c:/Users/A03772/AutoPrescribe_ver2/app.py)
+- In the [prescribe](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_ver2/app.py#37-79) route, after a successful `PAINLESS` prescription:
+  - Call `client.prescribe_painless_vitals(patient_data)`.
+  - Ensure any errors in this step are logged but don't prevent the PDF from being returned.
+
+## Verification Plan
+
+### Automated Tests
+- Run simulation of painless prescription and verify subsequent calls to IpoC151/Save for the two TR codes.
+
+### Manual Verification
+1. Prescribe a "Painless Labor" package from the UI.
+2. Confirm medication PDF is downloaded.
+3. Check the "Orders" section in the HIS system (simulation/pcap comparison) to ensure `XTR00403` and `XTR00024` were submitted.

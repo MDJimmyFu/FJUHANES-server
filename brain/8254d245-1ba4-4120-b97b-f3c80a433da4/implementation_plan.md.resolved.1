@@ -1,0 +1,41 @@
+# Data Access Workflow Design
+
+## Goal Description
+Design a technical process to retrieve data programmatically or directly from the source, bypassing the standard HIS (Hospital Information System) user interface. This is typically done for analytics, interoperability, or custom application integration.
+
+## User Review Required
+> [!IMPORTANT]
+> **Security & Compliance**: Accessing medical data outside the standard HIS UI requires strict adherence to data privacy regulations (e.g., GDPR, HIPAA, local laws). Ensure you have authorized administrative or developer access to the underlying systems.
+
+- **Data Source**: What specific database (SQL Server, Oracle, MySQL) or interface (HL7, FHIR) is available?
+- **Authentication**: How will the external process authenticate?
+- **Read/Write**: Is this purely for reading data, or is write-back required?
+
+## Proposed Workflows
+
+### Scenario A: HIS is a Web Application (Browser-based)
+If the HIS runs in Chrome/Edge/IE:
+1.  **Network Traffic Analysis**: Inspect "Network" tab to find the internal API calls returning JSON/XML.
+    -   *Solution*: Write a Python script to replay these requests with your session cookie. (True "Skip UI" mode).
+2.  **Browser Automation**: If APIs are encrypted/complex.
+    -   *Solution*: Use Selenium or Playwright to auto-login and scrape data invisibly (Headless mode).
+
+### Scenario B: HIS is a Desktop Application (.exe)
+If the HIS is a Windows program:
+1.  **Direct Database Connection (Recommended)**:
+    -   *Solution*: Connect via ODBC/JDBC to the backend SQL Server/Oracle DB.
+2.  **GUI Automation (RPA)**:
+    -   *Solution*: Use PyAutoGUI or UiPath to simulate clicks and keystrokes. (Harder to "skip" the UI, but automates the repetition).
+
+## Patient Assessment Tool Design
+Once data is fetched, it needs to be presented for your assessment.
+-   **Interface**: A simple local dashboard (e.g., Python Streamlit) or an Excel file with macros.
+-   **Features**:
+    -   Auto-calculate scores (e.g., BMI, Risk Scores).
+    -   Highlight abnormal values.
+    -   Generate a summary text for copy-pasting back into HIS.
+
+## Next Steps
+1.  **Confirm Platform**: Is HIS a Web Page or a Windows Program?
+2.  **Select Method**: Choose the most stable method (API/DB > RPA).
+3.  **Build Prototype**: Create a script to fetch 1 patient's data.

@@ -1,0 +1,47 @@
+# Lab Data Source Investigation Report
+
+## Objective
+Retrieve Lab Results (WBC, HB, HCT, PLT, etc.) for patient `003617083J` (Case No `75176986` / `46806581`).
+
+## Summary of Findings
+Extensive investigation into the HIS database has identified **`OPDUSR.PAT_RESULTH`** (Patient Result Header) and **`OPDUSR.PAT_RESULTD`** (Patient Result Detail) as the correct tables for storing structured lab results. However, queries for the specific patient ID `003617083J` returned **no data** in these tables.
+
+## 1. Primary Candidate: `OPDUSR.PAT_RESULTH`
+- **Schema**: Validated. Contains columns `PRH_PAT_ID`, `PRH_TRX_DT`, `PRH_TRX_NUM`, `PRH_TEST_CODE`.
+- **ID Format**: Validated. The `PRH_PAT_ID` column uses the `00xxxxxxxX` format (e.g., sample ID found: `003107922I`), which matches the patient's HHISNUM format (`003617083J`).
+- **Query Result**: 
+    - Queries for `PRH_PAT_ID = '003617083J'` returned **0 rows**.
+    - Queries for `PRH_PAT_CASENO = '75176986'` and `'46806581'` returned **0 rows**.
+    - Date range sampling (2026/02/10 - 2026/02/20) for this patient timed out or returned no data.
+
+## 2. Other Investigated Sources
+| Schema | Table | Findings |
+| :--- | :--- | :--- |
+| **PCUN** | `TB_LIS_RESULT` | Table seems empty or query timed out. Sample queries returned only schema. |
+| **OPDUSR** | `OPDRXPM` | Found administrative data, but **no Lab columns** (WBC, HB, etc.) exist in the schema. |
+| **OPDUSR** | `LABIHEM` / `LABIHED` | Table schema confirmed (Health Exam?), but queries for patient returned **no data**. |
+| **OPDUSR** | `INABBED` / `INABBEDLOG` | Found administrative admission data. No lab results. |
+| **CPOE** | `ORDLAB` / `LABSHEET` | Table samples returned only schema (empty table?). |
+| **EMR** | `LABREC_M` / `LABREC_D` | Tables exist in dictionary but schema retrieval failed (likely permission restricted). |
+| **OPDUSR** | `EXM...` (EXMREPD, etc.) | Found EAV structure for Exams. Query for 'WBC' field timed out or returned no results. |
+
+## Final Resolution (2026-02-18)
+
+After extensive PCAP analysis, the mechanism for retrieving laboratory data via `HISOrmC430Facade` was discovered:
+
+1.  **Patient Activation**: The server maintains a "Current Patient" context. This must be initialized by calling `HISOrmC250Facade` (Surgery List) with a specific payload targeting the `ORDSEQ` and `HHISTNUM` of the desired patient.
+2.  **Date Matching**: The subsequent `HISOrmC430Facade` request must contain an `OPDATE` that matches the surgery date. If the date differs from the one associated with the active case, the server returns the basic dataset but omits the `INSPECTION` table.
+
+**Outcome**: The `HISClient` has been updated to perform this two-step activation sequence automatically. Live laboratory data (e.g., WBC 7.94 for patient 003617083J) is now successfully being retrieved and displayed in the web interface.
+
+## Conclusion
+The structure for Lab Results exists in `OPDUSR.PAT_RESULTH`. The absence of data for patient `003617083J` suggests:
+1.  **Data Not Yet Generated/Finalized**: The lab results might not be in the system yet.
+2.  **Different Patient ID**: The lab requests might be under a different Temporary ID or Linked ID.
+3.  **Archived/Different System**: The data might reside in a legacy system or NIS (Nursing Information System) not accessible via the current `HISExmFacade`.
+
+## Action Item
+Request clarification from User regarding:
+- Confirmation that lab results *should* exist for this specific patient ID.
+- Availability of a `PRH_TRX_NUM` (Transaction Number) or specific date for the lab.
+- Possibility of data being in a specific "Health Checkup" (Heidi?) system vs standard OPD/Inpatient Labs.

@@ -1,0 +1,14 @@
+# Package Integrity Check
+
+- [/] Verify file presence
+  - [ ] Check core scripts ([app.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/app.py), [his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/his_client.py))
+  - [ ] Check configuration/requirement files ([requirements.txt](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/requirements.txt), [start.bat](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/start.bat))
+  - [ ] Check data and template directories (`templates/`, `Ipo/`)
+- [ ] Dependency verification
+  - [ ] Check if `venv` exists
+  - [ ] Compare installed packages with [requirements.txt](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/requirements.txt)
+- [ ] Resource verification
+  - [ ] Check if [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/templates/index.html) exists
+  - [ ] Inspect `Ipo/` directory for expected contents
+- [ ] Import check
+  - [ ] Perform a static import check to ensure all dependencies are resolved

@@ -1,0 +1,11 @@
+- [x] Fix Anesthesia Plan summary interference (ETGA/LMA/DLT)
+- [x] Fix missing A-line sub-options (Pressure Kit Domes)
+- [x] Redesign Patient Detail Header & Fix Data Mapping
+    - [x] Refined gray layout and information hierarchy
+    - [x] Corrected surgery duration (手術耗時) display using `OP_TIME` and fallbacks
+    - [x] Corrected physician memo (醫師備註) using `PAT_ADM_DRMEMO`
+- [/] Conditional Surgery Duration Display Logic
+    - [ ] Update labels and logic for unfinished vs finished surgeries
+    - [ ] Implement duration calculation (END - BEGIN)
+    - [ ] Add light green/red color coding based on OROPMIN comparison
+- [ ] Create final walkthrough and obtain approval

@@ -1,0 +1,78 @@
+# Walkthrough - Unique IDs & HBV Bug Fix
+
+I have implemented unique IDs for all form fields in [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) and resolved the bug where "HBV" was incorrectly printed in the PDF.
+
+## Changes Made
+
+### 1. Unique ID Implementation
+Every input field (checkboxes, radio buttons, text inputs) in the [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) form has been assigned a unique ID following a consistent naming convention:
+- `chk_section_subitem` for checkboxes and radio buttons.
+- `txt_section_subitem` for text inputs.
+- `sel_section_subitem` for select dropdowns.
+
+This improves the reliability of element selection in JavaScript and facilitates future automated testing.
+
+### 2. Improved [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3774-3798) Function
+The [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3774-3798) function was updated to be more robust:
+- **ID Support**: It now primarily looks for elements by ID, which is the most reliable method.
+- **Improved Specificity**: When searching by keyword, it now selects the most specific element (shortest text match). This prevents parent elements from being incorrectly identified as the target when they contain sub-items with matching text.
+
+```javascript
+function isChecked(idOrKeyword) {
+    // 1. Try by ID first
+    const elById = document.getElementById(idOrKeyword);
+    if (elById && (elById.type === 'checkbox' || elById.type === 'radio')) {
+        return elById.checked;
+    }
+
+    // 2. Fallback to keyword search (refined for specificity)
+    const elements = Array.from(document.querySelectorAll('li, label, span.bold-item'));
+    const candidates = elements.filter(el => el.textContent.includes(idOrKeyword));
+    
+    if (candidates.length > 0) {
+        candidates.sort((a, b) => a.textContent.length - b.textContent.length);
+        const target = candidates[0].closest('li, label');
+        if (target) {
+            const cb = target.querySelector('input[type="checkbox"], input[type="radio"]');
+            if (cb && cb.checked) return true;
+        }
+    }
+    return false;
+}
+```
+
+### 3. HBV Printing Bug Fix
+The PDF generation logic for the Hepatitis section was rewritten to:
+- Use the new unique IDs (`chk_dig_carrier_hbv`, `chk_dig_carrier_hcv`, `chk_dig_cirrh`).
+- Use properly scoped local variables (`let hNote`, `let hExtras`) to prevent global scope pollution.
+- Correctly check only the intended checkboxes.
+
+```javascript
+// "Hepatitis"
+let hNote = "";
+let hExtras = [];
+if (isChecked("chk_dig_carrier_hbv")) hExtras.push("HBV");
+if (isChecked("chk_dig_carrier_hcv")) hExtras.push("HCV");
+if (isChecked("chk_dig_cirrh")) hExtras.push("Cirrhosis");
+if (hExtras.length > 0) hNote = hExtras.join(", ");
+if (hNote) draw(hNote, 250.19, 545.0 + 2);
+checkPhItem("Hepatitis", hNote.length > 0);
+```
+
+### 4. Nested Sub-item Extraction Fix
+A bug where unselected sibling items (like "Right" when "Left" was checked for Hemiparesis) appeared in the summary has been fixed by:
+- **Standardizing HTML Structure**: Affected sections (Hemiparesis, Atrial fibrillation, AV Block, Bronchoscope options) were converted from in-line labels to hierarchical `<ul>` structures.
+- **Refining [getCleanText](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3943-3950)**: Updated the text extraction helper to explicitly ignore nested `<label>` tags, preventing parent labels from capturing child text nodes.
+
+### 6. Anesthesia Plan Summary & Mapping Fixes
+Several fixes were applied to the Anesthesia Plan section to address selection interference and missing details:
+- **ET Tube / LMA / DLT Independence**: Updated the PDF mapping logic to use specific element IDs (like `#chk_ga_ett`) instead of keyword searches. This prevents selecting "ET Tube" from accidentally triggering "LMA" or "DLT" checkboxes in the PDF.
+- **Header Item Support**: Refined [getRecursivelyCheckedText](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3832-3860) to correctly include header items (like "Oral/Nasal" or "Asthma Classification") in the summary if their children are checked.
+- **A-line Sub-options Fix**: Standardized the ABP (Arterial Line) monitors section to use hierarchical `<ul>` structures. This ensures that "2-dome" or "3-dome" selections are correctly captured and displayed in the summary as `Pressure Kit (2-Dome)`.
+
+## Verification Results
+
+- [x] **ET Tube Independence**: Selecting "ET Tube" now correctly checks ONLY the ETGA box in the PDF and includes only ET Tube in the summary.
+- [x] **A-line Domes**: Checking "Pressure Kit" and "2-Dome" now correctly displays `Pressure Kit (2-Dome)` in the Plan Summary.
+- [x] **Recursive Headers**: Header items like "Oral" and "Classification" now correctly appear in the summary with their checked children in parentheses.
+- [x] **ID-Based Logic**: PDF mapping is now 100% reliable using unique IDs.

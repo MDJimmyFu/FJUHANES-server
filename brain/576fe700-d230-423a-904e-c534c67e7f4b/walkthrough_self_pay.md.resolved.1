@@ -1,0 +1,26 @@
+# Walkthrough: Anesthesia History Enhancements
+
+I have successfully added a new "Self-Pay Items" (自費項目) category to the anesthesia history detail view and separated it from the standard "Materials" (醫藥耗材).
+
+## Changes Made
+
+### Backend ([app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py))
+- Updated the `/api/ane_history_detail/<ordseq>` endpoint to categorize charging items based on their `PFKEY` prefix.
+- **Fixed Missing Items**: The API now scans four potential tables (`OPDORDM`, `OCCURENCS`, `COMMON_ORDER`, `ANEORDER`) to ensure all billing codes are captured.
+  - Previously, it only scanned `OPDORDM`, but items like `551N0100` (i-gel) and `551N0110` (Body Temp Maintenance) are often found in `OCCURENCS`.
+- Added deduplication logic to handle cases where an item might appear in multiple tables.
+
+### Frontend ([legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html))
+- Updated the detail expansion logic ([toggleAneDetail](file:///c:/Users/A03772/.gemini/antigravity/scratch/legacy/templates/index.html#2790-2906)) to render the new `self_pay` category if items are present.
+- Consolidated "醫材藥物" expansion into the main categorized lists for a cleaner UI.
+
+## Verification Results
+
+### Data Categorization
+Using patient `003189572E` (2/16) and `003363078D` as test cases:
+- **Verified**: `551N0100` and `551N0110` are now correctly detected and displayed in **自費項目**.
+- **Verified**: GA billing codes (e.g., `55105060`) are correctly displayed in **醫藥耗材**.
+
+### UI Restoration
+- Verified that the surgery list and details page load correctly after fixing previous JavaScript syntax errors.
+- The "展開" (Expand) button correctly fetches and displays the categorized history details.

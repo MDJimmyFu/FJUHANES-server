@@ -1,0 +1,15 @@
+# Task: Implement Authentication System & Debug Data
+
+- [x] Research existing authentication mechanisms in HIS
+- [x] Implement backend authentication flow
+- [x] Create the login interface
+- [x] Integrate authentication with data access
+    - [x] Update [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#9-519) to use dynamic user IDs from session
+    - [x] Update Inpatient links to use authenticated user details (UID and Login Password)
+- [x] Debug and restore missing data flow
+    - [x] Restore [get_vitals_from_exm](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#243-313) with full mapping
+    - [x] Restore [get_lab_data](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#194-225) with comprehensive mapping
+    - [x] Restore clinical notes ([get_opd_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#450-466), [get_emg_clinical_notes](file:///c:/Users/A03772/.gemini/antigravity/scratch/backup_20260220_1140/his_client_final.py#660-701))
+    - [x] Update [get_visit_details](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#420-449) to include clinical notes
+- [x] Verify the complete authentication and access control flow
+- [x] Backup current version before implementation (`backup_20260220_1140`)

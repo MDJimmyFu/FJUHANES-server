@@ -1,0 +1,35 @@
+# Network Analysis and API Client Implementation Plan
+
+## Goal
+Analyze network traffic from the target HIS application to reverse-engineer the API endpoints and authentication mechanism, then update [his_api_client.py](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py) to function correctly.
+
+## User Review Required
+- **Target Application**: Need URL or ability to capture traffic.
+- **Data Source**: Will the user provide a HAR file, PCAP file, or should we use browser tools?
+
+## Proposed Changes
+
+### Analysis Phase
+1.  **Ingest Data**: Load traffic logs (HAR/PCAP) or inspect via Browser.
+2.  **Identify Endpoints**:
+    -   Login URL and HTTP Method (POST/GET).
+    -   Patient Search URL.
+3.  **Identify Auth**:
+    -   Check for `Set-Cookie` headers.
+    -   Check for JSON tokens (JWT, Bearer).
+
+### Implementation Phase ([his_api_client.py](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py))
+1.  Update [login()](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py#15-46) method with:
+    -   Correct `login_url`.
+    -   Correct payload keys (e.g., `user` vs `username`, `pwd` vs `password`).
+    -   Token extraction logic if necessary.
+2.  Update [get_patient_data()](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py#47-72) method with:
+    -   Correct `endpoint`.
+    -   Correct query parameters or JSON body.
+
+## Verification Plan
+### Automated Tests
+-   Run [his_api_client.py](file:///C:/Users/A03772/.gemini/antigravity/scratch/his_api_client.py) (updated) and verify it prints "Login successful!".
+
+### Manual Verification
+-   Compare script output with actual browser behavior.

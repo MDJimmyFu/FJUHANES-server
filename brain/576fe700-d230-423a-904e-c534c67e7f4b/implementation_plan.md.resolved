@@ -1,0 +1,33 @@
+# Packaging Application into Standalone Executable
+
+This plan outlines the steps to bundle the Flask web application and all its dependencies (HIS Client, binary templates, static assets) into a single Windows executable ([.exe](file:///c:/Users/A03772/.gemini/antigravity/scratch/python_installer.exe)) for easy deployment.
+
+## Proposed Changes
+
+### [NEW] [resource_utils.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/resource_utils.py)
+- Create a utility to resolve file paths correctly whether running from source or from a PyInstaller bundle (using `sys._MEIPASS`).
+
+### [MODIFY] [his_client_final.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py)
+- Use `resource_path` from `resource_utils.py` for all [.bin](file:///c:/Users/A03772/.gemini/antigravity/scratch/body_985.bin) template loads.
+
+### [MODIFY] [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+- Use `resource_path` for `templates` and `static` folder configuration.
+- Add a mechanism to open the web browser automatically upon startup.
+
+### [NEW] [build.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/build.py)
+- A Python script to automate the `PyInstaller` command with all necessary flags:
+    - `--onefile`: Bundle everything into one EXE.
+    - `--add-data`: Include `templates`, `static`, and [.bin](file:///c:/Users/A03772/.gemini/antigravity/scratch/body_985.bin) files.
+    - `--name`: Internal tool name.
+
+## Verification Plan
+
+### Automated Tests
+- Run the build script and verify the generated [.exe](file:///c:/Users/A03772/.gemini/antigravity/scratch/python_installer.exe) exists in the `dist/` folder.
+- Execute the [.exe](file:///c:/Users/A03772/.gemini/antigravity/scratch/python_installer.exe) and confirm:
+    1. The Flask server starts without errors.
+    2. The browser opens to `http://localhost:5000`.
+    3. Login and patient details work correctly (verifying [.bin](file:///c:/Users/A03772/.gemini/antigravity/scratch/body_985.bin) files are loaded).
+
+### Manual Verification
+- Test the [.exe](file:///c:/Users/A03772/.gemini/antigravity/scratch/python_installer.exe) on a computer without a Python environment installed.

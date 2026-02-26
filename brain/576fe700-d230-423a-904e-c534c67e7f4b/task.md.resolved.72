@@ -1,0 +1,11 @@
+# Task: Extracting Consultation Links
+
+- [x] Analyze `consult_form.php` content for links.
+- [x] Implement backend logic to extract consultation list (JSON).
+- [x] Implement interactive selection UI in frontend.
+- [x] Implement "Open in New Window" buttons for individual reports.
+- [x] Research and implement EMG detailed records (Chief Complaint, PE, Progress Notes).
+- [x] Fix `undefined` issues and implement multiple progress notes accordion.
+- [x] Research and implement OPD SOAP notes (Subjective, Objective, Assessment, Plan).
+- [ ] Implement "Hide Completed" toggle for surgery schedule.
+- [ ] Display Emergency Urgency Code (A/B/C) with color coding.

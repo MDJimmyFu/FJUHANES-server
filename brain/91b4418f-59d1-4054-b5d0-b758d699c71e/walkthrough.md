@@ -1,0 +1,35 @@
+# Hospital Login Tool - Walkthrough
+
+I have created the automation tool for you. Since this tool interacts with your local hospital systems, you will need to run it on your machine.
+
+## Prerequisites
+
+1.  **Python**: Ensure Python is installed.
+2.  **Dependencies**: Open a terminal in the project folder and run:
+    ```powershell
+    pip install -r requirements.txt
+    playwright install
+    ```
+
+## How to Run
+
+1.  Navigate to the project directory:
+    ```powershell
+    cd C:\Users\A03772\.gemini\antigravity\scratch\hospital_login_tool
+    ```
+2.  Run the main application:
+    ```powershell
+    python main.py
+    ```
+3.  A window will appear asking for your Username and Password.
+4.  Enter your credentials and click **Login**.
+
+## What to Expect
+
+-   **Web System**: A browser window will open, navigate to `http://10.10.246.80/Ipo/HISLogin`, and attempt to log in.
+-   **HIS System**: The tool will launch `C:\VGHTC\HISLogin.exe` and attempt to type your credentials.
+
+## Troubleshooting
+
+-   **Web Login Fails**: If the browser opens but doesn't type, the "selectors" (HTML IDs) might be different. You may need to inspect the webpage (Right click -> Inspect) and update `web_login.py` with the correct `name="..."` or `id="..."` for the username/password fields.
+-   **HIS Login Fails**: If the app opens but doesn't type, the window title might not match. Check `his_login.py` and adjust the `title_re=".*Login.*"` regex to match the actual window title of your HIS app.

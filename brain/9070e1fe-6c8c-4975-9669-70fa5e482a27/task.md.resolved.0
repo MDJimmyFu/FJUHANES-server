@@ -1,0 +1,7 @@
+# Task: Document Anesthesia Form Structure and PDF Mapping
+
+- [ ] Analyze `legacy_schedule.html` for checkboxes and text inputs [/]
+- [ ] Research PDF generation mapping in backend [ ]
+- [ ] Map HTML inputs to PDF fields [ ]
+- [ ] Create Markdown documentation with examples [ ]
+- [ ] Finalize and notify user [ ]

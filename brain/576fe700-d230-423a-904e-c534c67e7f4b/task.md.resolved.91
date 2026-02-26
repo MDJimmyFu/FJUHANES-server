@@ -1,0 +1,14 @@
+# Task: Debugging Missing Lab and Vitals Data & Integrating Reports
+
+- [x] Analyze discrepancy between current [HISClient](file:///c:/Users/A03772/.gemini/antigravity/scratch/his_client_final.py#10-598) and backup
+- [x] Restore missing data retrieval methods
+- [x] Fix data flow bugs
+- [x] Integrate Lab Reports with Status 68
+- [x] Categorize Lab Reports (Status 64 vs 68)
+- [x] Investigate Vital Signs Discrepancy for 003616525A
+- [/] Debug Missing Height/Weight/Temperature for 003616525A
+    - [ ] Research alternative tags for Temperature (e.g., BT.CORE, BT.AXILLARY)
+    - [ ] Verify Height/Weight tags in `CPOE.OR_SIGN_IN` and `VITALSIGNUPLOAD`
+    - [ ] Implementation of expanded vital signs mapping
+- [x] Verify fix with compilation and manual check
+- [x] Update documentation (walkthrough)

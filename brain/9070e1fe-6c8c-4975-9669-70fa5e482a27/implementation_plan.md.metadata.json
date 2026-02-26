@@ -1,0 +1,6 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary":  "Implementation plan for adding a settings menu with auto-update and theme-switching features to the surgery schedule page. Includes UI design, logic for periodic refresh, and theme support using CSS variables and localStorage.",
+  "updatedAt":  "2026-02-26T04:07:49.270009700Z",
+  "version":  "1"
+}

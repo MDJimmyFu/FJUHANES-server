@@ -1,0 +1,89 @@
+# Walkthrough - Unique IDs & HBV Bug Fix
+
+I have implemented unique IDs for all form fields in [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) and resolved the bug where "HBV" was incorrectly printed in the PDF.
+
+## Changes Made
+
+### 1. Unique ID Implementation
+Every input field (checkboxes, radio buttons, text inputs) in the [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) form has been assigned a unique ID following a consistent naming convention:
+- `chk_section_subitem` for checkboxes and radio buttons.
+- `txt_section_subitem` for text inputs.
+- `sel_section_subitem` for select dropdowns.
+
+This improves the reliability of element selection in JavaScript and facilitates future automated testing.
+
+### 2. Improved [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/index.html#3177-3194) Function
+The [isChecked](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/index.html#3177-3194) function was updated to be more robust:
+- **ID Support**: It now primarily looks for elements by ID, which is the most reliable method.
+- **Improved Specificity**: When searching by keyword, it now selects the most specific element (shortest text match). This prevents parent elements from being incorrectly identified as the target when they contain sub-items with matching text.
+
+```javascript
+function isChecked(idOrKeyword) {
+    // 1. Try by ID first
+    const elById = document.getElementById(idOrKeyword);
+    if (elById && (elById.type === 'checkbox' || elById.type === 'radio')) {
+        return elById.checked;
+    }
+
+    // 2. Fallback to keyword search (refined for specificity)
+    const elements = Array.from(document.querySelectorAll('li, label, span.bold-item'));
+    const candidates = elements.filter(el => el.textContent.includes(idOrKeyword));
+    
+    if (candidates.length > 0) {
+        candidates.sort((a, b) => a.textContent.length - b.textContent.length);
+        const target = candidates[0].closest('li, label');
+        if (target) {
+            const cb = target.querySelector('input[type="checkbox"], input[type="radio"]');
+            if (cb && cb.checked) return true;
+        }
+    }
+    return false;
+}
+```
+
+### 3. HBV Printing Bug Fix
+The PDF generation logic for the Hepatitis section was rewritten to:
+- Use the new unique IDs (`chk_dig_carrier_hbv`, `chk_dig_carrier_hcv`, `chk_dig_cirrh`).
+- Use properly scoped local variables (`let hNote`, `let hExtras`) to prevent global scope pollution.
+- Correctly check only the intended checkboxes.
+
+```javascript
+// "Hepatitis"
+let hNote = "";
+let hExtras = [];
+if (isChecked("chk_dig_carrier_hbv")) hExtras.push("HBV");
+if (isChecked("chk_dig_carrier_hcv")) hExtras.push("HCV");
+if (isChecked("chk_dig_cirrh")) hExtras.push("Cirrhosis");
+if (hExtras.length > 0) hNote = hExtras.join(", ");
+if (hNote) draw(hNote, 250.19, 545.0 + 2);
+checkPhItem("Hepatitis", hNote.length > 0);
+```
+
+### 4. Nested Sub-item Extraction Fix
+A bug where unselected sibling items (like "Right" when "Left" was checked for Hemiparesis) appeared in the summary has been fixed by:
+- **Standardizing HTML Structure**: Affected sections (Hemiparesis, Atrial fibrillation, AV Block, Bronchoscope options) were converted from in-line labels to hierarchical `<ul>` structures.
+- **Refining [getCleanText](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4102-4109)**: Updated the text extraction helper to explicitly ignore nested `<label>` tags, preventing parent labels from capturing child text nodes.
+
+### 7. Patient Header Redesign & Dynamic Duration Logic
+The patient detail view header has been refined to ensure data accuracy, better labeling, and real-time performance tracking:
+- **Refined Labels**: Updated labels for clarity:
+    - `麻醉方式/時間` -> `麻醉方式/耗時`
+    - `手術備註` -> `醫師備註`
+- **Dynamic Duration Logic**:
+    - **Estimated Duration**: Uses `OROPMIN` as the primary source for planned surgery time (length only).
+    - **Actual Duration Tracking**: Now prioritizes exact room in/out times (**`ORSDTTM`** and **`OREDTTM`**) from the primary surgery list (C250 data) for maximum accuracy. If missing, it cascades to anesthesia start/end times (`ANEBGNDTTM` and `ANEENDDTTM`).
+    - **Performance Visualization**:
+        - Shows planned length for unfinished surgeries: [([120])](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/index.html#2281-2288).
+        - Shows planned vs. actual for finished surgeries: [([120 / 110])](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/index.html#2281-2288). (Removed start time as requested).
+        - **Color Coding**: Applies **light green** (`#d1ffcd`) if faster than planned, and **light red** (`#ffd1d1`) if slower.
+- **Physician Memo**: Now immediately pulls instruction details (like specific preparation "Call孫", etc.) from **`UDOINSTRUCTION`** in the primary C250 list. If empty, it falls back to `ORDERMEMO` from the surgical record or the shift notes in `PAT_ADM_DRMEMO`.
+- **Improved Hierarchy**: Main demographics (Name, ID, Age/Sex) remain primary, with procedural details and performance metrics as secondary gray metadata (or color-coded metrics).
+
+## Verification Results
+
+- [x] **Subtle Header**: Surgery and procedural info now appears as clean, gray text with accurate labels.
+- [x] **Dynamic Tracking**: Surgery duration accurately shifts from estimated to actual comparison upon completion.
+- [x] **Visual Indicators**: Light green and light red colors clearly highlight time performance against the plan.
+- [x] **Corrected Memo Mapping**: Physician notes now correctly prioritize the surgery order memo (`ORDERMEMO`) found in discovery.
+- [x] **UI Stability**: Resolved a JavaScript execution error that caused the patient detail view to hang on the loading message.
+- [x] **Automatic Updates**: The Physician's memo and actual duration update automatically once the background data fetch is complete.

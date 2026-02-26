@@ -1,0 +1,22 @@
+# Package Integrity Check
+
+- [x] Verify file presence
+  - [x] Check core scripts ([app.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/app.py), [his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/his_client.py))
+  - [x] Check configuration/requirement files ([requirements.txt](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/requirements.txt), [start.bat](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/start.bat))
+  - [x] Check data and template directories (`templates/`, `Ipo/`)
+- [x] Dependency verification
+  - [x] Check if `venv` exists
+  - [x] Compare installed packages with [requirements.txt](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/requirements.txt)
+- [x] Resource verification
+  - [x] Check if [templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/templates/index.html) exists
+  - [x] Inspect `Ipo/` directory for expected contents
+- [x] Import check
+  - [x] Perform a static import check to ensure all dependencies are resolved
+- [x] Fix encoding issues
+  - [x] Update [his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/his_client.py) to use `encoding='utf-8'` for JSON files
+- [/] Packaging as Executable
+  - [ ] Prepare [app.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/app.py) and [his_client.py](file:///c:/Users/A03772/.gemini/antigravity/AutoPrescribe_Portable/his_client.py) for PyInstaller resource handling
+  - [ ] Create `build.py` script
+  - [ ] Install `pyinstaller`
+  - [ ] Run build process
+  - [ ] Verify executable output

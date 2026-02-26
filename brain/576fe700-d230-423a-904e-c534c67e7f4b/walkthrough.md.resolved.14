@@ -1,0 +1,29 @@
+# Surgery Schedule Rebuild Walkthrough
+
+The Surgery Schedule application has been completely rebuilt with a modern, high-performance architecture while preserving the original clinical functionality.
+
+## New Design Highlights
+
+### 1. "WOW" Dashboard
+- **Glassmorphism UI**: Uses depth, blurs, and a deep indigo/emerald palette for a premium feel.
+- **Interactive Grid**: Surgery cards feature status badges, emergency highlights, and smooth hover scales.
+- **Slide-over Details**: Replaces cumbersome modals with a professional slide-in panel for patient information.
+
+### 2. Clinical Intelligence
+- **Incremental Loading**: Fetches vital signs and labs in Phase 1, then loads medications and history in Phase 2 to ensure zero UI lag.
+- **Persistent Evaluation**: Anesthesia evaluation data is now saved to the server via `/api/save_eval`, allowing users to resume work across sessions.
+- **Integrated PDF Engine**: Fully ports the complex coordinate mapping from the original system, producing high-fidelity PDF reports with Noto Sans font support.
+
+## Project Structure
+- [/app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py): Optimized Flask backend.
+- [/templates/index.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/index.html): Modern layout structure.
+- [/static/css/main.css](file:///c:/Users/A03772/.gemini/antigravity/scratch/static/css/main.css): Premium design system.
+- [/static/js/app.js](file:///c:/Users/A03772/.gemini/antigravity/scratch/static/js/app.js): Core app logic and PDF engine.
+- [/legacy/](file:///c:/Users/A03772/.gemini/antigravity/scratch/legacy/): **Archive of the previous design.**
+
+## How to Verify
+1.  Run `python app.py` and open `http://localhost:5000`.
+2.  Search for today's surgery list.
+3.  Click a surgery card to see the slide-over detail view.
+4.  Fill out some evaluation form sections (they will auto-save).
+5.  Click "產生評估單" to generate the professional PDF report.

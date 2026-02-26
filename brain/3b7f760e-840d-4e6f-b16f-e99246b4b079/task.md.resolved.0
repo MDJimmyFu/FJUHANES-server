@@ -1,0 +1,9 @@
+# Task: Analyze PCA and Painless Labour prescriptions from pcapng files
+
+- [ ] Initial analysis of `PCA.pcapng` and `painless.pcapng` [/]
+    - [ ] List packets and filter for target IP `10.10.246.80`
+    - [ ] Identify HTTP requests to `/Ipo/IpoQ010`
+- [ ] Extract prescription creation details for PCA
+- [ ] Extract prescription creation details for Painless Labour
+- [ ] Document the API endpoints, methods, and payloads
+- [ ] Prepare final report

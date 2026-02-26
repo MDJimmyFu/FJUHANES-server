@@ -1,0 +1,35 @@
+# Implementation Plan: Add Self-Pay Items to Anesthesia History
+
+The user wants to separate charging items starting with `551N` into a dedicated "Self-Pay Items" (自費項目) category within the anesthesia history detail view.
+
+## User Review Required
+
+> [!IMPORTANT]
+> This change will affect how anesthesia history details are displayed. Items starting with `551N` will be moved from the "Materials" category to a new "Self-Pay Items" category.
+
+## Proposed Changes
+
+### Backend (`app.py`)
+
+#### [MODIFY] [app.py](file:///c:/Users/A03772/.gemini/antigravity/scratch/app.py)
+
+- Update the `ane_history_detail` function to split output into three categories: `self_pay`, `materials`, and `procedures`.
+- `self_pay`: `PFKEY` starts with `551N`.
+- `materials`: `PFKEY` starts with `551` (excluding `551N`).
+- `procedures`: `PFKEY` does not start with `551`.
+
+### Frontend (`legacy_schedule.html`)
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/scratch/templates/legacy_schedule.html)
+
+- Update the `toggleAneDetail` function to handle and render the `self_pay` items if present.
+- Display "自費項目 (Self-Pay Items)" with a distinct header color (e.g., `#007bff` or a similar premium blue).
+
+## Verification Plan
+
+### Manual Verification
+- Identify a patient with anesthesia history containing `551N` items (e.g., `003363078D`).
+- Expand their anesthesia history and verify:
+  - `551N` items appear under "自費項目".
+  - `551` (non-N) items appear under "醫藥耗材".
+  - Other items appear under "處置項目".

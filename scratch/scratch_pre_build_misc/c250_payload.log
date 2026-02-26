@@ -1,0 +1,61 @@
+Loading HAR: C:\Users\A03772\.gemini\antigravity\scratch\traffic.har
+
+Found Application Request: http://10.10.246.90:8800/HISOrmC250Facade
+Method: POST
+Mime: application/octet-stream
+Encoding field: ''
+Text len: 2381
+First 100 chars repr: 'xڥX�\x7f�V\x15o��&n��+\x1b��[�F�����\x16@�dG�-y���C�(�M�V��l�M�\x01�\r�A\x07\x1b0\n���X?\x1f��\x03\x1bۯ{�-�[�\n8�Jv\x1c�I�-�����=���K;\x06v'
+CRITIAL: Found REPLACEMENT CHARACTER (\ufffd). Data is corrupted/lost.
+Latin1 encode failed: 'latin-1' codec can't encode character '\u06a5' in position 1: ordinal not in range(256)
+Encoded as utf-8.
+First 4 bytes hex: 78daa558
+Zlib decompress failed: Error -3 while decompressing data: invalid code lengths set
+
+Found Application Request: http://10.10.246.90:8800/HISOrmC250Facade
+Method: POST
+Mime: application/octet-stream
+Encoding field: ''
+Text len: 2415
+First 100 chars repr: "xڥ\x18k{�V�i���m֮l�ڮ5\x1b�Z�\n�s[\x00Y�\x1d���IJ�\x0e\x0f��'�ZY2��6\x05�\x18l�\x0e:\u0600Q(���\n+��\x176�/|`�/���+�}�d�q��]�ǧ罜�~�s��\rl۶�\x7f"
+CRITIAL: Found REPLACEMENT CHARACTER (\ufffd). Data is corrupted/lost.
+Latin1 encode failed: 'latin-1' codec can't encode character '\u06a5' in position 1: ordinal not in range(256)
+Encoded as utf-8.
+First 4 bytes hex: 78daa518
+Zlib decompress failed: Error -3 while decompressing data: invalid code lengths set
+
+Found Application Request: http://10.10.246.90:8800/HISOrmC250Facade
+Method: POST
+Mime: application/octet-stream
+Encoding field: ''
+Text len: 2415
+First 100 chars repr: "xڥ\x18k{�V�i���m֮l�ڮ5\x1b�Z�\n�s[\x00Y�\x1d���IJ�\x0e\x0f��'�ZY2��6\x05�\x18l�\x0e:\u0600Q(���\n+��\x176�/|`�/���+�}�d�q��]�ǧ罜�~�s��\rl۶�\x7f"
+CRITIAL: Found REPLACEMENT CHARACTER (\ufffd). Data is corrupted/lost.
+Latin1 encode failed: 'latin-1' codec can't encode character '\u06a5' in position 1: ordinal not in range(256)
+Encoded as utf-8.
+First 4 bytes hex: 78daa518
+Zlib decompress failed: Error -3 while decompressing data: invalid code lengths set
+
+Found Application Request: http://10.10.246.90:8800/HISOrmC250Facade
+Method: POST
+Mime: application/octet-stream
+Encoding field: ''
+Text len: 2415
+First 100 chars repr: "xڥ\x18k{�V�i���m֮l�ڮ5\x1b�Z�\n�s[\x00Y�\x1d���IJ�\x0e\x0f��'�ZY2��6\x05�\x18l�\x0e:\u0600Q(���\n+��\x176�/|`�/���+�}�d�q��]�ǧ罜�~�s��\rl۶�\x7f"
+CRITIAL: Found REPLACEMENT CHARACTER (\ufffd). Data is corrupted/lost.
+Latin1 encode failed: 'latin-1' codec can't encode character '\u06a5' in position 1: ordinal not in range(256)
+Encoded as utf-8.
+First 4 bytes hex: 78daa518
+Zlib decompress failed: Error -3 while decompressing data: invalid code lengths set
+
+Found Application Request: http://10.10.246.90:8800/HISOrmC250Facade
+Method: POST
+Mime: application/octet-stream
+Encoding field: ''
+Text len: 2491
+First 100 chars repr: 'xڥ\x18{\x7f�֕��&\x01R(k�\x00\n^;Z\x18A�+v\x1e�6Y�\x1d\x05[r%%\x0e�;O�o�@�<�\x06���ڭt�[��cc��=�V�G�];���~�A˧�ι�\x1d�q\x02�����=�{���ַm۶��\x1f'
+CRITIAL: Found REPLACEMENT CHARACTER (\ufffd). Data is corrupted/lost.
+Latin1 encode failed: 'latin-1' codec can't encode character '\u06a5' in position 1: ordinal not in range(256)
+Encoded as utf-8.
+First 4 bytes hex: 78daa518
+Zlib decompress failed: Error -3 while decompressing data: invalid code lengths set

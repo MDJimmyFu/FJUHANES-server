@@ -5085,6 +5085,15 @@
             if (enabled) {
                 // 5 minutes = 300,000ms
                 refreshTimer = setInterval(() => {
+                    // Check if user is interacting with detail view or evaluation form
+                    const detailVisible = document.getElementById('detail-view').style.display !== 'none';
+                    const evalVisible = document.getElementById('eval-modal').style.display !== 'none';
+
+                    if (detailVisible || evalVisible) {
+                        console.log("Auto-refresh paused because detail view or evaluation form is open.");
+                        return; // Skip this refresh cycle
+                    }
+
                     console.log("Auto-refreshing schedule...");
                     if (typeof doSearch === 'function') {
                         doSearch();

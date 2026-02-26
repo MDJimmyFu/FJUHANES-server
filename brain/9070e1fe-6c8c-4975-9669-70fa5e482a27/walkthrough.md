@@ -21,6 +21,13 @@ The "Major operations Yes" field on the PDF is now much more intelligent. It wil
 - There is text in the **History note** field.
 - **AUTOMATED**: The system detects pre-existing anesthesia history records for the current patient (via `window.currentDetailData.aneHist`).
 
+- **Comprehensive Dark Mode Audit & Refinement:**
+    - **Surgery Cards:** Added a distinct 1px border (`1px solid var(--border)`) for better visibility in dark mode.
+    - **Modals and Overlays:** Ensured modals and containers correctly inherited theme backgrounds and text colors.
+    - **Data Tables and Lists:** Updated borders to use CSS variables.
+    - **Dynamic Data Sections (Physiological Measurements, Lab Data, Reports):** All rendered sections now use theme-aware variables.
+- **Auto-Refresh Pause:** Implemented logic to pause the 5-minute auto-update while the user is viewing patient details or filling out the anesthesia evaluation form to prevent data loss or UI shifting.
+
 ## Verification Results
 
 ### Logic Check (Simulated)

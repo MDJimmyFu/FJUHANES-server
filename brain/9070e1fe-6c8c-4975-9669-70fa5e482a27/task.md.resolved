@@ -11,9 +11,11 @@
     - [x] Implement JavaScript logic for theme switching (Day/Night/System)
 - [x] Verification
     - [x] Verify auto-update functionality
-    - [x] Verify theme switching response
-    - [x] Create [walkthrough.md](file:///C:/Users/A03772/.gemini/antigravity/brain/9070e1fe-6c8c-4975-9669-70fa5e482a27/walkthrough.md)
-- [x] Dark Mode Refinement
+    - [x] Integrate Settings logic with UI components
+- [x] Initial GitHub repository setup and commit
+- [x] Pause auto-update during active interaction (Detail view/Evaluation form)
+- [/] Rebuild Combined Server executable
+- [ ] Configure Git remote and push to GitHub
     - [x] Audit all sub-pages (Assessment, Details) for dark mode
     - [x] Enhance surgery card borders in dark mode
     - [x] Update walkthrough

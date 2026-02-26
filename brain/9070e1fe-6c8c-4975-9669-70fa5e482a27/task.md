@@ -11,9 +11,11 @@
     - [x] Implement JavaScript logic for theme switching (Day/Night/System)
 - [x] Verification
     - [x] Verify auto-update functionality
-    - [x] Verify theme switching response
-    - [x] Create `walkthrough.md`
-- [x] Dark Mode Refinement
+    - [x] Integrate Settings logic with UI components
+- [x] Initial GitHub repository setup and commit
+- [x] Pause auto-update during active interaction (Detail view/Evaluation form)
+- [/] Rebuild Combined Server executable
+- [ ] Configure Git remote and push to GitHub
     - [x] Audit all sub-pages (Assessment, Details) for dark mode
     - [x] Enhance surgery card borders in dark mode
     - [x] Update walkthrough

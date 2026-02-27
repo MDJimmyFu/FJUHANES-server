@@ -1,0 +1,57 @@
+# Auto-Refresh Enhancements Plan
+
+Enhance the auto-refresh functionality in the surgery schedule to be more user-friendly and configurable.
+
+## Proposed Changes
+
+### [Component Name] UI and Logic
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+
+- **Settings Menu UI**:
+    - Update `#settings-menu` to include an "Update Interval" selection.
+    - Options: 1 minute, 3 minutes, 5 minutes (default), 10 minutes.
+    - Update the text for the auto-update checkbox to remove the hardcoded "5 minutes".
+
+- **Initialization Logic**:
+    - Update `DOMContentLoaded` listener to:
+        - Default `surgery-auto-refresh` to `false` if not set in `localStorage`.
+        - Retrieve `surgery-auto-refresh-interval` from `localStorage` (default 300,000).
+        - Initialize the new interval selector with the saved value.
+        - Add listener to the interval selector to update `localStorage` and restart the timer.
+
+- **Refresh Logic**:
+    - Update [setupAutoRefresh(enabled, interval)](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#5083-5106) to use the provided interval.
+    - Ensure `refreshTimer` is correctly cleared before starting a new one.
+
+- **Pause/Resume Refinement**:
+    - Update [closeDetail](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#3832-3835) and [closeEvalModal](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#4300-4303) to trigger a refresh if auto-refresh is enabled.
+    - This ensures that when a user returns to the main view, they get the latest data immediately instead of waiting for the next cycle.
+
+## Verification Plan
+
+### Manual Verification
+1. **Initial State Check**:
+   - Clear `localStorage` or open in Incognito.
+   - Verify the "Auto-update" checkbox is UNCHECKED by default.
+   - Verify the default interval is "5 minutes".
+
+2. **Enable Feature**:
+   - Check the "Auto-update" box.
+   - Change interval to "1 minute".
+   - Wait 1 minute and verify the page reloads (triggers [doSearch](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html#1862-1874)).
+
+3. **Pause Verification**:
+   - Enable auto-update with "1 minute" interval.
+   - Open a patient's detail view (click a card).
+   - Wait > 1 minute.
+   - Verify the console logs "Auto-refresh paused..." and the page DOES NOT reload.
+
+4. **Resume Verification**:
+   - Close the detail view.
+   - Verify the page reloads immediately (or according to refined logic).
+
+5. **Persistence Verification**:
+   - Change settings (Disable, set 10 mins).
+   - Refresh the page manually.
+   - Verify the settings are preserved in the menu.

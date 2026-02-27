@@ -1,0 +1,6 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary":  "Implementation plan to add an update timer and countdown to `legacy_schedule.html`.\nIncludes:\n- Displaying \"Last Updated\" time in the header.\n- Displaying a countdown to the next auto-refresh.\n- Handling countdown pauses when modals are open.\n- Styling the timer UI.",
+  "updatedAt":  "2026-02-27T02:32:30.919831800Z",
+  "version":  "1"
+}

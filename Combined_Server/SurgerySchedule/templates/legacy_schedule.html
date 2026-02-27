@@ -4775,10 +4775,10 @@
             // Mapping Logic
             // 1. Past History Comments
 
-            // "Diabetes mellitus" -> DM Note
-            let note = extractSectionDetails("Diabetes mellitus");
+            // "DM" -> DM Note
+            let note = extractSectionDetails("DM");
             if (note && note !== "CHECKED") draw(note, 250.19, 628.75 + 2);
-            checkPhItem("DM", (note && note !== "CHECKED") || isChecked("Diabetes mellitus"));
+            checkPhItem("DM", (note && note !== "CHECKED") || isChecked("chk_end_dm"));
 
             // "CVA" -> CVA Note
             note = extractSectionDetails("CVA");

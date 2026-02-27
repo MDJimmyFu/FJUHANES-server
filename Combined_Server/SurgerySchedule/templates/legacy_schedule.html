@@ -649,7 +649,12 @@
     <div class="container" id="schedule-view">
         <header
             style="display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto 2rem auto;">
-            <div style="width: 150px;"></div> <!-- Spacer -->
+            <div id="update-timer-container"
+                style="width: 150px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; text-align: left;">
+                <div id="last-update-display">最後更新: --:--:--</div>
+                <div id="next-update-display" style="display:none; color: var(--primary); font-weight: bold;">下次更新:
+                    --:--</div>
+            </div>
             <h1 style="margin: 0;">輔醫麻醉手術排程</h1>
             <div style="width: 150px; text-align: right; font-size: 0.85rem; color: #666;">
                 {% if session.user_name %}
@@ -1835,6 +1840,11 @@
     <script>
         // Configuration
         const API_BASE = '/api/his';
+
+        // Global State
+        let refreshTimer = null;
+        let targetRefreshTime = null;
+        let countdownInterval = null;
 
         // Global State for Data - Injected by Flask (Server-Side Rendering)
         let currentScheduleData = {{ surgeries | tojson }};
@@ -3831,6 +3841,11 @@
 
         function closeDetail() {
             document.getElementById('detail-view').style.display = 'none';
+            // Resume auto-refresh if enabled
+            const savedRefresh = localStorage.getItem('surgery-auto-refresh') === 'true';
+            if (savedRefresh) {
+                setupAutoRefresh(true);
+            }
         }
 
         function toggleSection(headerElement) {
@@ -4299,6 +4314,11 @@
 
         function closeEvalModal() {
             document.getElementById('eval-modal').style.display = 'none';
+            // Resume auto-refresh if enabled
+            const savedRefresh = localStorage.getItem('surgery-auto-refresh') === 'true';
+            if (savedRefresh) {
+                setupAutoRefresh(true);
+            }
         }
 
         function saveEvalData() {
@@ -5079,18 +5099,23 @@
             applyTheme(theme);
         }
 
-        let refreshTimer = null;
         function setupAutoRefresh(enabled) {
             if (refreshTimer) clearInterval(refreshTimer);
             if (enabled) {
-                // 5 minutes = 300,000ms
+                const interval = parseInt(localStorage.getItem('surgery-auto-refresh-interval')) || 300000;
+                targetRefreshTime = Date.now() + interval;
+                console.log(`Setting up auto-refresh with interval: ${interval / 1000}s`);
                 refreshTimer = setInterval(() => {
                     // Check if user is interacting with detail view or evaluation form
-                    const detailVisible = document.getElementById('detail-view').style.display !== 'none';
-                    const evalVisible = document.getElementById('eval-modal').style.display !== 'none';
+                    const detailView = document.getElementById('detail-view');
+                    const evalModal = document.getElementById('eval-modal');
+                    const detailVisible = detailView && window.getComputedStyle(detailView).display !== 'none';
+                    const evalVisible = evalModal && window.getComputedStyle(evalModal).display !== 'none';
 
                     if (detailVisible || evalVisible) {
                         console.log("Auto-refresh paused because detail view or evaluation form is open.");
+                        // Push back target time to maintain countdown accuracy
+                        targetRefreshTime = Date.now() + interval;
                         return; // Skip this refresh cycle
                     }
 
@@ -5100,12 +5125,56 @@
                     } else {
                         location.reload(); // Fallback if doSearch is not available or errors
                     }
-                }, 300000);
+                }, interval);
             }
+        }
+
+        function startCountdownLogic() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                const nextUpdateDisplay = document.getElementById('next-update-display');
+                if (!nextUpdateDisplay) return;
+
+                const isEnabled = localStorage.getItem('surgery-auto-refresh') === 'true';
+                if (!isEnabled) {
+                    nextUpdateDisplay.style.display = 'none';
+                    return;
+                }
+
+                nextUpdateDisplay.style.display = 'block';
+
+                // Check for pause
+                const detailView = document.getElementById('detail-view');
+                const evalModal = document.getElementById('eval-modal');
+                const detailVisible = detailView && window.getComputedStyle(detailView).display !== 'none';
+                const evalVisible = evalModal && window.getComputedStyle(evalModal).display !== 'none';
+
+                if (detailVisible || evalVisible) {
+                    nextUpdateDisplay.textContent = '下次更新: 暫停中';
+                    return;
+                }
+
+                if (targetRefreshTime) {
+                    const remaining = Math.max(0, Math.round((targetRefreshTime - Date.now()) / 1000));
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    nextUpdateDisplay.textContent = `下次更新: ${mins}:${secs.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
         }
 
         // Initialize Settings
         document.addEventListener('DOMContentLoaded', () => {
+            // Set Last Update Time
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' +
+                now.getMinutes().toString().padStart(2, '0') + ':' +
+                now.getSeconds().toString().padStart(2, '0');
+            const lastUpdateEl = document.getElementById('last-update-display');
+            if (lastUpdateEl) lastUpdateEl.textContent = `最後更新: ${timeStr}`;
+
+            startCountdownLogic();
+
             // Theme Init
             const savedTheme = localStorage.getItem('surgery-theme') || 'system';
             const themeSelect = document.getElementById('theme-select');
@@ -5121,9 +5190,12 @@
 
             // Refresh Init
             const autoUpdateCheck = document.getElementById('auto-update-check');
+            const intervalSelect = document.getElementById('refresh-interval-select');
             const savedRefresh = localStorage.getItem('surgery-auto-refresh');
-            // Default to true if not set
-            const isRefreshEnabled = savedRefresh === null ? true : savedRefresh === 'true';
+            const savedInterval = localStorage.getItem('surgery-auto-refresh-interval') || '300000';
+
+            // Default to false if not set
+            const isRefreshEnabled = savedRefresh === 'true'; // savedRefresh will be null or "false" or "true". null results in false.
 
             if (autoUpdateCheck) {
                 autoUpdateCheck.checked = isRefreshEnabled;
@@ -5132,6 +5204,17 @@
                     setupAutoRefresh(e.target.checked);
                 });
             }
+
+            if (intervalSelect) {
+                intervalSelect.value = savedInterval;
+                intervalSelect.addEventListener('change', (e) => {
+                    localStorage.setItem('surgery-auto-refresh-interval', e.target.value);
+                    if (autoUpdateCheck && autoUpdateCheck.checked) {
+                        setupAutoRefresh(true);
+                    }
+                });
+            }
+
             setupAutoRefresh(isRefreshEnabled);
 
             // Click outside to close settings menu
@@ -5153,8 +5236,17 @@
             <div class="settings-title">一般設定</div>
             <label class="settings-option">
                 <input type="checkbox" id="auto-update-check">
-                <span>每五分鐘自動更新</span>
+                <span>自動更新</span>
             </label>
+            <div class="settings-option">
+                <span style="font-size: 0.85rem; margin-right: 8px;">更新間隔:</span>
+                <select id="refresh-interval-select" style="width: auto; padding: 2px 4px;">
+                    <option value="60000">1 分鐘</option>
+                    <option value="180000">3 分鐘</option>
+                    <option value="300000">5 分鐘</option>
+                    <option value="600000">10 分鐘</option>
+                </select>
+            </div>
         </div>
         <div class="settings-group">
             <div class="settings-title">外觀主題</div>

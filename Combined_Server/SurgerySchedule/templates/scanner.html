@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手術病人條碼掃描</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@600;700&display=swap"
+        rel="stylesheet">
+    <!-- Barcode and QR Code Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-page: #f8fafc;
+            --text-main: #1e293b;
+            --accent: #3b82f6;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: white;
+            padding: 15px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            margin: 0;
+        }
+
+        #refresh-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .container {
+            padding: 20px;
+            flex-grow: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .patient-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .patient-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .patient-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .patient-card:active {
+            transform: scale(0.98);
+        }
+
+        .patient-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .patient-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .barcode-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .barcode-view.active {
+            display: flex;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .close-view {
+            background: #f1f5f9;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .barcode-grid {
+            display: flex;
+            width: 100%;
+            gap: 20px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        @media (max-width: 480px) {
+            .barcode-grid {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        .barcode-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 10px;
+            background: #fff;
+        }
+
+        .barcode-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #475569;
+        }
+
+        #qrcode-mrn,
+        #qrcode-staff {
+            margin: 10px 0;
+        }
+
+        .toggle-mode {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 999px;
+            font-weight: 600;
+            margin-top: 30px;
+            cursor: pointer;
+        }
+
+        .optimize-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .optimize-hint.show {
+            opacity: 1;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        canvas,
+        img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>手術中病人</h1>
+        <button id="refresh-btn">🔄</button>
+    </header>
+
+    <div class="container">
+        <div id="loading" class="loading">載入中...</div>
+        <div id="patient-list" class="patient-list"></div>
+    </div>
+
+    <!-- Barcode Modal Overlay -->
+    <div id="barcode-view" class="barcode-view">
+        <div class="controls">
+            <button id="btn-optimize" title="優化螢幕"
+                style="background: none; border: none; font-size: 1.5rem;">💡</button>
+            <button id="close-view" class="close-view">&times;</button>
+        </div>
+
+        <h2 id="view-patient-name" style="margin-bottom: 30px;"></h2>
+
+        <div class="barcode-grid">
+            <div class="barcode-container">
+                <div class="barcode-label">病人病歷號 (MRN)</div>
+                <div id="mrn-wrapper">
+                    <svg id="barcode-mrn"></svg>
+                    <div id="qrcode-mrn"></div>
+                </div>
+                <div id="view-mrn-val" style="font-weight: 700; margin-top: 5px;"></div>
+            </div>
+
+            <div class="barcode-container">
+                <div class="barcode-label">員工編號 (Staff ID)</div>
+                <div id="staff-wrapper">
+                    <svg id="barcode-staff"></svg>
+                    <div id="qrcode-staff"></div>
+                </div>
+                <div id="view-staff-val" style="font-weight: 700; margin-top: 5px;"></div>
+            </div>
+        </div>
+
+        <button id="toggle-barcode-mode" class="toggle-mode">切換為 2D 條碼 (QR Code)</button>
+    </div>
+
+    <div id="optimize-hint" class="optimize-hint">螢幕亮度已嘗試調高並保持開啟</div>
+
+    <script>
+        const patientListEl = document.getElementById('patient-list');
+        const loadingEl = document.getElementById('loading');
+        const barcodeView = document.getElementById('barcode-view');
+        const closeViewBtn = document.getElementById('close-view');
+        const toggleModeBtn = document.getElementById('toggle-barcode-mode');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const btnOptimize = document.getElementById('btn-optimize');
+        const optimizeHint = document.getElementById('optimize-hint');
+
+        let currentMode = '1D'; // '1D' or '2D'
+        let selectedPatient = null;
+        let wakeLock = null;
+
+        const staffId = "{{ session.get('user_id', '') }}";
+
+        async function fetchPatients() {
+            loadingEl.style.display = 'block';
+            patientListEl.innerHTML = '';
+
+            try {
+                const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                const resp = await fetch('/api/surgery_list', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date: today })
+                });
+
+                const data = await resp.json();
+                const inSurgery = data.filter(s => s.STATUS === '手術中');
+
+                loadingEl.style.display = 'none';
+
+                if (inSurgery.length === 0) {
+                    patientListEl.innerHTML = '<div class="empty-state">目前沒有正在手術中的病人</div>';
+                    return;
+                }
+
+                inSurgery.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'patient-card';
+                    card.innerHTML = `
+                        <div class="patient-name">${p.OROPROOM}房 - ${p.HNAMEC}</div>
+                        <div class="patient-meta">${p.HHISTNUM} | ${p.ORDPROCED}</div>
+                    `;
+                    card.onclick = () => showBarcodes(p);
+                    patientListEl.appendChild(card);
+                });
+            } catch (err) {
+                loadingEl.textContent = '載入失敗，請稍後再試';
+                console.error(err);
+            }
+        }
+
+        function showBarcodes(p) {
+            selectedPatient = p;
+            document.getElementById('view-patient-name').textContent = `${p.OROPROOM}房 - ${p.HNAMEC}`;
+            document.getElementById('view-mrn-val').textContent = p.HHISTNUM;
+            document.getElementById('view-staff-val').textContent = staffId;
+
+            barcodeView.classList.add('active');
+            renderBarcodes();
+            requestWakeLock();
+        }
+
+        function renderBarcodes() {
+            // Clear existing
+            document.getElementById('qrcode-mrn').innerHTML = '';
+            document.getElementById('qrcode-staff').innerHTML = '';
+
+            if (currentMode === '1D') {
+                document.getElementById('barcode-mrn').style.display = 'block';
+                document.getElementById('barcode-staff').style.display = 'block';
+                document.getElementById('qrcode-mrn').style.display = 'none';
+                document.getElementById('qrcode-staff').style.display = 'none';
+
+                JsBarcode("#barcode-mrn", selectedPatient.HHISTNUM, {
+                    format: "CODE128",
+                    width: 1.5,
+                    height: 100,
+                    displayValue: false
+                });
+
+                JsBarcode("#barcode-staff", staffId, {
+                    format: "CODE128",
+                    width: 1.5,
+                    height: 100,
+                    displayValue: false
+                });
+
+                toggleModeBtn.textContent = '切換為 2D 條碼 (QR Code)';
+            } else {
+                document.getElementById('barcode-mrn').style.display = 'none';
+                document.getElementById('barcode-staff').style.display = 'none';
+                document.getElementById('qrcode-mrn').style.display = 'block';
+                document.getElementById('qrcode-staff').style.display = 'block';
+
+                new QRCode(document.getElementById("qrcode-mrn"), {
+                    text: selectedPatient.HHISTNUM,
+                    width: 160,
+                    height: 160
+                });
+
+                new QRCode(document.getElementById("qrcode-staff"), {
+                    text: staffId,
+                    width: 160,
+                    height: 160
+                });
+
+                toggleModeBtn.textContent = '切換為 1D 條碼';
+            }
+        }
+
+        toggleModeBtn.onclick = () => {
+            currentMode = currentMode === '1D' ? '2D' : '1D';
+            renderBarcodes();
+        };
+
+        closeViewBtn.onclick = () => {
+            barcodeView.classList.remove('active');
+            releaseWakeLock();
+        };
+
+        refreshBtn.onclick = fetchPatients;
+
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (err) {
+                console.warn('Wake Lock request failed:', err);
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+        }
+
+        btnOptimize.onclick = () => {
+            // Try to use FullScreen API which often helps with scanability
+            if (document.documentElement.requestFullscreen) {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                }
+            }
+
+            // Show hint
+            optimizeHint.classList.add('show');
+            setTimeout(() => optimizeHint.classList.remove('show'), 3000);
+
+            // Note: Direct brightness control is not available in browsers, 
+            // but we can encourage users to turn it up if needed.
+        };
+
+        // Handle visibility change to re-request wake lock
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                wakeLock = await navigator.wakeLock.request('screen');
+            }
+        });
+
+        // Initial fetch
+        fetchPatients();
+    </script>
+</body>
+
+</html>

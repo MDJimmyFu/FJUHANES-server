@@ -148,6 +148,12 @@ def board():
     opdate = datetime.datetime.now().strftime('%Y%m%d')
     return render_template('board.html', opdate=opdate)
 
+@app.route('/scanner')
+@login_required
+def scanner():
+    """Route for the mobile barcode scanner page."""
+    return render_template('scanner.html')
+
 @app.route('/api/ane_history/<hhistnum>')
 @login_required
 def ane_history(hhistnum):

@@ -1,4 +1,3 @@
-
 # Python
 __pycache__/
 *.py[cod]
@@ -17,7 +16,27 @@ ENV/
 # IDEs
 .vscode/
 .idea/
+.claude/
 
 # OS
 Thumbs.db
 Desktop.ini
+
+# Artifacts and Logs
+browser_recordings/
+implicit/
+*.pb
+
+# Project Specific
+scratch/
+*.docx
+docx_text.txt
+myeasylog.log
+
+# Large Binaries and Zips
+*.zip
+*.pcapng
+*.hex
+
+# App Specific Exclusions (Generated/Temp)
+Combined_Server/AutoPrescribe/*.pdf

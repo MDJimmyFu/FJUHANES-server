@@ -1,12 +1,26 @@
-from flask import Flask, request, jsonify, send_file, render_template
+from flask import Flask, request, jsonify, send_file, render_template, session
 from his_client import HisClient
 from utils import get_resource_path
 import os
+import requests
+import uuid
 
 app = Flask(__name__, 
             template_folder=get_resource_path('AutoPrescribe/templates'),
             static_folder=get_resource_path('AutoPrescribe/static'))
-client = HisClient()
+
+app.secret_key = os.urandom(24) # Set a random secret key for session
+
+def get_client():
+    if 'his_cookies' not in session:
+        return None
+    req_session = requests.Session()
+    req_session.cookies.update(session['his_cookies'])
+    
+    client = HisClient(session=req_session)
+    if 'HIS_IPD' in session['his_cookies']:
+        client.cookie_80 = session['his_cookies']['HIS_IPD']
+    return client
 
 @app.route('/')
 def index():
@@ -15,11 +29,20 @@ def index():
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.json
+    client = HisClient()
     success, msg = client.login(data.get('username'), data.get('password'))
+    
+    if success:
+        session['his_cookies'] = client.session.cookies.get_dict()
+        
     return jsonify({"success": success, "message": msg})
 
 @app.route('/api/patients', methods=['GET'])
 def get_patients():
+    client = get_client()
+    if not client:
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+
     ward = request.args.get('ward', '11A')
     chart_no = request.args.get('chartNo', '')
 
@@ -36,6 +59,10 @@ def get_patients():
 
 @app.route('/api/prescribe', methods=['POST'])
 def prescribe():
+    client = get_client()
+    if not client:
+        return jsonify({"success": False, "message": "Unauthorized"}), 401
+        
     data = request.json
     patient_data = data.get('patient')
     package_type = data.get('packageType') # 'PCA' or 'PAINLESS'
@@ -80,14 +107,16 @@ def prescribe():
     pdf_success, pdf_msg = client.download_p022_pdf(h_case_no, drug_track_no, ord_seq)
     
     if pdf_success:
-        # We can returning the filename or just a success message, and a separate route to fetch the file
-        return jsonify({"success": True, "message": "Flow complete", "pdfUrl": "/api/download_pdf?file=" + os.path.basename(pdf_msg)})
+        # pdf_msg contains the random filename 
+        return jsonify({"success": True, "message": "Flow complete", "pdfUrl": f"/api/download_pdf?file={pdf_msg}"})
     else:
         return jsonify({"success": False, "message": f"PDF download failed: {pdf_msg}"})
 
 @app.route('/api/download_pdf')
 def download_pdf():
-    file_name = request.args.get("file", "Controlled_Drug_Sheet_P022.pdf")
+    file_name = request.args.get("file")
+    if not file_name or not file_name.endswith('.pdf'):
+        return "Invalid file request", 400
     # Resolve file path relative to this script's directory for portability
     file_path = get_resource_path(os.path.join('AutoPrescribe', file_name))
     

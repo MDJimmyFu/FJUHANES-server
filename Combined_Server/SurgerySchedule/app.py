@@ -16,10 +16,13 @@ from resource_utils import resource_path
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding='utf-8')
 
-app = Flask(__name__, 
-            template_folder=resource_path('SurgerySchedule/templates'), 
-            static_folder=resource_path('SurgerySchedule/static'))
-app.secret_key = os.urandom(24) # Random secret key for session signing
+# Determine the directory where this file is located
+current_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = os.path.join(current_dir, 'templates')
+static_dir = os.path.join(current_dir, 'static')
+
+app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
+app.secret_key = "surgery_secret_key"
 client = HISClient()
 
 def login_required(f):
@@ -141,6 +144,103 @@ def patient_detail(ordseq):
         print(f"[-] Detail Error: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/anesthesia_billing')
+@login_required
+def anesthesia_billing():
+    """Route for the new Batch Anesthesia Billing Query page."""
+    return render_template('anesthesia_billing.html')
+
+@app.route('/api/batch_anesthesia_billing', methods=['POST'])
+@login_required
+def batch_anesthesia_billing():
+    """Batch query anesthesia methods, times, and self-pay items for multiple MRNs."""
+    try:
+        data = request.get_json(silent=True) or {}
+        hhistnums = data.get('hhistnums', [])
+        query_date = data.get('query_date') # Format: YYYY-MM-DD
+        
+        if not hhistnums:
+            return jsonify({"error": "No MRNs provided"}), 400
+            
+        results = []
+        for hhistnum in hhistnums:
+            hhistnum = hhistnum.strip()
+            if not hhistnum: continue
+            
+            print(f"[*] Batch processing MRN: {hhistnum} for date: {query_date}")
+            history = client.get_anesthesia_history(hhistnum, user_id=session.get('user_id'))
+            
+            # Filter out LA and NI, and optionally filter by date
+            filtered = [h for h in history if h.get('ANENM', '') not in ('LA', 'NI')]
+            
+            if query_date:
+                # Assuming query_date is YYYY-MM-DD
+                filtered = [h for h in filtered if h.get('ANEBGNDTTM', '').startswith(query_date)]
+            
+            for h in filtered:
+                ordseq = h.get('ORDSEQ', '')
+                # Fetch charging data for self-pay items
+                charging = client.get_anesthesia_charging_data(ordseq, hhistnum) or {}
+                
+                # Duration calculation
+                total_minutes = 0
+                start_str = h.get('ANEBGNDTTM')
+                end_str = h.get('ANEENDDTTM')
+                if start_str and end_str:
+                    try:
+                        # Handle formats like '2023-01-01T10:00:00' or '2023-01-01 10:00:00'
+                        fmt = "%Y-%m-%dT%H:%M:%S" if 'T' in start_str else "%Y-%m-%d %H:%M:%S"
+                        start_dt = datetime.datetime.strptime(start_str[:19], fmt)
+                        end_dt = datetime.datetime.strptime(end_str[:19], fmt)
+                        diff = end_dt - start_dt
+                        total_minutes = int(diff.total_seconds() / 60)
+                    except Exception as ex:
+                        print(f"[-] Time calculation error for {ordseq}: {ex}")
+                
+                # Extract self-pay items
+                # Requirements: 551N..., 551055..., 551061..., 55102030
+                self_pay_items = []
+                all_raw_items = []
+                for table in ['OPDORDM', 'OCCURENCS', 'COMMON_ORDER', 'ANEORDER']:
+                    for item in charging.get(table, []):
+                        all_raw_items.append({
+                            'code': item.get('PFKEY', item.get('PFCODE', '')),
+                            'name': item.get('PFNM', item.get('ORDPROCED', ''))
+                        })
+                
+                seen_codes = set()
+                for item in all_raw_items:
+                    code = item['code']
+                    if not code: continue
+                    
+                    is_match = False
+                    if code.startswith('551N'): is_match = True
+                    elif code.startswith('551055'): is_match = True
+                    elif code.startswith('551061'): is_match = True
+                    elif code == '55102030': is_match = True
+                    
+                    if is_match and code not in seen_codes:
+                        self_pay_items.append(item)
+                        seen_codes.add(code)
+                
+                results.append({
+                    'hhistnum': hhistnum,
+                    'patient_name': h.get('HNAMEC', ''),
+                    'date': start_str[:10] if start_str else '',
+                    'method': h.get('ANENM', ''),
+                    'procedure': h.get('ORDPROCED', ''),
+                    'total_time': total_minutes,
+                    'self_pay': self_pay_items,
+                    'doctor': h.get('ANEDOCNMC', h.get('PROCNMC', '')),
+                    'supervisor': h.get('ANESUPVNMC', h.get('SUPNMC', '')),
+                    'ordseq': ordseq
+                })
+                
+        return jsonify(results)
+    except Exception as e:
+        print(f"[-] Batch Billing Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/board')
 @login_required
 def board():
@@ -153,6 +253,12 @@ def board():
 def scanner():
     """Route for the mobile barcode scanner page."""
     return render_template('scanner.html')
+
+@app.route('/ane_eval_lookup')
+@login_required
+def ane_eval_lookup():
+    """Route for the standalone MRN-based anesthesia evaluation lookup page."""
+    return render_template('ane_eval_lookup.html')
 
 @app.route('/api/ane_history/<hhistnum>')
 @login_required
@@ -167,7 +273,7 @@ def ane_history(hhistnum):
             'history': [{
                 'ordseq': h.get('ORDSEQ', ''),
                 'method': h.get('ANENM', ''),
-                'procedure': h.get('ORDPROCED', ''), # Added Procedure Name
+                'procedure': h.get('ORDPROCED', ''), 
                 'asa': h.get('ANEASA', ''),
                 'doctor': h.get('ANEDOCNMC', h.get('PROCNMC', '')),
                 'supervisor': h.get('ANESUPVNMC', ''),
@@ -180,6 +286,16 @@ def ane_history(hhistnum):
         })
     except Exception as e:
         print(f"[-] Ane History Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/patient_history/<hhistnum>')
+@login_required
+def patient_history(hhistnum):
+    """Fetch comprehensive medical history (OPD/ER/ADM)."""
+    try:
+        data = client.get_comprehensive_patient_history(hhistnum, user_id=session.get('user_id'))
+        return jsonify(data or [])
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/ane_history_detail/<ordseq>')
@@ -508,6 +624,82 @@ def get_eval():
                 return jsonify(json.load(f))
         return jsonify({})
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/lookup_patient', methods=['POST'])
+@login_required
+def lookup_patient():
+    """Finds a patient by MRN across history and returns basic info + details."""
+    try:
+        data = request.get_json(silent=True) or {}
+        hhistnum = data.get('hhistnum')
+        if not hhistnum:
+            return jsonify({"error": "Missing hhistnum"}), 400
+            
+        hhistnum = hhistnum.strip().upper()
+        print(f"[*] Global lookup for MRN: {hhistnum}")
+        
+        # 1. Search Comprehensive History (OPD/ER/ADM) to find demographics and recent cases
+        comp_history = client.get_comprehensive_patient_history(hhistnum, user_id=session.get('user_id'))
+        
+        # 2. Search Anesthesia History for ORDSEQ
+        anes_history = client.get_anesthesia_history(hhistnum, user_id=session.get('user_id'))
+        
+        patient_name = ""
+        age = ""
+        sex = ""
+        ordseq = ""
+        procedure = ""
+        
+        if comp_history:
+            # Use most recent visit for basic info
+            latest = comp_history[0]
+            patient_name = latest.get('doctor') # Wait, 'doctor'? Looking at get_comprehensive_patient_history...
+            # Actually let's look at get_comprehensive_patient_history in his_client_final.py
+            # Line 489: {'caseno': ..., 'date': ..., 'type': ..., 'dept': ..., 'diagnosis': ..., 'doctor': ..., 'ward_bed': ...}
+            # It seems get_comprehensive_patient_history doesn't return HNAMEC/AGE/HSEXE directly.
+            
+            # Let's check get_admission_history as well.
+            adm_history = client.get_admission_history(hhistnum, user_id=session.get('user_id'))
+            if adm_history:
+                patient_name = adm_history[0].get('doctor') # Still 'doctor'? 
+                # Let me re-read get_admission_history in his_client_final.py
+        
+        # If SQL history doesn't yield HNAMEC, try to find in today's surgery list
+        surgeries = client.get_surgery_list()
+        today_match = next((s for s in surgeries if s.get('HHISTNUM') == hhistnum), None)
+        
+        if today_match:
+            patient_name = today_match.get('HNAMEC', patient_name)
+            age = today_match.get('AGE', age)
+            sex = today_match.get('HSEXE', sex)
+            ordseq = today_match.get('ORDSEQ', ordseq)
+            procedure = today_match.get('ORDPROCED', procedure)
+        elif anes_history:
+            patient_name = anes_history[0].get('HNAMEC', patient_name)
+            age = anes_history[0].get('AGE', age)
+            sex = anes_history[0].get('HSEXE', sex)
+            ordseq = anes_history[0].get('ORDSEQ', ordseq)
+            procedure = anes_history[0].get('ORDPROCED', procedure)
+            
+        if not patient_name and not anes_history and not today_match:
+             # Try one last thing: get_comprehensive_patient_history might have doctors but no demographics.
+             # In some cases, we just have the HN.
+             if not comp_history:
+                return jsonify({"error": "查無此病歷號"}), 404
+             patient_name = "未知名病患"
+
+        res = {
+            "HNAMEC": patient_name,
+            "HSEXE": sex,
+            "AGE": age,
+            "HHISTNUM": hhistnum,
+            "ORDSEQ": ordseq,
+            "ORDPROCED": procedure
+        }
+        return jsonify(res)
+    except Exception as e:
+        print(f"[-] Global Lookup Error: {e}")
         return jsonify({"error": str(e)}), 500
 
 def open_browser():

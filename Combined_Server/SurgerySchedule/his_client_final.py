@@ -402,10 +402,20 @@ class HISClient:
 
             q1 = f"SELECT HCASENO FROM SYSTEM.PAT_ADM_CASE WHERE HHISNUM = '{hhistnum}'"
             res1 = self._execute_sql(q1, user_id=user_id)
-            if not res1 or '<NewDataSet>' not in res1: return []
             
-            case_rows = parse_sql_rows(res1)
-            casenums = list(set([r.get('HCASENO', '') for r in case_rows if r.get('HCASENO')]))
+            q_opd = f"SELECT OPDCASENO FROM OPDUSR.OPDDIAG WHERE HHISNUM = '{hhistnum}'"
+            res_opd = self._execute_sql(q_opd, user_id=user_id)
+            
+            casenums = set()
+            if res1 and '<NewDataSet>' in res1:
+                case_rows = parse_sql_rows(res1)
+                casenums.update([r.get('HCASENO', '') for r in case_rows if r.get('HCASENO')])
+                
+            if res_opd and '<NewDataSet>' in res_opd:
+                opd_rows = parse_sql_rows(res_opd)
+                casenums.update([r.get('OPDCASENO', '') for r in opd_rows if r.get('OPDCASENO')])
+                
+            casenums = list(casenums)
 
             all_history = []
             for cn in casenums:

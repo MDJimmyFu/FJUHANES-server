@@ -8,8 +8,11 @@ import os
 from utils import get_resource_path
 
 class HisClient:
-    def __init__(self):
-        self.session = requests.Session()
+    def __init__(self, session=None):
+        if session:
+            self.session = session
+        else:
+            self.session = requests.Session()
         self.base_url_80 = "http://10.10.246.80"
         self.base_url_179 = "http://10.10.245.179"
         self.cookie_80 = ""
@@ -549,10 +552,12 @@ class HisClient:
         for _ in range(15):
             res_pdf = self.session.get(doc_url)
             if res_pdf.status_code == 200:
-                pdf_path = get_resource_path(os.path.join("AutoPrescribe", "Controlled_Drug_Sheet_P022.pdf"))
+                random_id = str(uuid.uuid4())[:8]
+                filename = f"Controlled_Drug_Sheet_P022_{random_id}.pdf"
+                pdf_path = get_resource_path(os.path.join("AutoPrescribe", filename))
                 with open(pdf_path, "wb") as f:
                     f.write(res_pdf.content)
-                return True, pdf_path
+                return True, filename
             time.sleep(2)
             
         return False, "Timeout waiting for PDF generation"

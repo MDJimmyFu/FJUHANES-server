@@ -355,6 +355,7 @@
                 const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ username: u, password: p })
                 });
                 const data = await res.json();
@@ -392,7 +393,7 @@
         async function searchWard() {
             const ward = document.getElementById('ward').value;
             log(`Querying ward ${ward}...`);
-            const res = await fetch(`/api/patients?ward=${ward}`);
+            const res = await fetch(`/api/patients?ward=${ward}`, { credentials: 'same-origin' });
             const data = await res.json();
             renderPatients(data.data);
             log(`Found ${data.data.length} patients in ${ward}.`);
@@ -402,7 +403,7 @@
             const chart = document.getElementById('chart-no').value;
             if (!chart) return;
             log(`Querying chart ${chart}...`);
-            const res = await fetch(`/api/patients?chartNo=${chart}`);
+            const res = await fetch(`/api/patients?chartNo=${chart}`, { credentials: 'same-origin' });
             const data = await res.json();
             renderPatients(data.data);
 
@@ -497,6 +498,7 @@
                 const res = await fetch('/api/prescribe', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
                     body: JSON.stringify({ patient: currentPatient, packageType: type })
                 });
 

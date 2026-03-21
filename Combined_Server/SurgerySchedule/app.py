@@ -85,9 +85,17 @@ def index():
         end_date = end_date_param.replace('-', '')
     else:
         end_date = bg_date
+
+    # New: support for list type (surgery or endoscopy)
+    list_type = request.args.get('type', 'surgery')
         
     try:
-        surgeries = client.get_surgery_list(bg_date, end_date)
+        if list_type == 'endoscopy':
+            surgeries = client.get_endoscopy_list(bg_date, end_date)
+        elif list_type == 'ultrasound':
+            surgeries = client.get_ultrasound_list(bg_date, end_date)
+        else:
+            surgeries = client.get_surgery_list(bg_date, end_date)
     except Exception as e:
         print(f"[-] SSR Error: {e}")
         surgeries = []
@@ -95,7 +103,8 @@ def index():
     return render_template('legacy_schedule.html', 
                            surgeries=surgeries, 
                            search_date=f"{bg_date[:4]}-{bg_date[4:6]}-{bg_date[6:]}",
-                           search_end_date=f"{end_date[:4]}-{end_date[4:6]}-{end_date[6:]}")
+                           search_end_date=f"{end_date[:4]}-{end_date[4:6]}-{end_date[6:]}",
+                           list_type=list_type)
 
 @app.route('/patient_detail/<ordseq>')
 @login_required

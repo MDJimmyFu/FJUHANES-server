@@ -655,7 +655,8 @@
                 <div id="next-update-display" style="display:none; color: var(--primary); font-weight: bold;">下次更新:
                     --:--</div>
             </div>
-            <h1 style="margin: 0;">輔醫麻醉手術排程</h1>
+            <h1 style="margin: 0;">輔醫麻醉{% if list_type == 'endoscopy' %}內視鏡{% elif list_type == 'ultrasound' %}超音波{%
+                else %}手術{% endif %}排程</h1>
             <div style="width: 150px; text-align: right; font-size: 0.85rem; color: #666;">
                 {% if session.user_name %}
                 登入者: <strong style="color: var(--primary);">{{ session.user_name }}</strong><br>
@@ -672,7 +673,9 @@
                     <span>~</span>
                     <input type="date" id="endOpDate">
                 </div>
-                <button onclick="doSearch()">查詢</button>
+                <button onclick="doSearch('surgery')">手術查詢</button>
+                <button onclick="doSearch('endoscopy')" style="background-color: var(--secondary);">內視鏡查詢</button>
+                <button onclick="doSearch('ultrasound')" style="background-color: #6c757d;">超音波查詢</button>
             </div>
 
             <div class="control-row">
@@ -1877,7 +1880,7 @@
             }
         });
 
-        function doSearch() {
+        function doSearch(type = '{{ list_type }}') {
             const bgDate = document.getElementById('bgOpDate').value;
             const endDate = document.getElementById('endOpDate').value;
             // Redirect to perform server-side Search
@@ -1886,6 +1889,7 @@
                 if (endDate && endDate !== bgDate) {
                     url += '&end_date=' + endDate;
                 }
+                url += '&type=' + type; // Preserve or set list type
                 window.location.href = url;
             }
         }

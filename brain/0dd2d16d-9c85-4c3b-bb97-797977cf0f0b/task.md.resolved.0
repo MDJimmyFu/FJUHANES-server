@@ -1,0 +1,6 @@
+# Task Checklist
+
+- [ ] Research DM/OAD/insulin checkboxes in [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) <!-- id: 0 -->
+- [ ] Identify PDF generation logic in [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html) or [app.js](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/static/js/app.js) <!-- id: 1 -->
+- [ ] Update PDF generation logic to handle DM YES correctly <!-- id: 2 -->
+- [ ] Verify the fix <!-- id: 3 -->

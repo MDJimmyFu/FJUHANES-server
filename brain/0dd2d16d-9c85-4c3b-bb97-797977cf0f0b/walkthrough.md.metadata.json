@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_WALKTHROUGH",
+  "summary":  "Walkthrough of the fix for DM checkbox PDF generation logic, including the logic changes in `legacy_schedule.html` and `index.html`.",
+  "updatedAt":  "2026-02-27T06:20:40.094411600Z"
+}

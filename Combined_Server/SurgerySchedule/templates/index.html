@@ -1096,7 +1096,10 @@
                                         <li><label><input type="checkbox"> Ketorolac</label></li>
                                         <li><label><input type="checkbox"> Succinylcholine</label></li>
                                         <li><label><input type="checkbox"> Sugammadex</label></li>
-                                        <li><label><input type="checkbox"> Others</label></li>
+                                        <li><label><input type="checkbox"> Remimazolam(Byfavo)</label></li>
+                                        <li><label><input type="checkbox"> Otril</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -1132,7 +1135,8 @@
                                         <li><label><input type="checkbox"> Levobupivacaine</label></li>
                                         <li><label><input type="checkbox"> Lidocaine</label></li>
                                         <li><label><input type="checkbox"> Fentanyl</label></li>
-                                        <li><label><input type="checkbox"> Others</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
                                     </ul>
                                 </li>
                                 <li><label><input type="checkbox"> <span class="bold-item">(4) Peripheral Nerve Block
@@ -1211,7 +1215,8 @@
                                             &nbsp; <label style="width:auto;"><input type="checkbox"> ProAQT</label>
                                             &nbsp; <label style="width:auto;"><input type="checkbox"> EV1000</label>
                                         </li>
-                                        <li><label><input type="checkbox"> Others</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
                                     </ul>
                                 </li>
                                 <li><span class="bold-item">(2) CVC (中心靜脈導管)</span>: <label style="width:auto;"><input
@@ -1225,7 +1230,8 @@
                                         <li><label><input type="checkbox"> 20x22x22</label></li>
                                         <li><label><input type="checkbox"> Cook 16x18x18</label></li>
                                         <li><label><input type="checkbox"> ScvO2, 15x18x18</label></li>
-                                        <li><label><input type="checkbox"> Others</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
                                     </ul>
                                 </li>
                                 <li><span class="bold-item">(3) PAC</span>: <label style="width:auto;"><input
@@ -1310,7 +1316,8 @@
                                         <li><label><input type="checkbox"> AirKeeper</label></li>
                                         <li><label><input type="checkbox" id="chk_optiflow_hfnc"> Optiflow HFNC</label>
                                         </li>
-                                        <li><label><input type="checkbox"> Others</label></li>
+                                        <li><label><input type="checkbox"> Others: <input type="text"
+                                                    oninput="checkSection(this)"></label></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -3399,19 +3406,15 @@
             const inputs = modal.querySelectorAll('input, select');
 
             inputs.forEach((input, index) => {
-                // Use ID if available, else use specific path/index? 
-                // Since structure is static, index is fragile but simple. 
-                // Better to use a combination of type + hierarchy index if needed, 
-                // but strictly ordered index is fine for this single file app if structure doesn't change dynamically.
-                // To be safer, let's use a generated ID based on position if no ID.
-
                 let val;
                 if (input.type === 'checkbox' || input.type === 'radio') {
                     val = input.checked;
                 } else {
                     val = input.value;
                 }
-                formData[`field_${index}`] = val;
+                // Use ID if available, fallback to index
+                const key = input.id || `field_${index}`;
+                formData[key] = val;
             });
             return formData;
         }
@@ -3422,21 +3425,27 @@
             const inputs = modal.querySelectorAll('input, select');
 
             inputs.forEach((input, index) => {
-                const val = data[`field_${index}`];
+                // Try ID first, then fallback to index
+                const val = (input.id && data[input.id] !== undefined) ? data[input.id] : data[`field_${index}`];
+
                 if (val !== undefined) {
                     if (input.type === 'checkbox' || input.type === 'radio') {
-                        input.checked = val;
-                        // Trigger change logic like showing nested children
-                        if (input.checked && (input.type === 'checkbox' || input.type === 'radio')) {
-                            // Locate parent LI handling
-                            // We need to trigger handleParentCheckbox if it's a parent
-                            // Use the existing logic
-                            handleParentCheckbox(input);
-                            checkSection(input);
+                        // Only restore boolean to checkbox/radio
+                        if (typeof val === 'boolean') {
+                            input.checked = val;
+                            // Trigger change logic like showing nested children
+                            if (input.checked) {
+                                // Locate parent LI handling
+                                handleParentCheckbox(input);
+                                checkSection(input);
+                            }
                         }
                     } else {
-                        input.value = val;
-                        checkSection(input);
+                        // For text/select, don't restore booleans (prevents "false" appearing in text fields)
+                        if (typeof val !== 'boolean') {
+                            input.value = val;
+                            checkSection(input);
+                        }
                     }
                 }
             });
@@ -3832,15 +3841,29 @@
             // Mapping Logic
             // 1. Past History Comments
 
-            // "Diabetes mellitus" -> DM Note
-            let note = extractSectionDetails("Diabetes mellitus");
+            // "DM" -> DM Note
+            let note = extractSectionDetails("DM");
             if (note && note !== "CHECKED") draw(note, 250.19, 628.75 + 2);
-            checkPhItem("DM", (note && note !== "CHECKED") || isChecked("Diabetes mellitus"));
+            checkPhItem("DM", (note && note !== "CHECKED") || isChecked("DM"));
 
             // "CVA" -> CVA Note
-            note = extractSectionDetails("CVA");
-            if (note && note !== "CHECKED") draw(note, 250.19, 614.92 + 2);
-            checkPhItem("CVA", (note && note !== "CHECKED") || isChecked("CVA"));
+            let cvaNote = extractSectionDetails("CVA");
+            const tbiDetails = extractSectionDetails("Traumatic Brain Injury");
+            const avmDetails = extractSectionDetails("Aneurysm/AVM");
+
+            if (tbiDetails) cvaNote = (cvaNote ? cvaNote + ", " : "") + "TBI: " + tbiDetails;
+            else if (isChecked("Traumatic Brain Injury")) cvaNote = (cvaNote ? cvaNote + ", " : "") + "Traumatic Brain Injury";
+
+            if (avmDetails) cvaNote = (cvaNote ? cvaNote + ", " : "") + "Aneurysm/AVM: " + avmDetails;
+            else if (isChecked("Aneurysm/AVM")) cvaNote = (cvaNote ? cvaNote + ", " : "") + "Aneurysm/AVM";
+
+            if (cvaNote && cvaNote !== "CHECKED") draw(cvaNote, 250.19, 614.92 + 2);
+
+            const hasCVA = (cvaNote.length > 0) ||
+                isChecked("CVA") ||
+                isChecked("Traumatic Brain Injury") ||
+                isChecked("Aneurysm/AVM");
+            checkPhItem("CVA", hasCVA);
 
             // "Hypertension" -> Hypertension Note
             note = extractSectionDetails("Hypertension");
@@ -3902,9 +3925,21 @@
             checkPhItem("Renal Disease", (note && note !== "CHECKED" && note.length > 0) || isChecked("Renal disease") || extras.length > 0);
 
             // "Bleeding disorder"
-            note = extractSectionDetails("Bleeding disorder");
-            if (note && note !== "CHECKED") draw(note, 250.19, 516.98 + 2);
-            checkPhItem("Bleeding disorder", (note && note !== "CHECKED") || isChecked("Bleeding disorder"));
+            let bNote = extractSectionDetails("Bleeding disorder");
+            let bCoagNote = extractSectionDetails("凝血功能評估");
+
+            let combinedBNote = "";
+            if (bNote && bNote !== "CHECKED") combinedBNote = bNote;
+            if (bCoagNote && bCoagNote !== "CHECKED") {
+                combinedBNote = (combinedBNote ? combinedBNote + ", " : "") + bCoagNote;
+            }
+
+            if (combinedBNote) draw(combinedBNote, 250.19, 516.98 + 2);
+
+            const hasBleedingDisorder = (combinedBNote.length > 0) ||
+                isChecked("Bleeding disorder") ||
+                isChecked("凝血功能評估");
+            checkPhItem("Bleeding disorder", hasBleedingDisorder);
 
             // "Allergy"
             note = extractSectionDetails("Allergy");
@@ -4093,15 +4128,27 @@
                 { id: "chk_pca", label: "PCA" },
                 { id: "chk_bis", label: "BIS" },
                 { id: "chk_aws", label: "AWS" },
+                { label: "GlideScope" },
+                { label: "Entrophy" }, // Matches "Entrophy" text in HTML
+                { label: "Sedline" },
+                { label: "ForeSight" },
+                { label: "O3" },
+                { label: "INVOS" },
                 { id: "chk_optiflow_thrive", label: "Optiflow" },
                 { id: "chk_optiflow_hfnc", label: "Optiflow" }
             ];
 
             let highlights = [];
             highlightItems.forEach(item => {
-                const el = document.getElementById(item.id);
-                if (el && el.checked) {
-                    if (!highlights.includes(item.label)) highlights.push(item.label);
+                if (item.id) {
+                    const el = document.getElementById(item.id);
+                    if (el && el.checked) {
+                        if (!highlights.includes(item.label)) highlights.push(item.label);
+                    }
+                } else if (item.label) {
+                    if (isChecked(item.label)) {
+                        if (!highlights.includes(item.label)) highlights.push(item.label);
+                    }
                 }
             });
 

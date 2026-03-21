@@ -1,0 +1,57 @@
+# Auto-Refresh Enhancements Plan
+
+Enhance the auto-refresh functionality in the surgery schedule to be more user-friendly and configurable.
+
+## Proposed Changes
+
+### [Component Name] Update Timer UI and Countdown
+
+#### [MODIFY] [legacy_schedule.html](file:///c:/Users/A03772/.gemini/antigravity/Combined_Server/SurgerySchedule/templates/legacy_schedule.html)
+
+- **Header UI**:
+    - Replace the empty spacer `div` in the `header` with a timer display.
+    - Show "最後更新: HH:mm:ss".
+    - Show "下次更新: mm:ss" (only if auto-refresh is enabled).
+
+- **Styling**:
+    - Add styles for `#last-update-display` and `#next-update-display` in `<style>`.
+    - Ensure it fits within the 150px allocated header width.
+
+- **Initialization Logic**:
+    - Record the initial page load time as the first "Last Update".
+    - Start a global "Countdown Timer" that executes every 1 second.
+
+- **Countdown Logic**:
+    - In `setupAutoRefresh`, store the `targetRefreshTime` (current time + interval).
+    - In the per-second timer:
+        - Calculate remaining seconds.
+        - If the detail view or evaluation form is open, mark the countdown as "已暫停" (Paused) or keep it static.
+        - Update the UI with the countdown.
+
+- **Refresh Integration**:
+    - When `doSearch` or `location.reload` is triggered, the page reloads, resetting all timers (inherently).
+    - If `setupAutoRefresh` is toggled ON/OFF, immediately update the countdown visibility.
+
+## Verification Plan
+
+### Manual Verification
+1. **Initial Load**:
+    - Verify "最後更新" shows the current time.
+    - Verify "下次更新" is NOT visible by default (auto-refresh is OFF).
+
+2. **Enable Auto-Refresh**:
+    - Set interval to 1 minute.
+    - Check "自動更新".
+    - Verify "下次更新" appears and counts down from 60.
+
+3. **Pause Countdown**:
+    - Open a patient detail view.
+    - Verify the countdown shows "已暫停" or "暫停中".
+
+4. **Resume Countdown**:
+    - Close the detail view.
+    - Verify the countdown resumes (or resets correctly).
+
+5. **Trigger Refresh**:
+    - Wait for countdown to reach 0.
+    - Verify the page reloads.

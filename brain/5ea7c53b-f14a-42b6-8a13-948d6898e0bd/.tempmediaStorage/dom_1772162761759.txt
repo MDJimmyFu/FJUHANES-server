@@ -1,0 +1,32 @@
+<current_dom_explanation>
+This is a temporary snapshot of the current page's DOM structure. The DOM will change if you navigate to or interact with another page. Use a tool like browser_get_dom to capture and preserve the DOM in your trajectory if needed for later reference.
+</current_dom_explanation>
+<current_dom>
+[0] (69,32)<a class='MV3Tnb' href='https://about.google/?fg=1&utm_source=google-&utm_medium=referral&utm_campaign=hp-header'>關於 Google />
+[1] (174,32)<a class='MV3Tnb' href='https://store.google.com/?utm_source=hp_header&utm_medium=google_ooo&utm_campaign=GS100042&hl=zh-TW-'>Google 商店 />
+[2] (768,31)<a aria-label='Gmail ' class='gb_Z' href='https://mail.google.com/mail/&ogbl'>Gmail />
+[3] (816,31)<a aria-label='搜尋圖片 ' class='gb_Z' href='https://www.google.com/imghp?hl=zh-TW&ogbl'>圖片 />
+[4] (868,31)<a aria-label='Google 應用程式' class='gb_B' href='https://www.google.com.tw/intl/zh-TW/about/products' role='button' />
+[5] (943,31)<a aria-label='登入' class='gb_A' href='https://accounts.google.com/ServiceLogin?hl=zh-TW&passive=true&continue=https://www.google.com/&ec=futura_exp_og_so_72776762_e'>登入 />
+	登入
+[6] (158,435)<button aria-label='上傳檔案或圖片' class='UbbAWe' />
+	[7] (158,435)<span  />
+[8] (426,435)<textarea aria-label='搜尋' class='gLFyf' id='APjFqb' role='combobox' title='Google 搜尋' />
+[9] (689,435)<div aria-label='語音搜尋' class='XDyW0e' role='button' />
+[10] (732,435)<div aria-label='以圖搜尋' class='nDcEnd' role='button' />
+[11] (812,435)<button class='plR5qb Y5MKCd' role='link' />
+	[12] (810,435)<div  />
+		[13] (786,435)<span  />
+		[14] (823,435)<span >AI 模式 />
+[15] (453,514)<input aria-label='Google 搜尋' class='gNO89b' role='button' />
+[16] (566,514)<input aria-label='好手氣' class='RNmpXc' />
+台灣
+[17] (197,974)<a class='pHiOh' href='https://www.google.com/intl/zh-TW_tw/ads/?subid=ww-ww-et-g-awa-a-g_hpafoot1_1!o2&utm_source=google.com&utm_medium=referral&utm_campaign=google_hpafooter&fg=1'>廣告 />
+[18] (259,974)<a class='pHiOh' href='https://www.google.com/services/?subid=ww-ww-et-g-awa-a-g_hpbfoot1_1!o2&utm_source=google.com&utm_medium=referral&utm_campaign=google_hpbfooter&fg=1'>商業 />
+[19] (374,974)<a class='pHiOh' href='https://google.com/search/howsearchworks/?fg=1'>搜尋服務的運作方式 />
+[20] (641,974)<a class='pHiOh' href='https://policies.google.com/privacy?hl=zh-TW&fg=1'>隱私權 />
+[21] (726,974)<a class='pHiOh' href='https://policies.google.com/terms?hl=zh-TW&fg=1'>服務條款 />
+[22] (803,974)<div class='CcNe6e' role='button' />
+	[23] (803,974)<div >設定 />
+
+</current_dom>

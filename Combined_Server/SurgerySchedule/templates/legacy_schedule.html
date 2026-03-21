@@ -649,8 +649,14 @@
     <div class="container" id="schedule-view">
         <header
             style="display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto 2rem auto;">
-            <div style="width: 150px;"></div> <!-- Spacer -->
-            <h1 style="margin: 0;">輔醫麻醉手術排程</h1>
+            <div id="update-timer-container"
+                style="width: 150px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.4; text-align: left;">
+                <div id="last-update-display">最後更新: --:--:--</div>
+                <div id="next-update-display" style="display:none; color: var(--primary); font-weight: bold;">下次更新:
+                    --:--</div>
+            </div>
+            <h1 style="margin: 0;">輔醫麻醉{% if list_type == 'endoscopy' %}內視鏡{% elif list_type == 'ultrasound' %}超音波{%
+                else %}手術{% endif %}排程</h1>
             <div style="width: 150px; text-align: right; font-size: 0.85rem; color: #666;">
                 {% if session.user_name %}
                 登入者: <strong style="color: var(--primary);">{{ session.user_name }}</strong><br>
@@ -667,7 +673,9 @@
                     <span>~</span>
                     <input type="date" id="endOpDate">
                 </div>
-                <button onclick="doSearch()">查詢</button>
+                <button onclick="doSearch('surgery')">手術查詢</button>
+                <button onclick="doSearch('endoscopy')" style="background-color: var(--secondary);">內視鏡查詢</button>
+                <button onclick="doSearch('ultrasound')" style="background-color: #6c757d;">超音波查詢</button>
             </div>
 
             <div class="control-row">
@@ -1453,7 +1461,11 @@
                                         <li><label><input type="checkbox" id="chk_ga_spec_succ"> Succinylcholine</label>
                                         </li>
                                         <li><label><input type="checkbox" id="chk_ga_spec_suga"> Sugammadex</label></li>
-                                        <li><label><input type="checkbox" id="chk_ga_spec_oth"> Others</label></li>
+                                        <li><label><input type="checkbox" id="chk_ga_spec_remi_byfavo">
+                                                Remimazolam(Byfavo)</label></li>
+                                        <li><label><input type="checkbox" id="chk_ga_spec_otril"> Otril</label></li>
+                                        <li><label><input type="checkbox" id="chk_ga_spec_oth"> Others</label>: <input
+                                                type="text" id="txt_ga_spec_oth_note" oninput="checkSection(this)"></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -1492,7 +1504,8 @@
                                         </li>
                                         <li><label><input type="checkbox" id="chk_ra_med_lido"> Lidocaine</label></li>
                                         <li><label><input type="checkbox" id="chk_ra_med_fent"> Fentanyl</label></li>
-                                        <li><label><input type="checkbox" id="chk_ra_med_oth"> Others</label></li>
+                                        <li><label><input type="checkbox" id="chk_ra_med_oth"> Others</label>: <input
+                                                type="text" id="txt_ra_med_oth_note" oninput="checkSection(this)"></li>
                                     </ul>
                                 </li>
                                 <li><label><input type="checkbox" id="chk_pnb"> <span class="bold-item">(4) Peripheral
@@ -1611,7 +1624,8 @@
                                                         EV1000</label></li>
                                             </ul>
                                         </li>
-                                        <li><label><input type="checkbox" id="chk_mon_abp_oth"> Others</label></li>
+                                        <li><label><input type="checkbox" id="chk_mon_abp_oth"> Others</label>: <input
+                                                type="text" id="txt_mon_abp_oth_note" oninput="checkSection(this)"></li>
                                     </ul>
                                 </li>
                                 <li><span class="bold-item">(2) CVC (中心靜脈導管)</span>: <label style="width:auto;"><input
@@ -1631,7 +1645,8 @@
                                         </li>
                                         <li><label><input type="checkbox" id="chk_mon_cvc_scv"> ScvO2, 15x18x18</label>
                                         </li>
-                                        <li><label><input type="checkbox" id="chk_mon_cvc_oth"> Others</label></li>
+                                        <li><label><input type="checkbox" id="chk_mon_cvc_oth"> Others</label>: <input
+                                                type="text" id="txt_mon_cvc_oth_note" oninput="checkSection(this)"></li>
                                     </ul>
                                 </li>
                                 <li><span class="bold-item">(3) PAC</span>: <label style="width:auto;"><input
@@ -1732,7 +1747,8 @@
                                         </li>
                                         <li><label><input type="checkbox" id="chk_optiflow_hfnc"> Optiflow HFNC</label>
                                         </li>
-                                        <li><label><input type="checkbox" id="chk_ap_spec_oth"> Others</label></li>
+                                        <li><label><input type="checkbox" id="chk_ap_spec_oth"> Others</label>: <input
+                                                type="text" id="txt_ap_spec_oth_note" oninput="checkSection(this)"></li>
                                     </ul>
                                 </li>
                             </ul>
@@ -1836,6 +1852,11 @@
         // Configuration
         const API_BASE = '/api/his';
 
+        // Global State
+        let refreshTimer = null;
+        let targetRefreshTime = null;
+        let countdownInterval = null;
+
         // Global State for Data - Injected by Flask (Server-Side Rendering)
         let currentScheduleData = {{ surgeries | tojson }};
         const searchDate = "{{ search_date }}";
@@ -1859,7 +1880,7 @@
             }
         });
 
-        function doSearch() {
+        function doSearch(type = '{{ list_type }}') {
             const bgDate = document.getElementById('bgOpDate').value;
             const endDate = document.getElementById('endOpDate').value;
             // Redirect to perform server-side Search
@@ -1868,6 +1889,7 @@
                 if (endDate && endDate !== bgDate) {
                     url += '&end_date=' + endDate;
                 }
+                url += '&type=' + type; // Preserve or set list type
                 window.location.href = url;
             }
         }
@@ -3831,6 +3853,11 @@
 
         function closeDetail() {
             document.getElementById('detail-view').style.display = 'none';
+            // Resume auto-refresh if enabled
+            const savedRefresh = localStorage.getItem('surgery-auto-refresh') === 'true';
+            if (savedRefresh) {
+                setupAutoRefresh(true);
+            }
         }
 
         function toggleSection(headerElement) {
@@ -4299,6 +4326,11 @@
 
         function closeEvalModal() {
             document.getElementById('eval-modal').style.display = 'none';
+            // Resume auto-refresh if enabled
+            const savedRefresh = localStorage.getItem('surgery-auto-refresh') === 'true';
+            if (savedRefresh) {
+                setupAutoRefresh(true);
+            }
         }
 
         function saveEvalData() {
@@ -4322,19 +4354,15 @@
             const inputs = modal.querySelectorAll('input, select');
 
             inputs.forEach((input, index) => {
-                // Use ID if available, else use specific path/index? 
-                // Since structure is static, index is fragile but simple. 
-                // Better to use a combination of type + hierarchy index if needed, 
-                // but strictly ordered index is fine for this single file app if structure doesn't change dynamically.
-                // To be safer, let's use a generated ID based on position if no ID.
-
                 let val;
                 if (input.type === 'checkbox' || input.type === 'radio') {
                     val = input.checked;
                 } else {
                     val = input.value;
                 }
-                formData[`field_${index}`] = val;
+                // Use ID if available, fallback to index
+                const key = input.id || `field_${index}`;
+                formData[key] = val;
             });
             return formData;
         }
@@ -4345,21 +4373,27 @@
             const inputs = modal.querySelectorAll('input, select');
 
             inputs.forEach((input, index) => {
-                const val = data[`field_${index}`];
+                // Try ID first, then fallback to index
+                const val = (input.id && data[input.id] !== undefined) ? data[input.id] : data[`field_${index}`];
+
                 if (val !== undefined) {
                     if (input.type === 'checkbox' || input.type === 'radio') {
-                        input.checked = val;
-                        // Trigger change logic like showing nested children
-                        if (input.checked && (input.type === 'checkbox' || input.type === 'radio')) {
-                            // Locate parent LI handling
-                            // We need to trigger handleParentCheckbox if it's a parent
-                            // Use the existing logic
-                            handleParentCheckbox(input);
-                            checkSection(input);
+                        // Only restore boolean to checkbox/radio
+                        if (typeof val === 'boolean') {
+                            input.checked = val;
+                            // Trigger change logic like showing nested children
+                            if (input.checked) {
+                                // Locate parent LI handling
+                                handleParentCheckbox(input);
+                                checkSection(input);
+                            }
                         }
                     } else {
-                        input.value = val;
-                        checkSection(input);
+                        // For text/select, don't restore booleans (prevents "false" appearing in text fields)
+                        if (typeof val !== 'boolean') {
+                            input.value = val;
+                            checkSection(input);
+                        }
                     }
                 }
             });
@@ -4755,15 +4789,30 @@
             // Mapping Logic
             // 1. Past History Comments
 
-            // "Diabetes mellitus" -> DM Note
-            let note = extractSectionDetails("Diabetes mellitus");
+            // "DM" -> DM Note
+            let note = extractSectionDetails("DM");
             if (note && note !== "CHECKED") draw(note, 250.19, 628.75 + 2);
-            checkPhItem("DM", (note && note !== "CHECKED") || isChecked("Diabetes mellitus"));
+            checkPhItem("DM", (note && note !== "CHECKED") || isChecked("chk_end_dm"));
 
             // "CVA" -> CVA Note
-            note = extractSectionDetails("CVA");
-            if (note && note !== "CHECKED") draw(note, 250.19, 614.92 + 2);
-            checkPhItem("CVA", (note && note !== "CHECKED") || isChecked("CVA"));
+            let cvaNote = extractSectionDetails("CVA");
+            const tbiDetails = extractSectionDetails("Traumatic Brain Injury");
+            const avmDetails = extractSectionDetails("Aneurysm/AVM");
+
+            if (tbiDetails) cvaNote = (cvaNote ? cvaNote + ", " : "") + "TBI: " + tbiDetails;
+            else if (isChecked("chk_neu_tbi")) cvaNote = (cvaNote ? cvaNote + ", " : "") + "Traumatic Brain Injury";
+
+            if (avmDetails) cvaNote = (cvaNote ? cvaNote + ", " : "") + "Aneurysm/AVM: " + avmDetails;
+            else if (isChecked("chk_neu_avm")) cvaNote = (cvaNote ? cvaNote + ", " : "") + "Aneurysm/AVM";
+
+            if (cvaNote && cvaNote !== "CHECKED") draw(cvaNote, 250.19, 614.92 + 2);
+
+            const hasCVA = (cvaNote.length > 0) ||
+                isChecked("CVA") ||
+                isChecked("chk_neu_cva") ||
+                isChecked("chk_neu_tbi") ||
+                isChecked("chk_neu_avm");
+            checkPhItem("CVA", hasCVA);
 
             // "Hypertension" -> Hypertension Note
             note = extractSectionDetails("Hypertension");
@@ -4834,9 +4883,21 @@
             checkPhItem("Renal Disease", (rNote && rNote !== "CHECKED" && rNote.length > 0) || isChecked("chk_ren_ckd") || rExtras.length > 0);
 
             // "Bleeding disorder"
-            note = extractSectionDetails("Bleeding disorder");
-            if (note && note !== "CHECKED") draw(note, 250.19, 516.98 + 2);
-            checkPhItem("Bleeding disorder", (note && note !== "CHECKED") || isChecked("Bleeding disorder"));
+            let bNote = extractSectionDetails("Bleeding disorder");
+            let bCoagNote = extractSectionDetails("凝血功能評估");
+
+            let combinedBNote = "";
+            if (bNote && bNote !== "CHECKED") combinedBNote = bNote;
+            if (bCoagNote && bCoagNote !== "CHECKED") {
+                combinedBNote = (combinedBNote ? combinedBNote + ", " : "") + bCoagNote;
+            }
+
+            if (combinedBNote) draw(combinedBNote, 250.19, 516.98 + 2);
+
+            const hasBleedingDisorder = (combinedBNote.length > 0) ||
+                isChecked("Bleeding disorder") ||
+                isChecked("凝血功能評估");
+            checkPhItem("Bleeding disorder", hasBleedingDisorder);
 
             // "Allergy"
             note = extractSectionDetails("Allergy");
@@ -5038,6 +5099,12 @@
                 { id: "chk_pca", label: "PCA" },
                 { id: "chk_bis", label: "BIS" },
                 { id: "chk_aws", label: "AWS" },
+                { id: "chk_ap_spec_glide", label: "GlideScope" },
+                { id: "chk_mon_depth_ent", label: "Entropy" },
+                { id: "chk_mon_depth_sed", label: "Sedline" },
+                { id: "chk_mon_ox_fore", label: "ForeSight" },
+                { id: "chk_mon_ox_o3", label: "O3" },
+                { id: "chk_mon_ox_invos", label: "INVOS" },
                 { id: "chk_optiflow_thrive", label: "Optiflow" },
                 { id: "chk_optiflow_hfnc", label: "Optiflow" }
             ];
@@ -5079,18 +5146,23 @@
             applyTheme(theme);
         }
 
-        let refreshTimer = null;
         function setupAutoRefresh(enabled) {
             if (refreshTimer) clearInterval(refreshTimer);
             if (enabled) {
-                // 5 minutes = 300,000ms
+                const interval = parseInt(localStorage.getItem('surgery-auto-refresh-interval')) || 300000;
+                targetRefreshTime = Date.now() + interval;
+                console.log(`Setting up auto-refresh with interval: ${interval / 1000}s`);
                 refreshTimer = setInterval(() => {
                     // Check if user is interacting with detail view or evaluation form
-                    const detailVisible = document.getElementById('detail-view').style.display !== 'none';
-                    const evalVisible = document.getElementById('eval-modal').style.display !== 'none';
+                    const detailView = document.getElementById('detail-view');
+                    const evalModal = document.getElementById('eval-modal');
+                    const detailVisible = detailView && window.getComputedStyle(detailView).display !== 'none';
+                    const evalVisible = evalModal && window.getComputedStyle(evalModal).display !== 'none';
 
                     if (detailVisible || evalVisible) {
                         console.log("Auto-refresh paused because detail view or evaluation form is open.");
+                        // Push back target time to maintain countdown accuracy
+                        targetRefreshTime = Date.now() + interval;
                         return; // Skip this refresh cycle
                     }
 
@@ -5100,12 +5172,56 @@
                     } else {
                         location.reload(); // Fallback if doSearch is not available or errors
                     }
-                }, 300000);
+                }, interval);
             }
+        }
+
+        function startCountdownLogic() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                const nextUpdateDisplay = document.getElementById('next-update-display');
+                if (!nextUpdateDisplay) return;
+
+                const isEnabled = localStorage.getItem('surgery-auto-refresh') === 'true';
+                if (!isEnabled) {
+                    nextUpdateDisplay.style.display = 'none';
+                    return;
+                }
+
+                nextUpdateDisplay.style.display = 'block';
+
+                // Check for pause
+                const detailView = document.getElementById('detail-view');
+                const evalModal = document.getElementById('eval-modal');
+                const detailVisible = detailView && window.getComputedStyle(detailView).display !== 'none';
+                const evalVisible = evalModal && window.getComputedStyle(evalModal).display !== 'none';
+
+                if (detailVisible || evalVisible) {
+                    nextUpdateDisplay.textContent = '下次更新: 暫停中';
+                    return;
+                }
+
+                if (targetRefreshTime) {
+                    const remaining = Math.max(0, Math.round((targetRefreshTime - Date.now()) / 1000));
+                    const mins = Math.floor(remaining / 60);
+                    const secs = remaining % 60;
+                    nextUpdateDisplay.textContent = `下次更新: ${mins}:${secs.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
         }
 
         // Initialize Settings
         document.addEventListener('DOMContentLoaded', () => {
+            // Set Last Update Time
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' +
+                now.getMinutes().toString().padStart(2, '0') + ':' +
+                now.getSeconds().toString().padStart(2, '0');
+            const lastUpdateEl = document.getElementById('last-update-display');
+            if (lastUpdateEl) lastUpdateEl.textContent = `最後更新: ${timeStr}`;
+
+            startCountdownLogic();
+
             // Theme Init
             const savedTheme = localStorage.getItem('surgery-theme') || 'system';
             const themeSelect = document.getElementById('theme-select');
@@ -5121,9 +5237,12 @@
 
             // Refresh Init
             const autoUpdateCheck = document.getElementById('auto-update-check');
+            const intervalSelect = document.getElementById('refresh-interval-select');
             const savedRefresh = localStorage.getItem('surgery-auto-refresh');
-            // Default to true if not set
-            const isRefreshEnabled = savedRefresh === null ? true : savedRefresh === 'true';
+            const savedInterval = localStorage.getItem('surgery-auto-refresh-interval') || '300000';
+
+            // Default to false if not set
+            const isRefreshEnabled = savedRefresh === 'true'; // savedRefresh will be null or "false" or "true". null results in false.
 
             if (autoUpdateCheck) {
                 autoUpdateCheck.checked = isRefreshEnabled;
@@ -5132,6 +5251,17 @@
                     setupAutoRefresh(e.target.checked);
                 });
             }
+
+            if (intervalSelect) {
+                intervalSelect.value = savedInterval;
+                intervalSelect.addEventListener('change', (e) => {
+                    localStorage.setItem('surgery-auto-refresh-interval', e.target.value);
+                    if (autoUpdateCheck && autoUpdateCheck.checked) {
+                        setupAutoRefresh(true);
+                    }
+                });
+            }
+
             setupAutoRefresh(isRefreshEnabled);
 
             // Click outside to close settings menu
@@ -5153,8 +5283,17 @@
             <div class="settings-title">一般設定</div>
             <label class="settings-option">
                 <input type="checkbox" id="auto-update-check">
-                <span>每五分鐘自動更新</span>
+                <span>自動更新</span>
             </label>
+            <div class="settings-option">
+                <span style="font-size: 0.85rem; margin-right: 8px;">更新間隔:</span>
+                <select id="refresh-interval-select" style="width: auto; padding: 2px 4px;">
+                    <option value="60000">1 分鐘</option>
+                    <option value="180000">3 分鐘</option>
+                    <option value="300000">5 分鐘</option>
+                    <option value="600000">10 分鐘</option>
+                </select>
+            </div>
         </div>
         <div class="settings-group">
             <div class="settings-title">外觀主題</div>

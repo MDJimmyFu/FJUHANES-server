@@ -21,6 +21,8 @@ The "Major operations Yes" field on the PDF is now much more intelligent. It wil
 - There is text in the **History note** field.
 - **AUTOMATED**: The system detects pre-existing anesthesia history records for the current patient (via `window.currentDetailData.aneHist`).
 
+- **GitHub Repository:** Created and uploaded the project to [FJUHANES-server](https://github.com/MDJimmyFu/FJUHANES-server).
+- **Combined Server Executable:** Rebuilt the standalone `Combined_Server.exe` successfully with all latest changes.
 - **Comprehensive Dark Mode Audit & Refinement:**
     - **Surgery Cards:** Added a distinct 1px border (`1px solid var(--border)`) for better visibility in dark mode.
     - **Modals and Overlays:** Ensured modals and containers correctly inherited theme backgrounds and text colors.

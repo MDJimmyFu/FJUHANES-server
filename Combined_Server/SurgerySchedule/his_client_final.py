@@ -12,6 +12,7 @@ class HISClient:
     def __init__(self, c250_template="SurgerySchedule/c250_payload_1.bin", c430_template="SurgerySchedule/c430_payload_0.bin", q050_template="SurgerySchedule/q050_payload_0.bin"):
         self.base_url = "http://10.10.246.90:8800"
         self.c250_template = resource_path(c250_template)
+        self.c250_endoscopy_template = resource_path("SurgerySchedule/c250_endoscopy_template.bin")
         self.c430_template = resource_path(c430_template)
         self.q050_template = resource_path(q050_template)
         self.c250_activate_template = resource_path("SurgerySchedule/c250_activate.bin")
@@ -59,6 +60,87 @@ class HISClient:
         except Exception as e:
             print(f"[-] Error fetching surgery list: {e}")
             return None
+
+    def get_endoscopy_list(self, date_str=None, end_date_str=None):
+        """
+        Fetches the endoscopy list for the given date range.
+        Uses the c250_endoscopy_template.bin template.
+        """
+        if not date_str:
+            date_str = datetime.datetime.now().strftime("%Y%m%d")
+        if not end_date_str:
+            end_date_str = date_str
+            
+        print(f"[*] Fetching endoscopy list from {date_str} to {end_date_str}...")
+        
+        try:
+            if not os.path.exists(self.c250_endoscopy_template):
+                print(f"[-] Endoscopy template {self.c250_endoscopy_template} not found.")
+                return []
+
+            with open(self.c250_endoscopy_template, "rb") as f:
+                compressed_template = f.read()
+            decompressed = zlib.decompress(compressed_template)
+            
+            target_date_bytes = date_str.encode('ascii')
+            end_date_bytes = end_date_str.encode('ascii')
+            
+            # The template has 20260316 for BGOPDATE, ENDOPDATE, and OPDATE
+            # Patching date strings
+            patched_payload = re.sub(b"(BGOPDATE.{1,30}?)20260316", b"\\g<1>" + target_date_bytes, decompressed, flags=re.DOTALL)
+            patched_payload = re.sub(b"(ENDOPDATE.{1,30}?)20260316", b"\\g<1>" + end_date_bytes, patched_payload, flags=re.DOTALL)
+            patched_payload = patched_payload.replace(b"20260316", target_date_bytes)
+            
+            final_payload = zlib.compress(patched_payload)
+            
+            response = requests.post(f"{self.base_url}/HISOrmC250Facade", data=final_payload, headers=self.headers)
+            response.raise_for_status()
+            
+            return self._parse_endoscopy_list(response.content)
+            
+        except Exception as e:
+            print(f"[-] Error fetching endoscopy list: {e}")
+            return []
+
+    def get_ultrasound_list(self, date_str=None, end_date_str=None):
+        """
+        Fetches the ultrasound list for the given date range.
+        Uses the exact same query as surgery and endoscopy, but parses SCHLIST2F instead.
+        """
+        if not date_str:
+            date_str = datetime.datetime.now().strftime("%Y%m%d")
+        if not end_date_str:
+            end_date_str = date_str
+            
+        print(f"[*] Fetching ultrasound list from {date_str} to {end_date_str}...")
+        
+        try:
+            if not os.path.exists(self.c250_endoscopy_template):
+                print(f"[-] Ultrasound template (using endoscopy template) {self.c250_endoscopy_template} not found.")
+                return []
+
+            with open(self.c250_endoscopy_template, "rb") as f:
+                compressed_template = f.read()
+            decompressed = zlib.decompress(compressed_template)
+            
+            target_date_bytes = date_str.encode('ascii')
+            end_date_bytes = end_date_str.encode('ascii')
+            
+            # The template has 20260316 for BGOPDATE, ENDOPDATE, and OPDATE
+            patched_payload = re.sub(b"(BGOPDATE.{1,30}?)20260316", b"\\g<1>" + target_date_bytes, decompressed, flags=re.DOTALL)
+            patched_payload = re.sub(b"(ENDOPDATE.{1,30}?)20260316", b"\\g<1>" + end_date_bytes, patched_payload, flags=re.DOTALL)
+            patched_payload = patched_payload.replace(b"20260316", target_date_bytes)
+            
+            final_payload = zlib.compress(patched_payload)
+            
+            response = requests.post(f"{self.base_url}/HISOrmC250Facade", data=final_payload, headers=self.headers)
+            response.raise_for_status()
+            
+            return self._parse_ultrasound_list(response.content)
+            
+        except Exception as e:
+            print(f"[-] Error fetching ultrasound list: {e}")
+            return []
 
     def activate_patient(self, ordseq, hhistnum):
         """
@@ -251,6 +333,82 @@ class HISClient:
             print(f"[-] Parse error: {e}")
             return []
 
+    def _parse_endoscopy_list(self, content):
+        """Parse Endoscopy data which comes in SCHLIST3F XML tags."""
+        try:
+            text = zlib.decompress(content).decode('utf-8', errors='replace')
+            entries = []
+            rows = re.findall(r'<SCHLIST3F[^>]*>(.*?)</SCHLIST3F>', text, re.DOTALL)
+            for row in rows:
+                item = {}
+                tags = re.findall(r'<(\w+)>(.*?)</\1>', row)
+                for tag, value in tags:
+                    item[tag] = value.strip()
+                
+                # Frontend compatibility mapping
+                if item:
+                    item['OROPROOM'] = ''  # Endoscopy has no room code
+                    
+                    # Sequence number (SCHEDULESEQ -> OROPROOMSEQ_OPSTA_NUM)
+                    if 'SCHEDULESEQ' in item:
+                        item['OROPROOMSEQ_OPSTA_NUM'] = item['SCHEDULESEQ']
+                        
+                    # Start time (BEGINTIME: 084000 -> OP_TIME: 0840)
+                    if 'BEGINTIME' in item and len(item['BEGINTIME']) >= 4:
+                        item['OP_TIME'] = item['BEGINTIME'][:4]
+                        
+                    # Date mapping
+                    if 'SCHEDULEDATE' in item:
+                        item['OP_DATE'] = item['SCHEDULEDATE']
+                        
+                    # Guarantee HHISTNUM
+                    if 'HHISNUM' in item and 'HHISTNUM' not in item:
+                        item['HHISTNUM'] = item['HHISNUM']
+                        
+                    entries.append(item)
+            return entries
+        except Exception as e:
+            print(f"[-] Endoscopy parse error: {e}")
+            return []
+
+    def _parse_ultrasound_list(self, content):
+        """Parse Ultrasound data which comes in SCHLIST2F XML tags."""
+        try:
+            text = zlib.decompress(content).decode('utf-8', errors='replace')
+            entries = []
+            rows = re.findall(r'<SCHLIST2F[^>]*>(.*?)</SCHLIST2F>', text, re.DOTALL)
+            for row in rows:
+                item = {}
+                tags = re.findall(r'<(\w+)>(.*?)</\1>', row)
+                for tag, value in tags:
+                    item[tag] = value.strip()
+                
+                # Frontend compatibility mapping
+                if item:
+                    item['OROPROOM'] = ''  # Ultrasound has no room code either
+                    
+                    # Sequence number
+                    if 'SCHEDULESEQ' in item:
+                        item['OROPROOMSEQ_OPSTA_NUM'] = item['SCHEDULESEQ']
+                        
+                    # Start time (BEGINTIME: 230000 -> OP_TIME: 2300 or just keep it)
+                    if 'BEGINTIME' in item and len(item['BEGINTIME']) >= 4:
+                        item['OP_TIME'] = item['BEGINTIME'][:4]
+                        
+                    # Date mapping
+                    if 'SCHEDULEDATE' in item:
+                        item['OP_DATE'] = item['SCHEDULEDATE']
+                        
+                    # Guarantee HHISTNUM
+                    if 'HHISNUM' in item and 'HHISTNUM' not in item:
+                        item['HHISTNUM'] = item['HHISNUM']
+                        
+                    entries.append(item)
+            return entries
+        except Exception as e:
+            print(f"[-] Ultrasound parse error: {e}")
+            return []
+
     def get_vitals_from_exm(self, hhistnum, ordseq=None, user_id=None, pre_data=None):
         """
         Fetches vitals from CPOE.OR_SIGN_IN (Weight/Height) and OPDUSR.VITALSIGNUPLOAD (Monitoring).
@@ -402,10 +560,20 @@ class HISClient:
 
             q1 = f"SELECT HCASENO FROM SYSTEM.PAT_ADM_CASE WHERE HHISNUM = '{hhistnum}'"
             res1 = self._execute_sql(q1, user_id=user_id)
-            if not res1 or '<NewDataSet>' not in res1: return []
             
-            case_rows = parse_sql_rows(res1)
-            casenums = list(set([r.get('HCASENO', '') for r in case_rows if r.get('HCASENO')]))
+            q_opd = f"SELECT OPDCASENO FROM OPDUSR.OPDDIAG WHERE HHISNUM = '{hhistnum}'"
+            res_opd = self._execute_sql(q_opd, user_id=user_id)
+            
+            casenums = set()
+            if res1 and '<NewDataSet>' in res1:
+                case_rows = parse_sql_rows(res1)
+                casenums.update([r.get('HCASENO', '') for r in case_rows if r.get('HCASENO')])
+                
+            if res_opd and '<NewDataSet>' in res_opd:
+                opd_rows = parse_sql_rows(res_opd)
+                casenums.update([r.get('OPDCASENO', '') for r in opd_rows if r.get('OPDCASENO')])
+                
+            casenums = list(casenums)
 
             all_history = []
             for cn in casenums:

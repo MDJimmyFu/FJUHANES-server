@@ -1,0 +1,9 @@
+# Task: Implement Auto-Refresh Settings and Pause/Resume Logic
+
+- [ ] Research existing auto-refresh implementation in `legacy_schedule.html` <!-- id: 0 -->
+- [ ] Create implementation plan <!-- id: 1 -->
+- [ ] Implement settings UI for auto-refresh (Toggle and Interval) <!-- id: 2 -->
+- [ ] Modify auto-refresh logic to be OFF by default with 5-minute interval <!-- id: 3 -->
+- [ ] Implement pause logic when opening Patient Details or Anesthesia Evaluation <!-- id: 4 -->
+- [ ] Implement resume logic when returning to Surgery Schedule <!-- id: 5 -->
+- [ ] Verify changes <!-- id: 6 -->

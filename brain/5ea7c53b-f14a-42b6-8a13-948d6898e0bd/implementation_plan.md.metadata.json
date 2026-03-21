@@ -1,0 +1,5 @@
+{
+  "artifactType":  "ARTIFACT_TYPE_IMPLEMENTATION_PLAN",
+  "summary":  "Implementation plan for adding a scanner-friendly barcode page to the SurgerySchedule application. Includes a new route, a mobile-optimized template with 1D/2D barcode toggling, and brightness optimization tricks.",
+  "updatedAt":  "2026-02-27T03:23:31.295168Z"
+}
